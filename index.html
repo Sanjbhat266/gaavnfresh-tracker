@@ -59,7 +59,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 /* SECTIONS */
 .section{display:none;padding:16px;max-width:900px;margin:0 auto;}
-.section.active,.section[style*="display:block"]{display:block !important;}
+.section.active{display:block;}
 #tab-products.active #product-selector{display:grid !important;}
 /* CARDS */
 .card{background:var(--surface);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
@@ -172,9 +172,13 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <body>
 
 <script>
-// Show milk tab immediately - don't wait for DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-  showTab('milk', document.getElementById('tab-btn-milk'));
+  try { showTab('milk', document.getElementById('tab-btn-milk')); }
+  catch(e) {
+    // fallback: just show milk section directly
+    var s = document.getElementById('tab-milk');
+    if (s) s.style.display = 'block';
+  }
 });
 </script>
 <div class="app-header">
@@ -1852,24 +1856,33 @@ function autoFillStdYields() {
 
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
-  document.querySelectorAll('.section').forEach(s => {
-    s.classList.remove('active');
-    s.style.display = 'none';
-  });
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  var sections = document.querySelectorAll('.section');
+  for (var i=0; i<sections.length; i++) {
+    sections[i].style.display = 'none';
+    sections[i].classList.remove('active');
+  }
+  var tabs = document.querySelectorAll('.tab');
+  for (var j=0; j<tabs.length; j++) {
+    tabs[j].classList.remove('active');
+  }
   var sec = document.getElementById('tab-'+id);
-  if (sec) { sec.classList.add('active'); sec.style.display = 'block'; }
-  // Mark active tab button — use passed element or find by id
+  if (sec) {
+    sec.style.display = 'block';
+    sec.classList.add('active');
+  }
   var btn = el || document.getElementById('tab-btn-'+id);
   if (btn) btn.classList.add('active');
-  if (id === 'summary') calculateAndShowSummary();
-  if (id === 'history') loadHistory();
-  if (id === 'stock') initStockTab();
-  if (id === 'products') { selectProduct(null); updateProductStatus(); }
-  if (id === 'reports') {
-    if (!document.getElementById('rpt-from').value) setReportDateRange('7');
-    checkReportConnection();
-  }
+  try {
+    if (id === 'summary') calculateAndShowSummary();
+    if (id === 'history') loadHistory();
+    if (id === 'stock') initStockTab();
+    if (id === 'products') { selectProduct(null); updateProductStatus(); }
+    if (id === 'reports') {
+      var rptFrom = document.getElementById('rpt-from');
+      if (rptFrom && !rptFrom.value) setReportDateRange('7');
+      checkReportConnection();
+    }
+  } catch(e) { console.log('showTab callback error:', e.message); }
 }
 
 // ── INLINE CALCULATIONS ───────────────────────────────────────────
