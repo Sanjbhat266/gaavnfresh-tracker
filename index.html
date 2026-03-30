@@ -53,7 +53,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 .prod-btn.done{border-color:var(--green);background:rgba(45,122,69,0.08);}
 @media(min-width:600px){.prod-btn{font-size:12px;padding:14px 10px;min-height:60px;}}
 .prod-btn.done::after{content:'✓';position:absolute;top:4px;right:6px;font-size:10px;color:var(--green);font-weight:700;}
-.prod-card{display:none;} .prod-card.show{display:block !important;}
+.prod-card{}
 .btn-back{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);-webkit-tap-highlight-color:rgba(0,0,0,0.1);}
 .tab{padding:13px 14px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;margin-bottom:-2px;transition:all 0.2s;font-family:'Space Mono';-webkit-tap-highlight-color:rgba(200,150,50,0.3);user-select:none;-webkit-user-select:none;min-width:50px;text-align:center;background:transparent;-webkit-appearance:none;appearance:none;outline:none;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -1920,31 +1920,29 @@ const PROD_IDS = ['lp','mfp','lfp','mp','gh','lc','fc','ch','sl','ml','cmk','stk
 let activeProduct = null;
 
 function selectProduct(pid) {
-  // Hide all product cards
-  var ids = ['lp','mfp','lfp','mp','gh','lc','fc','ch','sl','ml','cmk','stk','costs'];
-  for (var i=0; i<ids.length; i++) {
-    var card = document.getElementById('prod-card-' + ids[i]);
-    if (card) { card.classList.remove('show'); card.style.cssText = 'display:none'; }
-    var btn = document.getElementById('pbtn-' + ids[i]);
-    if (btn) btn.classList.remove('active-prod');
+  var PIDS = ['lp','mfp','lfp','mp','gh','lc','fc','ch','sl','ml','cmk','stk','costs'];
+  for (var i=0; i<PIDS.length; i++) {
+    var c = document.getElementById('prod-card-'+PIDS[i]);
+    if (c) c.setAttribute('style','display:none');
+    var b = document.getElementById('pbtn-'+PIDS[i]);
+    if (b) b.classList.remove('active-prod');
   }
-  var selector = document.getElementById('product-selector');
-  var submitBtn = document.getElementById('btn-submit-all');
+  var sel = document.getElementById('product-selector');
+  var sub = document.getElementById('btn-submit-all');
   if (pid) {
-    var card = document.getElementById('prod-card-' + pid);
+    var card = document.getElementById('prod-card-'+pid);
     if (card) {
-      card.style.cssText = 'display:block !important';
-      card.classList.add('show');
-      card.scrollIntoView({behavior:'smooth', block:'start'});
+      card.setAttribute('style','display:block');
+      card.scrollIntoView({behavior:'smooth',block:'start'});
     }
-    var btn = document.getElementById('pbtn-' + pid);
+    var btn = document.getElementById('pbtn-'+pid);
     if (btn) btn.classList.add('active-prod');
-    if (selector) selector.style.display = 'none';
-    if (submitBtn) submitBtn.style.display = 'none';
+    if (sel) sel.setAttribute('style','display:none');
+    if (sub) sub.setAttribute('style','display:none');
     activeProduct = pid;
   } else {
-    if (selector) selector.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px';
-    if (submitBtn) submitBtn.style.display = 'block';
+    if (sel) sel.setAttribute('style','display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px');
+    if (sub) sub.setAttribute('style','display:block');
     activeProduct = null;
     updateProductStatus();
   }
