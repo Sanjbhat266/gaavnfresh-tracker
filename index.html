@@ -174,13 +174,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <script>
 // Show milk tab immediately - don't wait for DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-  // Force show milk tab
-  document.querySelectorAll('.section').forEach(function(s) {
-    s.style.display = s.id === 'tab-milk' ? 'block' : 'none';
-  });
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.classList.toggle('active', t.id === 'tab-btn-milk');
-  });
+  showTab('milk', document.getElementById('tab-btn-milk'));
 });
 </script>
 <div class="app-header">
@@ -217,7 +211,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- TAB 1 — MILK PURCHASE -->
 <!-- ════════════════════════════════════════════════════════════ -->
-<div class="section active" id="tab-milk" style="display:block">
+<div class="section active" id="tab-milk">
   <div class="page-title">Milk Purchase</div>
   <div class="page-sub">Enter all milk collected today across all sources</div>
 
@@ -1858,10 +1852,13 @@ function autoFillStdYields() {
 
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   var sec = document.getElementById('tab-'+id);
-  if (sec) sec.classList.add('active');
+  if (sec) { sec.classList.add('active'); sec.style.display = 'block'; }
   // Mark active tab button — use passed element or find by id
   var btn = el || document.getElementById('tab-btn-'+id);
   if (btn) btn.classList.add('active');
