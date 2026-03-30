@@ -354,6 +354,14 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="section" id="tab-products">
   <div class="page-title">Production Entry</div>
   <div class="page-sub">Select a product, enter data, save — then submit all at end</div>
+  <div id="debug-bar" style="background:#c00;color:#fff;padding:8px;font-size:11px;font-family:monospace;border-radius:6px;margin-bottom:8px;display:none;"></div>
+  <button onclick="
+    var c=document.getElementById('prod-card-lp');
+    var d=document.getElementById('debug-bar');
+    d.style.display='block';
+    if(c){c.setAttribute('style','display:block');document.getElementById('product-selector').setAttribute('style','display:none');d.textContent='LP card found and shown';}
+    else{d.textContent='LP card NOT FOUND in DOM';}
+  " style="background:red;color:white;padding:8px 16px;border:none;border-radius:6px;cursor:pointer;font-size:12px;margin-bottom:8px;">🔴 DEBUG: Force Show LP Card</button>
 
   <!-- Product selector grid -->
   <div id="product-selector" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px;">
@@ -1933,11 +1941,12 @@ function selectProduct(pid) {
     var card = document.getElementById('prod-card-'+pid);
     if (card) {
       card.setAttribute('style','display:block');
-      card.scrollIntoView({behavior:'smooth',block:'start'});
+      // card.scrollIntoView({behavior:'smooth',block:'start'});
     }
     var btn = document.getElementById('pbtn-'+pid);
     if (btn) btn.classList.add('active-prod');
     if (sel) sel.setAttribute('style','display:none');
+    window.scrollTo(0,0);
     if (sub) sub.setAttribute('style','display:none');
     activeProduct = pid;
   } else {
