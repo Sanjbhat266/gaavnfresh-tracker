@@ -53,7 +53,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 .prod-btn.done{border-color:var(--green);background:rgba(45,122,69,0.08);}
 @media(min-width:600px){.prod-btn{font-size:12px;padding:14px 10px;min-height:60px;}}
 .prod-btn.done::after{content:'✓';position:absolute;top:4px;right:6px;font-size:10px;color:var(--green);font-weight:700;}
-.prod-card{}
+.prod-card{display:none;}
 .btn-back{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);-webkit-tap-highlight-color:rgba(0,0,0,0.1);}
 .tab{padding:13px 14px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;margin-bottom:-2px;transition:all 0.2s;font-family:'Space Mono';-webkit-tap-highlight-color:rgba(200,150,50,0.3);user-select:none;-webkit-user-select:none;min-width:50px;text-align:center;background:transparent;-webkit-appearance:none;appearance:none;outline:none;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
@@ -170,16 +170,6 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 </head>
 <body>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  try { showTab('milk', document.getElementById('tab-btn-milk')); }
-  catch(e) {
-    // fallback: just show milk section directly
-    var s = document.getElementById('tab-milk');
-    if (s) s.style.display = 'block';
-  }
-});
-</script>
 <div class="app-header">
   <div class="app-logo">GF</div>
   <div class="app-title">
@@ -355,38 +345,34 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="page-title">Production Entry</div>
   <div class="page-sub">Select a product, enter data, save — then submit all at end</div>
 
-
   <!-- Product selector grid -->
   <div id="product-selector" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px;">
-    <button class="prod-btn" id="pbtn-lp"      onclick="(function(){var c=document.getElementById('prod-card-lp');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='lp';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🧀 Lite Paneer</button>
-    <button class="prod-btn" id="pbtn-mfp"     onclick="(function(){var c=document.getElementById('prod-card-mfp');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='mfp';window.scrollTo(0,0)}).call(this)" ontouchstart="">🧀 Med Fat</button>
-    <button class="prod-btn" id="pbtn-lfp"     onclick="(function(){var c=document.getElementById('prod-card-lfp');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='lfp';window.scrollTo(0,0)}).call(this)" ontouchstart="">🧀 Low Fat</button>
-    <button class="prod-btn" id="pbtn-mp"      onclick="(function(){var c=document.getElementById('prod-card-mp');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='mp';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🧀 Malai</button>
-    <button class="prod-btn" id="pbtn-gh"      onclick="(function(){var c=document.getElementById('prod-card-gh');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='gh';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🫙 Ghee</button>
-    <button class="prod-btn" id="pbtn-lc"      onclick="(function(){var c=document.getElementById('prod-card-lc');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='lc';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🥛 Lite Curd</button>
-    <button class="prod-btn" id="pbtn-fc"      onclick="(function(){var c=document.getElementById('prod-card-fc');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='fc';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🥛 Fresh Curd</button>
-    <button class="prod-btn" id="pbtn-ch"      onclick="(function(){var c=document.getElementById('prod-card-ch');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='ch';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🧉 Chaach</button>
-    <button class="prod-btn" id="pbtn-sl"      onclick="(function(){var c=document.getElementById('prod-card-sl');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='sl';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🥤 Sweet Lassi</button>
-    <button class="prod-btn" id="pbtn-ml"      onclick="(function(){var c=document.getElementById('prod-card-ml');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='ml';window.scrollTo(0,0)}).call(this)"  ontouchstart="">🥭 Mango Lassi</button>
-    <button class="prod-btn" id="pbtn-cmk"     onclick="(function(){var c=document.getElementById('prod-card-cmk');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='cmk';window.scrollTo(0,0)}).call(this)" ontouchstart="">🍫 CM Khoya</button>
-    <button class="prod-btn" id="pbtn-stk"     onclick="(function(){var c=document.getElementById('prod-card-stk');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='stk';window.scrollTo(0,0)}).call(this)" ontouchstart="">🍫 Std Khoya</button>
-    <button class="prod-btn" id="pbtn-costs"   onclick="(function(){var c=document.getElementById('prod-card-costs');var s=document.getElementById('product-selector');var sb=document.getElementById('btn-submit-all');document.querySelectorAll('.prod-card').forEach(function(x){x.setAttribute('style','display:none')});document.querySelectorAll('.prod-btn').forEach(function(x){x.classList.remove('active-prod')});if(c){c.setAttribute('style','display:block');this.classList&&this.classList.add('active-prod')}if(s)s.setAttribute('style','display:none');if(sb)sb.setAttribute('style','display:none');activeProduct='costs';window.scrollTo(0,0)}).call(this)" ontouchstart="">💰 Daily Costs</button>
+    <button class="prod-btn" id="pbtn-lp"      onclick="selectProduct('lp')"  ontouchstart="">🧀 Lite Paneer</button>
+    <button class="prod-btn" id="pbtn-mfp"     onclick="selectProduct('mfp')" ontouchstart="">🧀 Med Fat</button>
+    <button class="prod-btn" id="pbtn-lfp"     onclick="selectProduct('lfp')" ontouchstart="">🧀 Low Fat</button>
+    <button class="prod-btn" id="pbtn-mp"      onclick="selectProduct('mp')"  ontouchstart="">🧀 Malai</button>
+    <button class="prod-btn" id="pbtn-gh"      onclick="selectProduct('gh')"  ontouchstart="">🫙 Ghee</button>
+    <button class="prod-btn" id="pbtn-lc"      onclick="selectProduct('lc')"  ontouchstart="">🥛 Lite Curd</button>
+    <button class="prod-btn" id="pbtn-fc"      onclick="selectProduct('fc')"  ontouchstart="">🥛 Fresh Curd</button>
+    <button class="prod-btn" id="pbtn-ch"      onclick="selectProduct('ch')"  ontouchstart="">🧉 Chaach</button>
+    <button class="prod-btn" id="pbtn-sl"      onclick="selectProduct('sl')"  ontouchstart="">🥤 Sweet Lassi</button>
+    <button class="prod-btn" id="pbtn-ml"      onclick="selectProduct('ml')"  ontouchstart="">🥭 Mango Lassi</button>
+    <button class="prod-btn" id="pbtn-cmk"     onclick="selectProduct('cmk')" ontouchstart="">🍫 CM Khoya</button>
+    <button class="prod-btn" id="pbtn-stk"     onclick="selectProduct('stk')" ontouchstart="">🍫 Std Khoya</button>
+    <button class="prod-btn" id="pbtn-costs"   onclick="selectProduct('costs')" ontouchstart="">💰 Daily Costs</button>
   </div>
 
   <!-- All product cards — shown/hidden by selectProduct() -->
-  <div id="prod-card-lp"    class="prod-card" style="display:none">
+  <div <div id="prod-card-lp" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Lite Paneer</span>
       <button onclick="saveProductCard('lp')" id="save-btn-lp" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-
-  <!-- LITE PANEER -->
   <div class="card">
     <div class="card-head"><h3>Lite Paneer</h3></div>
     <div class="card-body">
-
-      <!-- MILK & CREAM INPUTS -->
+      <!-- Milk & Cream Inputs -->
       <div class="fg fg-4">
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="lp_bm" placeholder="0" step="0.1" min="0" oninput="calcLPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="lp_sm" placeholder="0" step="0.1" min="0" oninput="calcLPCream()"><span class="unit-label">L</span></div></div>
@@ -395,8 +381,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="lp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="lp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- INGREDIENTS -->
+      <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="lp_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit"></div>
@@ -431,8 +416,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="lp_ing_total">Rs 0.00</span></strong><input type="hidden" id="lp_ing_cost" value="0"></div>
-
-      <!-- YIELD & VARIANCE -->
+      <!-- Yield -->
       <div class="divider" style="margin-top:10px"><span>Yield &amp; Quality</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="lp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('lp'); calcPacking('lp')"><span class="unit-label">kg</span></div></div>
@@ -440,39 +424,35 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="lp_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Variance %</label><div class="unit"><input type="number" id="lp_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- PACKING -->
+      <!-- Packing -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Packing Qty (kg)</label><div class="unit"><input type="number" id="lp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Packing Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_pm_rate" value="1.6" step="0.01" min="0" oninput="calcPacking('lp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="lp_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <!-- GAS & RATE -->
+      <!-- Gas & Rate -->
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="lp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('lp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_gas_rate" value="100" step="1" min="0" oninput="calcGas('lp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lp_notes" placeholder="Lite paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lp_notes" placeholder="Lite Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
     </div>
+  </div>
   </div><!-- end prod-card -->
 
-  <div id="prod-card-mfp"    class="prod-card" style="display:none">
+  <div id="prod-card-mfp" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Med Fat Paneer</span>
       <button onclick="saveProductCard('mfp')" id="save-btn-mfp" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-  <!-- MED FAT PANEER -->
   <div class="card">
     <div class="card-head"><h3>Med Fat Paneer</h3></div>
     <div class="card-body">
-
-      <!-- MILK & CREAM INPUTS -->
+      <!-- Milk & Cream Inputs -->
       <div class="fg fg-4">
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="mfp_bm" placeholder="0" step="0.1" min="0" oninput="calcMFPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="mfp_sm" placeholder="0" step="0.1" min="0" oninput="calcMFPCream()"><span class="unit-label">L</span></div></div>
@@ -481,8 +461,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="mfp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="mfp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- INGREDIENTS -->
+      <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="mfp_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit"></div>
@@ -517,8 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="mfp_ing_total">Rs 0.00</span></strong><input type="hidden" id="mfp_ing_cost" value="0"></div>
-
-      <!-- YIELD & VARIANCE -->
+      <!-- Yield -->
       <div class="divider" style="margin-top:10px"><span>Yield &amp; Quality</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="mfp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('mfp'); calcPacking('mfp')"><span class="unit-label">kg</span></div></div>
@@ -526,39 +504,35 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="mfp_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Variance %</label><div class="unit"><input type="number" id="mfp_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- PACKING -->
+      <!-- Packing -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Packing Qty (kg)</label><div class="unit"><input type="number" id="mfp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Packing Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_pm_rate" value="1.6" step="0.01" min="0" oninput="calcPacking('mfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="mfp_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <!-- GAS & RATE -->
+      <!-- Gas & Rate -->
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="mfp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('mfp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_gas_rate" value="100" step="1" min="0" oninput="calcGas('mfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="mfp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mfp_notes" placeholder="Med fat paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mfp_notes" placeholder="Med Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
     </div>
+  </div>
   </div><!-- end prod-card -->
 
-  <div id="prod-card-lfp"    class="prod-card" style="display:none">
+  <div id="prod-card-lfp" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Low Fat Paneer</span>
       <button onclick="saveProductCard('lfp')" id="save-btn-lfp" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-  <!-- LOW FAT PANEER -->
   <div class="card">
     <div class="card-head"><h3>Low Fat Paneer</h3></div>
     <div class="card-body">
-
-      <!-- MILK & CREAM INPUTS -->
+      <!-- Milk & Cream Inputs -->
       <div class="fg fg-4">
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="lfp_bm" placeholder="0" step="0.1" min="0" oninput="calcLFPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="lfp_sm" placeholder="0" step="0.1" min="0" oninput="calcLFPCream()"><span class="unit-label">L</span></div></div>
@@ -567,8 +541,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="lfp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="lfp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- INGREDIENTS -->
+      <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="lfp_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit"></div>
@@ -603,8 +576,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="lfp_ing_total">Rs 0.00</span></strong><input type="hidden" id="lfp_ing_cost" value="0"></div>
-
-      <!-- YIELD & VARIANCE -->
+      <!-- Yield -->
       <div class="divider" style="margin-top:10px"><span>Yield &amp; Quality</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="lfp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('lfp'); calcPacking('lfp')"><span class="unit-label">kg</span></div></div>
@@ -612,39 +584,35 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="lfp_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Variance %</label><div class="unit"><input type="number" id="lfp_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- PACKING -->
+      <!-- Packing -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Packing Qty (kg)</label><div class="unit"><input type="number" id="lfp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Packing Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_pm_rate" value="1.6" step="0.01" min="0" oninput="calcPacking('lfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="lfp_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <!-- GAS & RATE -->
+      <!-- Gas & Rate -->
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="lfp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('lfp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_gas_rate" value="100" step="1" min="0" oninput="calcGas('lfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lfp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lfp_notes" placeholder="Low fat paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lfp_notes" placeholder="Low Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
     </div>
+  </div>
   </div><!-- end prod-card -->
 
-  <div id="prod-card-mp"    class="prod-card" style="display:none">
+  <div id="prod-card-mp" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Malai Paneer</span>
       <button onclick="saveProductCard('mp')" id="save-btn-mp" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-  <!-- MALAI PANEER -->
   <div class="card">
     <div class="card-head"><h3>Malai Paneer</h3></div>
     <div class="card-body">
-
-      <!-- MILK & CREAM INPUTS -->
+      <!-- Milk & Cream Inputs -->
       <div class="fg fg-4">
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="mp_bm" placeholder="0" step="0.1" min="0" oninput="calcMPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="mp_sm" placeholder="0" step="0.1" min="0" oninput="calcMPCream()"><span class="unit-label">L</span></div></div>
@@ -653,8 +621,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="mp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="mp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- INGREDIENTS -->
+      <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="mp_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit"></div>
@@ -689,8 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="mp_ing_total">Rs 0.00</span></strong><input type="hidden" id="mp_ing_cost" value="0"></div>
-
-      <!-- YIELD & VARIANCE -->
+      <!-- Yield -->
       <div class="divider" style="margin-top:10px"><span>Yield &amp; Quality</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="mp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('mp'); calcPacking('mp')"><span class="unit-label">kg</span></div></div>
@@ -698,28 +664,26 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="mp_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Variance %</label><div class="unit"><input type="number" id="mp_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-
-      <!-- PACKING -->
+      <!-- Packing -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Packing Qty (kg)</label><div class="unit"><input type="number" id="mp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Packing Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_pm_rate" value="1.6" step="0.01" min="0" oninput="calcPacking('mp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="mp_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <!-- GAS & RATE -->
+      <!-- Gas & Rate -->
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="mp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('mp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_gas_rate" value="100" step="1" min="0" oninput="calcGas('mp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="mp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-
-      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mp_notes" placeholder="Malai paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mp_notes" placeholder="Malai Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
     </div>
+  </div>
   </div><!-- end prod-card -->
 
-  <div id="prod-card-gh"    class="prod-card" style="display:none">
+  <div id="prod-card-gh" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Ghee</span>
@@ -770,10 +734,6 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 
 
-  
-  
-  
-  
   </div><!-- end prod-card -->
 
   <div id="prod-card-lc" class="prod-card" style="display:none">
@@ -796,19 +756,11 @@ document.addEventListener('DOMContentLoaded', function() {
       <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
-        <div class="ing-label"><input type="text" class="ing-name-input" id="lc_ing1_name" value="ING 1" placeholder="Ingredient 1 name" title="Click to edit"></div>
+        <div class="ing-label"><input type="text" class="ing-name-input" id="lc_ing1_name" value="ING 1" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
           <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="lc_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('lc_ing1_qty','lc_ing1_rate','lc_ing1_amt','lc')"><span class="unit-label">kg</span></div></div>
           <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="lc_ing1_rate" value="3100" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('lc_ing1_qty','lc_ing1_rate','lc_ing1_amt','lc')"><span class="unit-label">Rs</span></div></div>
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="lc_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        </div>
-      </div>
-      <div class="ing-row">
-        <div class="ing-label"><input type="text" class="ing-name-input" id="lc_ing3_name" value="SMP" placeholder="Ingredient name" title="Click to edit"></div>
-        <div class="ing-fields">
-          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="lc_ing3_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('lc_ing3_qty','lc_ing3_rate','lc_ing3_amt','lc')"><span class="unit-label">kg</span></div></div>
-          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="lc_ing3_rate" value="345" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('lc_ing3_qty','lc_ing3_rate','lc_ing3_amt','lc')"><span class="unit-label">Rs</span></div></div>
-          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="lc_ing3_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
       <div class="ing-row">
@@ -830,6 +782,14 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="field"><label>Culture Cost (Rs)</label><div class="unit"><input type="number" id="lc_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
           <input type="hidden" id="lc_ing2_qty" value="0">
           <input type="hidden" id="lc_ing2_name" value="Starter Culture">
+        </div>
+      </div>
+            <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="lc_ing3_name" value="SMP" placeholder="Ingredient name" title="Click to edit"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="lc_ing3_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('lc_ing3_qty','lc_ing3_rate','lc_ing3_amt','lc')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="lc_ing3_rate" value="345" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('lc_ing3_qty','lc_ing3_rate','lc_ing3_amt','lc')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="lc_ing3_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="lc_ing_total">Rs 0.00</span></strong><input type="hidden" id="lc_ing_cost" value="0"></div>
@@ -859,14 +819,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Selling Rate (Rs/jar)</label><div class="unit"><input type="number" id="lc_jar_rate" placeholder="300" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
     </div>
-  </div><!-- end prod-card -->
-<div id="prod-card-fc"    class="prod-card" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-      <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
-      <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Fresh Curd</span>
-      <button onclick="saveProductCard('fc')" id="save-btn-fc" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
-    </div>
-  <!-- FRESH CURD -->
+  </div>
+<!-- FRESH CURD -->
   <div class="card">
     <div class="card-head"><h3>Fresh Curd</h3></div>
     <div class="card-body">
@@ -877,7 +831,12 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;padding:6px 0;margin-top:4px;">
         ℹ Fresh Curd is an intermediate product — used as input for Chaach &amp; Lassi. No packing needed.
       </div>
-<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <div class="fg fg-1" style="margin-top:8px">
+        <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="fc_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('fc')"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="fc_gas_rate" value="100" step="1" min="0" oninput="calcGas('fc')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="fc_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+      </div>
+      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="fc_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
@@ -908,26 +867,78 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="fc_ing_total">Rs 0.00</span></strong><input type="hidden" id="fc_ing_cost" value="0"></div>
-      <div class="divider" style="margin-top:10px"><span>Yield</span></div>
-      <div class="fg fg-4" style="margin-top:8px">
-        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="fc_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('fc')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="fc_yield_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
-      </div>
-      <div class="fg fg-1" style="margin-top:8px">
-        <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="fc_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('fc')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="fc_gas_rate" value="100" step="1" min="0" oninput="calcGas('fc')"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="fc_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-      </div>
-      </div>
+
       <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="fc_notes" placeholder="Fresh curd batch notes..."></textarea></div></div>
     </div>
   </div>
 
 
-  
   </div><!-- end prod-card -->
 
-  <div id="prod-card-ch" class="prod-card" style="display:none">
+  <div id="prod-card-fc" class="prod-card" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
+      <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Fresh Curd</span>
+      <button onclick="saveProductCard('fc')" id="save-btn-fc" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
+    </div>
+  <!-- FRESH CURD -->
+  <div class="card">
+    <div class="card-head"><h3>Fresh Curd</h3></div>
+    <div class="card-body">
+      <div class="fg fg-2">
+        <div class="field"><label>CM Used (L)</label><div class="unit"><input type="number" id="fc_cm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="fc_sm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;padding:6px 0;margin-top:4px;">
+        ℹ Fresh Curd is an intermediate product — used as input for Chaach &amp; Lassi. No packing needed.
+      </div>
+      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="fc_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="fc_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('fc_ing1_qty','fc_ing1_rate','fc_ing1_amt','fc')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="fc_ing1_rate" value="345" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('fc_ing1_qty','fc_ing1_rate','fc_ing1_amt','fc')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="fc_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label" style="width:100%;margin-bottom:6px;">
+          <strong style="font-size:11px;color:var(--accent);font-family:Space Mono;">Starter Culture</strong>
+        </div>
+        <div class="ing-fields" style="width:100%">
+          <div class="field">
+            <label>Culture Pack Size</label>
+            <div class="unit">
+              <select id="fc_culture_type" onchange="calcFCCulture()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;">
+                <option value="5dcu">5 DCU — Rs 59/pouch</option>
+                <option value="2dcu">2 DCU — Rs 24.80/pouch</option>
+              </select>
+            </div>
+          </div>
+          <div class="field"><label>No. of Pouches</label><div class="unit"><input type="number" id="fc_culture_qty" placeholder="0" step="1" min="0" oninput="calcFCCulture()"><span class="unit-label">pcs</span></div></div>
+          <div class="field"><label>Rate (Rs/pouch)</label><div class="unit"><input type="number" id="fc_ing2_rate" value="59" placeholder="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Culture Cost (Rs)</label><div class="unit"><input type="number" id="fc_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+          <input type="hidden" id="fc_ing2_qty" value="0">
+          <input type="hidden" id="fc_ing2_name" value="Starter Culture">
+        </div>
+      </div>
+      <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="fc_ing_total">Rs 0.00</span></strong><input type="hidden" id="fc_ing_cost" value="0"></div>
+      <!-- Yield -->
+      <div class="fg fg-2" style="margin-top:8px">
+        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="fc_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('fc')"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Yield %</label><div class="unit"><input type="number" id="fc_yield_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
+      </div>
+      <div class="fg fg-4" style="margin-top:8px">
+        <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="fc_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('fc')"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="fc_gas_rate" value="100" step="1" min="0" oninput="calcGas('fc')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="fc_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+      </div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="fc_notes" placeholder="Fresh curd batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+    </div>
+  </div>
+  </div><!-- end prod-card -->
+
+    <div id="prod-card-ch" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Chaach</span>
@@ -944,7 +955,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="field"><label>Yield (L) — from inputs</label><div class="unit"><input type="number" id="ch_yield_l" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Water %</label><div class="unit"><input type="number" id="ch_water_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="ch_ing1_name" value="ING 1 (Salt/Spice Mix)" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
@@ -962,7 +973,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="ch_ing_total">Rs 0.00</span></strong><input type="hidden" id="ch_ing_cost" value="0"></div>
-<!-- Bottles filled -->
+      <!-- Bottles filled -->
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>500ml Bottles (nos)</label><div class="unit"><input type="number" id="ch_500ml" placeholder="0" step="1" min="0" oninput="calcChaachAll()"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>1L Bottles (nos)</label><div class="unit"><input type="number" id="ch_1l" placeholder="0" step="1" min="0" oninput="calcChaachAll()"><span class="unit-label">nos</span></div></div>
@@ -1010,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="fg fg-1">
         <div class="field"><label>Curd Used (kg)</label><div class="unit"><input type="number" id="sl_curd" placeholder="0" step="0.1" min="0" oninput="calcLassiAll('sl')"><span class="unit-label">kg</span></div></div>
       </div>
-      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <!-- Cups, boxes, yield, variance -->
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="sl_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
@@ -1036,14 +1047,40 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="sl_ing_total">Rs 0.00</span></strong><input type="hidden" id="sl_ing_cost" value="0"></div>
-<!-- Cups, boxes, yield, variance -->
+<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="sl_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="sl_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl'); calcLassiAll('sl')"><span class="unit-label">L</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="sl_ing1_rate" value="24" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="sl_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="sl_ing2_name" value="Flavour / Essence" placeholder="Ingredient 2 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="sl_ing2_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('sl_ing2_qty','sl_ing2_rate','sl_ing2_amt','sl'); calcLassiAll('sl')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="sl_ing2_rate" value="355" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('sl_ing2_qty','sl_ing2_rate','sl_ing2_amt','sl')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="sl_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="sl_ing3_name" value="Stabilizer" placeholder="Ingredient 3 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="sl_ing3_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('sl_ing3_qty','sl_ing3_rate','sl_ing3_amt','sl'); calcLassiAll('sl')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="sl_ing3_rate" value="550" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('sl_ing3_qty','sl_ing3_rate','sl_ing3_amt','sl')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="sl_ing3_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="sl_ing_total">Rs 0.00</span></strong><input type="hidden" id="sl_ing_cost" value="0"></div>
+
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Cups Filled (200ml)</label><div class="unit"><input type="number" id="sl_cups" placeholder="0" step="1" min="0" oninput="calcLassiAll('sl')"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Corrugated Boxes</label><div class="unit"><input type="number" id="sl_boxes" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Packed Yield (kg)</label><div class="unit"><input type="number" id="sl_yield" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Theor. Yield (kg)</label><div class="unit"><input type="number" id="sl_theor_yield" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
       </div>
-      <div class="fg fg-2" style="margin-top:8px">
+<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>      <div class="fg fg-2" style="margin-top:8px">
         <div class="field"><label>Yield Variance (kg)</label><div class="unit"><input type="number" id="sl_var_kg" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="sl_rate" placeholder="100" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
@@ -1078,7 +1115,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="fg fg-1">
         <div class="field"><label>Curd Used (kg)</label><div class="unit"><input type="number" id="ml_curd" placeholder="0" step="0.1" min="0" oninput="calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
       </div>
-      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <!-- Cups, boxes, yield, variance -->
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
@@ -1103,7 +1140,14 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing3_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
-</div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing4_name" value="Stabilizer" placeholder="Ingredient 4 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing4_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing4_qty','ml_ing4_rate','ml_ing4_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing4_rate" value="550" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing4_qty','ml_ing4_rate','ml_ing4_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing4_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing5_name" value="Stabilizer 2" placeholder="Ingredient 5 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
@@ -1120,23 +1164,65 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing6_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
-            <div class="ing-row">
-        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing4_name" value="Stabilizer" placeholder="Ingredient 4 name" title="Click to edit"></div>
+      <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="ml_ing_total">Rs 0.00</span></strong><input type="hidden" id="ml_ing_cost" value="0"></div>
+<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
-          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing4_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing4_qty','ml_ing4_rate','ml_ing4_amt','ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml'); calcLassiAll('ml')"><span class="unit-label">L</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing1_rate" value="24" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing2_name" value="Mango Pulp" placeholder="Ingredient 2 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing2_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing2_qty','ml_ing2_rate','ml_ing2_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing2_rate" value="214" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing2_qty','ml_ing2_rate','ml_ing2_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing3_name" value="Mango Flavour" placeholder="Ingredient 3 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing3_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing3_qty','ml_ing3_rate','ml_ing3_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing3_rate" value="1600" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing3_qty','ml_ing3_rate','ml_ing3_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing3_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing4_name" value="Stabilizer" placeholder="Ingredient 4 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing4_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing4_qty','ml_ing4_rate','ml_ing4_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
           <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing4_rate" value="550" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing4_qty','ml_ing4_rate','ml_ing4_amt','ml')"><span class="unit-label">Rs</span></div></div>
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing4_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing5_name" value="Stabilizer 2" placeholder="Ingredient 5 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing5_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing5_qty','ml_ing5_rate','ml_ing5_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing5_rate" value="2.5" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing5_qty','ml_ing5_rate','ml_ing5_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing5_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing6_name" value="Citric Acid" placeholder="Ingredient 6 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing6_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing6_qty','ml_ing6_rate','ml_ing6_amt','ml'); calcLassiAll('ml')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing6_rate" value="12" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing6_qty','ml_ing6_rate','ml_ing6_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing6_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="ml_ing_total">Rs 0.00</span></strong><input type="hidden" id="ml_ing_cost" value="0"></div>
-<!-- Cups, boxes, yield, variance -->
+
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Cups Filled (200ml)</label><div class="unit"><input type="number" id="ml_cups" placeholder="0" step="1" min="0" oninput="calcLassiAll('ml')"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Corrugated Boxes</label><div class="unit"><input type="number" id="ml_boxes" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Packed Yield (kg)</label><div class="unit"><input type="number" id="ml_yield" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Theor. Yield (kg)</label><div class="unit"><input type="number" id="ml_theor_yield" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
       </div>
-      <div class="fg fg-2" style="margin-top:8px">
+<div class="divider" style="margin-top:10px"><span>Ingredients</span></div>      <div class="fg fg-2" style="margin-top:8px">
         <div class="field"><label>Yield Variance (kg)</label><div class="unit"><input type="number" id="ml_var_kg" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="ml_rate" placeholder="100" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
@@ -1164,22 +1250,15 @@ document.addEventListener('DOMContentLoaded', function() {
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">CM Khoya</span>
       <button onclick="saveProductCard('cmk')" id="save-btn-cmk" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-  <!-- CM KHOYA -->
   <div class="card">
     <div class="card-head"><h3>CM Khoya</h3></div>
     <div class="card-body">
-      <div class="fg fg-4">
+      <!-- Milk Inputs -->
+      <div class="fg fg-2">
         <div class="field"><label>CM Used (L)</label><div class="unit"><input type="number" id="cmk_cm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="cmk_sm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
-        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="cmk_yield" placeholder="0" step="0.1" min="0" oninput="calcKhoyaYield('cmk'); calcKhoyaPM('cmk')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Yield % <small>(std 25%)</small></label><div class="unit"><input type="number" id="cmk_yield_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
-      <div class="fg fg-2" style="margin-top:8px">
-        <div class="field"><label>Gas/Fuel Qty (kg)</label><div class="unit"><input type="number" id="cmk_fuel_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Gas/Fuel Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_fuel_rate" value="100" step="1" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Gas/Fuel Cost (Rs)</label><div class="unit"><input type="number" id="cmk_fuel" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_rate" placeholder="240" step="1" min="0"><span class="unit-label">Rs</span></div></div>
-      </div>
+      <!-- Ingredients -->
       <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="cmk_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
@@ -1190,16 +1269,28 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="cmk_ing_total">Rs 0.00</span></strong><input type="hidden" id="cmk_ing_cost" value="0"></div>
+
+      <!-- Yield -->
+      <div class="fg fg-2" style="margin-top:8px">
+        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="cmk_yield" placeholder="0" step="0.1" min="0" oninput="calcKhoyaYield('cmk'); calcKhoyaPM('cmk')"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Yield % <small>(std 25%)</small></label><div class="unit"><input type="number" id="cmk_yield_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
+      </div>
+      <!-- Gas/Fuel & Rate -->
+      <div class="fg fg-4" style="margin-top:8px">
+        <div class="field"><label>Gas/Fuel Qty (kg)</label><div class="unit"><input type="number" id="cmk_fuel_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Gas/Fuel Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_fuel_rate" value="100" step="1" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Gas/Fuel Cost (Rs)</label><div class="unit"><input type="number" id="cmk_fuel" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_rate" placeholder="240" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+      </div>
+      <!-- Packing -->
       <div class="fg fg-3" style="margin-top:8px">
         <div class="field"><label>Packs (5kg each)</label><div class="unit"><input type="number" id="cmk_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Pack Rate (Rs/pack)</label><div class="unit"><input type="number" id="cmk_pm_rate" value="5" step="0.01" min="0" oninput="calcKhoyaPM('cmk')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="cmk_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-      <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="cmk_notes" placeholder="CM Khoya batch notes..."></textarea></div></div>
+      <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="cmk_notes" placeholder="CM Khoya batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div></div>
     </div>
   </div>
-
-
   </div><!-- end prod-card -->
 
   <div id="prod-card-stk" class="prod-card" style="display:none">
@@ -1208,43 +1299,42 @@ document.addEventListener('DOMContentLoaded', function() {
       <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Std Khoya</span>
       <button onclick="saveProductCard('stk')" id="save-btn-stk" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
-  <!-- STD KHOYA -->
   <div class="card">
     <div class="card-head"><h3>Std Khoya</h3></div>
     <div class="card-body">
-      <div class="fg fg-4">
+      <div class="fg fg-3">
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="stk_bm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
         <div class="field"><label>CM Used (L)</label><div class="unit"><input type="number" id="stk_cm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="stk_sm" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
-        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="stk_yield" placeholder="0" step="0.1" min="0" oninput="calcKhoyaYield('stk'); calcKhoyaPM('stk')"><span class="unit-label">kg</span></div></div>
       </div>
-      <div class="fg fg-3" style="margin-top:8px">
+      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="stk_ing1_name" value="Sugar" placeholder="Ingredient name" title="Click to edit"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="stk_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_ing1_rate" value="40" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="stk_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="stk_ing_total">Rs 0.00</span></strong><input type="hidden" id="stk_ing_cost" value="0"></div>
+      <div class="fg fg-2" style="margin-top:8px">
+        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="stk_yield" placeholder="0" step="0.1" min="0" oninput="calcKhoyaYield('stk'); calcKhoyaPM('stk')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Yield % <small>(std 23%)</small></label><div class="unit"><input type="number" id="stk_yield_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
+      </div>
+      <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas/Fuel Qty (kg)</label><div class="unit"><input type="number" id="stk_fuel_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('stk', true)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas/Fuel Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_fuel_rate" value="100" step="1" min="0" oninput="calcGas('stk', true)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas/Fuel Cost (Rs)</label><div class="unit"><input type="number" id="stk_fuel" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_rate" placeholder="237" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-      <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>
-      <div class="ing-row">
-        <div class="ing-label"><input type="text" class="ing-name-input" id="stk_ing1_name" value="SMP" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
-        <div class="ing-fields">
-          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="stk_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">kg</span></div></div>
-          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_ing1_rate" value="345" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">Rs</span></div></div>
-          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="stk_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        </div>
-      </div>
-      <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="stk_ing_total">Rs 0.00</span></strong><input type="hidden" id="stk_ing_cost" value="0"></div>
       <div class="fg fg-3" style="margin-top:8px">
         <div class="field"><label>Packs (5kg each)</label><div class="unit"><input type="number" id="stk_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">nos</span></div></div>
         <div class="field"><label>Pack Rate (Rs/pack)</label><div class="unit"><input type="number" id="stk_pm_rate" value="5" step="0.01" min="0" oninput="calcKhoyaPM('stk')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="stk_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
-      <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="stk_notes" placeholder="Std Khoya batch notes..."></textarea></div></div>
+      <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="stk_notes" placeholder="Std Khoya batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div></div>
     </div>
   </div>
-
-
   </div><!-- end prod-card -->
 
   <div id="prod-card-costs" class="prod-card" style="display:none">
@@ -1268,9 +1358,10 @@ document.addEventListener('DOMContentLoaded', function() {
   </div><!-- end prod-card-costs -->
 
   <!-- Submit All button — always visible -->
-  <button class="btn-submit" id="btn-submit-all" onclick="saveProducts()" style="background:var(--green);display:block;margin-top:12px;">
+  <button class="btn-submit" id="btn-submit-all" onclick="saveProducts()" style="background:var(--green);display:none;margin-top:12px;">
     ✅ Submit All Production Data →
   </button>
+</div>
 </div><!-- end tab-products -->
 
 <!-- ════════════════════════════════════════════════════════════ -->
@@ -1763,17 +1854,6 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="toast" id="toast"></div>
 
 <script>
-window.onerror = function(msg, src, line, col, err) {
-  var d = document.createElement('div');
-  d.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:#c00;color:#fff;padding:8px 12px;font-size:11px;font-family:monospace;z-index:99999;white-space:pre-wrap;max-height:120px;overflow:auto;';
-  d.textContent = 'JS ERROR: ' + msg + '\nLine: ' + line + ' Col: ' + col + '\nFile: ' + (src||'').split('/').pop();
-  document.body ? document.body.appendChild(d) : document.addEventListener('DOMContentLoaded', function(){document.body.appendChild(d)});
-  return false;
-};
-window.addEventListener('unhandledrejection', function(e) {
-  window.onerror('Promise: ' + (e.reason && e.reason.message || e.reason), '', 0, 0, e.reason);
-});
-
 // ── RATE TABLES (embedded from Panvadi Rate Charts, Dec 2024) ────────────────
 // Keys are strings e.g. '3.5', values are rates in Rs/L (before commission)
 // To update: go to Setup tab → Upload new rate chart Excel files
@@ -1794,39 +1874,29 @@ const STATE = {
 
 // ── INIT ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  try {
-    // Set date picker to today
-    // Load saved commission
-    const savedComm = localStorage.getItem('v1_commission');
-    if (savedComm) {
-      V1_COMMISSION = parseFloat(savedComm);
-      const commEl = document.getElementById('v1_commission');
-      if (commEl) commEl.value = V1_COMMISSION;
-    }
-    // Show rate chart version if updated
-    const savedTables = localStorage.getItem('rate_tables');
-    if (savedTables) {
-      try { RATE_TABLES = JSON.parse(savedTables); } catch(e) {}
-    }
-    const todayISO = new Date().toISOString().slice(0,10);
-    const dp = document.getElementById('entry-date');
-    if (dp) { dp.value = todayISO; dp.max = todayISO; }
-    onDateChange(todayISO);
-    if (typeof loadConfig === 'function') loadConfig();
-    if (typeof setAppsScriptCode === 'function') setAppsScriptCode();
-    if (typeof autoFillStdYields === 'function') autoFillStdYields();
-    if (typeof wireRateLookups === 'function') wireRateLookups();
-    // Explicitly show product selector grid
-    const sel = document.getElementById('product-selector');
-    if (sel) sel.style.display = 'grid';
-    const subBtn = document.getElementById('btn-submit-all');
-    if (subBtn) subBtn.style.display = 'block';
-    if (typeof updateProductStatus === 'function') updateProductStatus();
-  } catch(e) {
-    console.error('DOMContentLoaded error:', e.message, e.stack);
-    // Show error on page so we can see it
-    document.body.innerHTML += '<div style="position:fixed;bottom:0;left:0;right:0;background:red;color:white;padding:10px;font-size:12px;z-index:9999;">Init error: ' + e.message + '</div>';
+  // Set date picker to today
+  // Load saved commission
+  const savedComm = localStorage.getItem('v1_commission');
+  if (savedComm) {
+    V1_COMMISSION = parseFloat(savedComm);
+    document.getElementById('v1_commission').value = V1_COMMISSION;
   }
+  // Show rate chart version if updated
+  const savedTables = localStorage.getItem('rate_tables');
+  if (savedTables) {
+    try {
+      RATE_TABLES = JSON.parse(savedTables);
+    } catch(e) {}
+  }
+  const todayISO = new Date().toISOString().slice(0,10);
+  const dp = document.getElementById('entry-date');
+  dp.value = todayISO;
+  dp.max   = todayISO;  // cannot enter future dates
+  onDateChange(todayISO);
+  loadConfig();
+  setAppsScriptCode();
+  autoFillStdYields();
+  wireRateLookups();
 });
 
 function loadConfig() {
@@ -1856,33 +1926,21 @@ function autoFillStdYields() {
 
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
-  var sections = document.querySelectorAll('.section');
-  for (var i=0; i<sections.length; i++) {
-    sections[i].style.display = 'none';
-    sections[i].classList.remove('active');
-  }
-  var tabs = document.querySelectorAll('.tab');
-  for (var j=0; j<tabs.length; j++) {
-    tabs[j].classList.remove('active');
-  }
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   var sec = document.getElementById('tab-'+id);
-  if (sec) {
-    sec.style.display = 'block';
-    sec.classList.add('active');
-  }
+  if (sec) sec.classList.add('active');
+  // Mark active tab button — use passed element or find by id
   var btn = el || document.getElementById('tab-btn-'+id);
   if (btn) btn.classList.add('active');
-  try {
-    if (id === 'summary') calculateAndShowSummary();
-    if (id === 'history') loadHistory();
-    if (id === 'stock') initStockTab();
-    if (id === 'products') { selectProduct(null); updateProductStatus(); }
-    if (id === 'reports') {
-      var rptFrom = document.getElementById('rpt-from');
-      if (rptFrom && !rptFrom.value) setReportDateRange('7');
-      checkReportConnection();
-    }
-  } catch(e) { console.log('showTab callback error:', e.message); }
+  if (id === 'summary') calculateAndShowSummary();
+  if (id === 'history') loadHistory();
+  if (id === 'stock') initStockTab();
+  if (id === 'products') { selectProduct(null); updateProductStatus(); }
+  if (id === 'reports') {
+    if (!document.getElementById('rpt-from').value) setReportDateRange('7');
+    checkReportConnection();
+  }
 }
 
 // ── INLINE CALCULATIONS ───────────────────────────────────────────
@@ -1921,30 +1979,28 @@ const PROD_IDS = ['lp','mfp','lfp','mp','gh','lc','fc','ch','sl','ml','cmk','stk
 let activeProduct = null;
 
 function selectProduct(pid) {
-  var PIDS = ['lp','mfp','lfp','mp','gh','lc','fc','ch','sl','ml','cmk','stk','costs'];
-  for (var i=0; i<PIDS.length; i++) {
-    var c = document.getElementById('prod-card-'+PIDS[i]);
-    if (c) c.setAttribute('style','display:none');
-    var b = document.getElementById('pbtn-'+PIDS[i]);
-    if (b) b.classList.remove('active-prod');
-  }
-  var sel = document.getElementById('product-selector');
-  var sub = document.getElementById('btn-submit-all');
+  // Hide all product cards
+  PROD_IDS.forEach(id => {
+    const card = document.getElementById('prod-card-' + id);
+    if (card) card.style.display = 'none';
+    const btn = document.getElementById('pbtn-' + id);
+    if (btn) btn.classList.remove('active-prod');
+  });
+  const selector = document.getElementById('product-selector');
+  const submitBtn = document.getElementById('btn-submit-all');
   if (pid) {
-    var card = document.getElementById('prod-card-'+pid);
-    if (card) {
-      card.setAttribute('style','display:block');
-      // card.scrollIntoView({behavior:'smooth',block:'start'});
-    }
-    var btn = document.getElementById('pbtn-'+pid);
+    // Show selected card
+    const card = document.getElementById('prod-card-' + pid);
+    if (card) { card.style.display = 'block'; card.scrollIntoView({behavior:'smooth',block:'start'}); }
+    const btn = document.getElementById('pbtn-' + pid);
     if (btn) btn.classList.add('active-prod');
-    if (sel) sel.setAttribute('style','display:none');
-    window.scrollTo(0,0);
-    if (sub) sub.setAttribute('style','display:none');
+    if (selector) selector.style.display = 'none';
+    if (submitBtn) submitBtn.style.display = 'none';
     activeProduct = pid;
   } else {
-    if (sel) sel.setAttribute('style','display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px');
-    if (sub) sub.setAttribute('style','display:block');
+    // Show selector grid
+    if (selector) selector.style.display = 'grid';
+    if (submitBtn) submitBtn.style.display = 'block';
     activeProduct = null;
     updateProductStatus();
   }
@@ -3564,10 +3620,10 @@ const INGREDIENT_DEFS = {
         {qty:'fc_ing2_qty',  rate:'fc_ing2_rate',  amt:'fc_ing2_amt',  name:'fc_ing2_name',  label:'Starter Culture'}],
   ch:  [{qty:'ch_ing1_qty',  rate:'ch_ing1_rate',  amt:'ch_ing1_amt',  name:'ch_ing1_name',  label:'ING 1 (Salt/Spice Mix)', defaultRate:22},
         {qty:'ch_ing2_qty',  rate:'ch_ing2_rate',  amt:'ch_ing2_amt',  name:'ch_ing2_name',  label:'ING 2 (Stabilizer)', defaultRate:40}],
-  sl:  [{qty:'sl_ing1_qty',  rate:'sl_ing1_rate',  amt:'sl_ing1_amt',  name:'sl_ing1_name',  label:'Sugar Syrup', defaultRate:24},
+  sl:  [{qty:'sl_ing1_qty',  rate:'sl_ing1_rate',  amt:'sl_ing1_amt',  name:'sl_ing1_name',  label:'Sugar'},
         {qty:'sl_ing2_qty',  rate:'sl_ing2_rate',  amt:'sl_ing2_amt',  name:'sl_ing2_name',  label:'Flavour/Essence'},
-        {qty:'sl_ing3_qty',  rate:'sl_ing3_rate',  amt:'sl_ing3_amt',  name:'sl_ing3_name',  label:'Stabilizer', defaultRate:550}],
-  ml:  [{qty:'ml_ing1_qty',  rate:'ml_ing1_rate',  amt:'ml_ing1_amt',  name:'ml_ing1_name',  label:'Sugar Syrup', defaultRate:24},
+        {qty:'sl_ing3_qty',  rate:'sl_ing3_rate',  amt:'sl_ing3_amt',  name:'sl_ing3_name',  label:'Stabilizer'}],
+  ml:  [{qty:'ml_ing1_qty',  rate:'ml_ing1_rate',  amt:'ml_ing1_amt',  name:'ml_ing1_name',  label:'Sugar'},
         {qty:'ml_ing2_qty',  rate:'ml_ing2_rate',  amt:'ml_ing2_amt',  name:'ml_ing2_name',  label:'Mango Pulp'},
         {qty:'ml_ing3_qty',  rate:'ml_ing3_rate',  amt:'ml_ing3_amt',  name:'ml_ing3_name',  label:'Mango Flavour'},
         {qty:'ml_ing4_qty',  rate:'ml_ing4_rate',  amt:'ml_ing4_amt',  name:'ml_ing4_name',  label:'Stabilizer 1'},
@@ -4582,12 +4638,12 @@ function onDateChange(iso) {
   const banner = document.getElementById('date-banner');
   if (!iso) return;
   if (iso === todayISO) {
-    if (banner) banner.style.display = 'none';
+    banner.style.display = 'none';
   } else {
     const dt = new Date(iso + 'T00:00:00');
     const label = dt.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-    if (banner) banner.style.display = 'block';
-    if (banner) banner.innerHTML = '📅 Entering backdated data for: <b>' + label + '</b> &nbsp;|&nbsp; <a href="#" onclick="resetToToday()" style="color:#fff;text-decoration:underline;">Switch to Today</a>';
+    banner.style.display = 'block';
+    banner.innerHTML = '📅 Entering backdated data for: <b>' + label + '</b> &nbsp;|&nbsp; <a href="#" onclick="resetToToday()" style="color:#fff;text-decoration:underline;">Switch to Today</a>';
   }
   // Reload any locally stored data for this date
   loadDateData(iso);
@@ -4604,30 +4660,30 @@ function resetToToday() {
 
 function loadDateData(iso) {
   if (STATE.savedProducts) STATE.savedProducts = new Set();
-  // Reset ingredient name defaults (in case old localStorage overrides them)
-  const ING_DEFAULTS = {
-    lp_ing2_name:'ING 2 (Citric Acid)', lp_ing3_name:'ING 3 (GDL)', lp_ing4_name:'ING 4 (Calcium)',
-    mfp_ing2_name:'ING 2 (Citric Acid)', mfp_ing3_name:'ING 3 (GDL)', mfp_ing4_name:'ING 4 (Calcium)',
-    lfp_ing2_name:'ING 2 (Citric Acid)', lfp_ing3_name:'ING 3 (GDL)', lfp_ing4_name:'ING 4 (Calcium)',
-    mp_ing2_name:'ING 2 (Citric Acid)', mp_ing3_name:'ING 3 (GDL)', mp_ing4_name:'ING 4 (Calcium)',
-    lp_ing2_rate:'150', lp_ing3_rate:'550', lp_ing4_rate:'3098',
-    mfp_ing2_rate:'150', mfp_ing3_rate:'550', mfp_ing4_rate:'3098',
-    lfp_ing2_rate:'150', lfp_ing3_rate:'550', lfp_ing4_rate:'3098',
-    mp_ing2_rate:'150', mp_ing3_rate:'550', mp_ing4_rate:'3098',
+  // Reset ingredient defaults (prevents old localStorage from overriding new rates)
+  const ING_RESET = {
+    lp_ing2_name:'ING 2 (Citric Acid)', lp_ing2_rate:'150',
+    lp_ing3_name:'ING 3 (GDL)', lp_ing3_rate:'550',
+    lp_ing4_name:'ING 4 (Calcium)', lp_ing4_rate:'3098',
+    mfp_ing2_name:'ING 2 (Citric Acid)', mfp_ing2_rate:'150',
+    mfp_ing3_name:'ING 3 (GDL)', mfp_ing3_rate:'550',
+    mfp_ing4_name:'ING 4 (Calcium)', mfp_ing4_rate:'3098',
+    lfp_ing2_name:'ING 2 (Citric Acid)', lfp_ing2_rate:'150',
+    lfp_ing3_name:'ING 3 (GDL)', lfp_ing3_rate:'550',
+    lfp_ing4_name:'ING 4 (Calcium)', lfp_ing4_rate:'3098',
+    mp_ing2_name:'ING 2 (Citric Acid)', mp_ing2_rate:'150',
+    mp_ing3_name:'ING 3 (GDL)', mp_ing3_rate:'550',
+    mp_ing4_name:'ING 4 (Calcium)', mp_ing4_rate:'3098',
     ch_ing1_name:'ING 1 (Salt/Spice Mix)', ch_ing1_rate:'22',
     ch_ing2_name:'ING 2 (Stabilizer)', ch_ing2_rate:'40',
     lc_ing1_name:'ING 1', lc_ing1_rate:'3100',
-    lc_ing3_name:'SMP', lc_ing3_rate:'345',
-    lc_std:'95',
+    lc_ing3_name:'SMP', lc_ing3_rate:'345', lc_std:'95',
+    ml_ing1_rate:'24', ml_ing3_rate:'1600',
+    ml_ing4_name:'Stabilizer', ml_ing4_rate:'550',
+    sl_ing1_rate:'24', sl_ing3_rate:'550',
     lc_gas_rate:'100', fc_gas_rate:'100',
-    ml_ing1_rate:'24', ml_ing2_rate:'214', ml_ing3_rate:'1600', ml_ing4_name:'Stabilizer', ml_ing4_rate:'550',
-    sl_ing1_rate:'24', sl_ing2_rate:'355', sl_ing3_rate:'550',
-    ch_ing1_rate:'22', ch_ing2_rate:'40',
   };
-  Object.entries(ING_DEFAULTS).forEach(([id, val]) => {
-    const el = document.getElementById(id);
-    if (el) el.value = val;
-  });
+  Object.entries(ING_RESET).forEach(([id,val]) => { const el=document.getElementById(id); if(el) el.value=val; });
   // Check localStorage for previously saved data for this date
   const dateKey = iso.replace(/-/g,'');
   const savedMilk = localStorage.getItem('milk_' + dateKey);
@@ -4787,6 +4843,5 @@ function showToast(msg, type='success') {
   }, 3000);
 }
 </script>
-</div>
 </body>
-</html>
+</html><
