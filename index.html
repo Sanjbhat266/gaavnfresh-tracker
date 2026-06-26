@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-<title>Gaavn Fresh — Production Tracker v1.05</title>
+<title>Gaavn Fresh — Production Tracker v1.06</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -174,7 +174,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v1.05</span>
+    <span>PRODUCTION TRACKER v1.06</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -293,13 +293,17 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <!-- V3 SKIM MILK -->
   <div class="card">
     <div class="card-head">
-      <div><h3>Vendor 3 — Purchased Skim Milk <span class="tag-info">FAT FIXED 0.1%</span></h3></div>
+      <div><h3>Vendor 3 — BM &amp; Skim Milk <span class="tag-info">SK FAT FIXED 0.1%</span></h3></div>
     </div>
     <div class="card-body">
       <div class="fg fg-3">
-        <div class="field"><label>Skim Qty (L)</label><div class="unit"><input type="number" id="v3_sk_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>BM Qty (L)</label><div class="unit"><input type="number" id="v3_bm_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>BM Rate (Rs/L)</label><div class="unit"><input type="number" id="v3_bm_rate" placeholder="35" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
+      </div>
+      <div class="fg fg-3" style="margin-top:8px;">
+        <div class="field"><label>SM Qty (L)</label><div class="unit"><input type="number" id="v3_sk_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SNF %</label><div class="unit"><input type="number" id="v3_sk_snf" placeholder="8.6" step="0.01"><span class="unit-label">%</span></div></div>
-        <div class="field"><label>Rate (Rs/L)</label><div class="unit"><input type="number" id="v3_sk_rate" placeholder="24.5" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
+        <div class="field"><label>SM Rate (Rs/L)</label><div class="unit"><input type="number" id="v3_sk_rate" placeholder="24.5" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v3_notes" placeholder="Skim milk source / quality notes..."></textarea></div>
@@ -1969,12 +1973,23 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 
   <!-- APPS SCRIPT CODE -->
   <div class="card">
-    <div class="card-head"><h3>Google Apps Script — Copy this entire code</h3></div>
-    <div class="card-body">
-      <div style="background:var(--ink);border-radius:8px;padding:16px;overflow-x:auto;">
-        <pre id="apps-script-code" style="font-family:'Space Mono';font-size:10px;color:#A8D8A8;line-height:1.6;white-space:pre-wrap;word-break:break-all;"></pre>
+    <div class="card-head" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;" onclick="toggleScriptPanel()">
+      <h3>Google Apps Script</h3>
+      <span id="script-toggle-icon" style="font-size:11px;color:var(--muted);font-family:'Space Mono';">🔒 Hidden — click to reveal</span>
+    </div>
+    <div id="script-panel" style="display:none;">
+      <div class="card-body">
+        <div style="background:#FFF3CD;border:1px solid #F39C12;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:12px;color:#856404;">
+          ⚠ Keep this code private — do not share your screen while this is visible.
+        </div>
+        <div style="background:var(--ink);border-radius:8px;padding:16px;overflow-x:auto;">
+          <pre id="apps-script-code" style="font-family:'Space Mono';font-size:10px;color:#A8D8A8;line-height:1.6;white-space:pre-wrap;word-break:break-all;"></pre>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:10px;">
+          <button class="btn-submit" onclick="copyScript()" style="background:var(--blue);color:#fff;flex:1;">📋 Copy Script</button>
+          <button onclick="toggleScriptPanel()" style="background:var(--muted);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-family:'Space Mono';font-size:12px;cursor:pointer;">🔒 Hide</button>
+        </div>
       </div>
-      <button class="btn-submit" onclick="copyScript()" style="margin-top:10px;background:var(--blue);color:#fff;">📋 Copy Script</button>
     </div>
   </div>
 
@@ -2680,8 +2695,13 @@ function toReportDateInt(s) {
       return parseInt(p[0] + ('0'+p[1]).slice(-2) + ('0'+p[2]).slice(-2));
     }
     if (p[2].length === 4) {
-      // dd/MM/yyyy or MM/dd/yyyy — always treat as DD/MM/YYYY (Indian standard)
-      return parseInt(p[2] + ('0'+p[1]).slice(-2) + ('0'+p[0]).slice(-2));
+      var a = parseInt(p[0]), b = parseInt(p[1]), yr = p[2];
+      // If first part > 12 → dd/MM/yyyy Indian: yyyymmdd
+      if (a > 12) return parseInt(yr + ('0'+b).slice(-2) + ('0'+a).slice(-2));
+      // If second part > 12 → M/DD/YYYY US format (e.g. 5/30/2026): yyyymmdd
+      if (b > 12) return parseInt(yr + ('0'+a).slice(-2) + ('0'+b).slice(-2));
+      // Both <= 12: ambiguous — default Indian dd/MM/yyyy
+      return parseInt(yr + ('0'+b).slice(-2) + ('0'+a).slice(-2));
     }
   }
   return 0;
@@ -2823,6 +2843,8 @@ function parseMilkSheetRows(headers, rows) {
     d.v2_bm_fat   = get(row,'V2 BM Fat%');
     d.v2_bm_snf   = get(row,'V2 BM SNF%');
     d.v2_bm_rate  = get(row,'V2 BM Rate(Rs/L)');
+    d.v3_bm_qty   = get(row,'V3 BM Qty(L)');
+    d.v3_bm_rate  = get(row,'V3 BM Rate(Rs/L)');
     d.v3_sk_qty   = get(row,'V3 Skim Qty(L)');
     d.v3_sk_snf   = get(row,'V3 Skim SNF%');
     d.v3_sk_rate  = get(row,'V3 Skim Rate(Rs/L)');
@@ -2954,19 +2976,22 @@ function buildProductionFromCOGS(headers, rows, wrap, tot) {
   const g = (row, key) => { const i=hmap[key]; return i!==undefined ? row[i] : ''; };
 
   // Normalise any date string to canonical yyyy-mm-dd for deduplication and sorting
-  // Handles both dd/MM/yyyy and yyyy-mm-dd (and ISO datetime strings)
+  // Handles: dd/MM/yyyy, MM/dd/yyyy (US), M/D/YYYY, yyyy-mm-dd, ISO datetime
   function normDate(s) {
-    s = String(s||'').trim().replace(/T.*$/,''); // strip time component
+    s = String(s||'').trim().replace(/T[\d:.Z+\-]+$/, ''); // strip time component
     if (!s || s === 'Date') return null;
-    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // already yyyy-mm-dd
-    if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) {      // dd/MM/yyyy
+    // Already yyyy-mm-dd
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    // Any d/d/yyyy variant (covers dd/MM/yyyy, M/D/YYYY, D/M/YYYY)
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) {
       const p = s.split('/');
-      return p[2]+'-'+p[1]+'-'+p[0];
-    }
-    // Try parsing whatever we get
-    const d = new Date(s);
-    if (!isNaN(d)) {
-      return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      const a = parseInt(p[0]), b = parseInt(p[1]), yr = p[2];
+      // If first part > 12 it must be the day (dd/MM/yyyy Indian format)
+      if (a > 12) return yr+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');
+      // If second part > 12 it must be the day (M/DD/YYYY US format — e.g. 5/30/2026)
+      if (b > 12) return yr+'-'+String(a).padStart(2,'0')+'-'+String(b).padStart(2,'0');
+      // Both <= 12: ambiguous — default to Indian dd/MM/yyyy
+      return yr+'-'+String(b).padStart(2,'0')+'-'+String(a).padStart(2,'0');
     }
     return null;
   }
@@ -3283,6 +3308,18 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
 
   if (!rows.length) { wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No milk data found for selected dates</div>'; tot.innerHTML=''; return; }
 
+  // Deduplicate by date — keep the last row for each date (most recent write wins)
+  // This handles cases where the same date exists twice in the sheet with different formats
+  const seenDates = {};
+  rows = rows.filter(function(m) {
+    const di = toReportDateInt(m._date);
+    if (!di) return false;
+    seenDates[di] = m; // overwrite with latest
+    return true;
+  });
+  // Rebuild as deduplicated array in date order
+  rows = Object.values(seenDates).sort((a, b) => toReportDateInt(a._date) - toReportDateInt(b._date));
+
   // Vendor 1 has morning + evening sessions; Vendor 2 has one session
   const sessions = vendor === 'v1'
     ? [{pfx:'v1m', label:'Morning'}, {pfx:'v1e', label:'Evening'}]
@@ -3472,6 +3509,8 @@ function buildV3Report(dates, title, wrap, tot, sheetData) {
       var fromInt2 = toReportDateInt(dates[0]);
       var toInt2   = toReportDateInt(dates[dates.length-1]);
       rows = rows.filter(function(m){ var ds=m._date.replace(/T[\d:.Z+\-]+$/,''); var di=toReportDateInt(ds); return di>0&&di>=fromInt2&&di<=toInt2; });
+  // Deduplicate by date (same date can appear twice if saved under different formats)
+  var seen2={}; rows=rows.filter(function(m){var di=toReportDateInt(m._date);if(!di||seen2[di])return false;seen2[di]=true;return true;});
     }
   } else {
     rows = getMilkData(dates);
@@ -3516,6 +3555,8 @@ function buildMilkSummaryReport(dates, title, wrap, tot, sheetData) {
       var fromInt2 = toReportDateInt(dates[0]);
       var toInt2   = toReportDateInt(dates[dates.length-1]);
       rows = rows.filter(function(m){ var ds=m._date.replace(/T[\d:.Z+\-]+$/,''); var di=toReportDateInt(ds); return di>0&&di>=fromInt2&&di<=toInt2; });
+  // Deduplicate by date (same date can appear twice if saved under different formats)
+  var seen2={}; rows=rows.filter(function(m){var di=toReportDateInt(m._date);if(!di||seen2[di])return false;seen2[di]=true;return true;});
     }
   } else {
     rows = getMilkData(dates);
@@ -3532,7 +3573,7 @@ function buildMilkSummaryReport(dates, title, wrap, tot, sheetData) {
     const total=v1CM+v1BM+v2CM+v2BM+v3;
     const v1Pay=(v1mCM*(parseFloat(m.v1m_cm_rate)||0)+v1eCM*(parseFloat(m.v1e_cm_rate)||0)+
                  v1mBM*(parseFloat(m.v1m_bm_rate)||0)+v1eBM*(parseFloat(m.v1e_bm_rate)||0));
-    const cost=v1Pay+(v2CM*(parseFloat(m.v2_cm_rate)||41))+(v2BM*(parseFloat(m.v2_bm_rate)||57))+(v3*(parseFloat(m.v3_sk_rate)||24.5));
+    const cost=v1Pay+(v2CM*(parseFloat(m.v2_cm_rate)||41))+(v2BM*(parseFloat(m.v2_bm_rate)||57))+(v3*(parseFloat(m.v3_sk_rate)||24.5))+((parseFloat(m.v3_bm_qty)||0)*(parseFloat(m.v3_bm_rate)||57));
     tV1CM+=v1CM;tV1BM+=v1BM;tV2CM+=v2CM;tV2BM+=v2BM;tV3+=v3;tTotal+=total;tCost+=cost;tV1Pay+=v1Pay;
     html+=`<tr><td>${fmtDate(m._date)}</td><td>${N(v1CM,1)}</td><td>${N(v1BM,1)}</td><td>${N(v2CM,1)}</td><td>${N(v2BM,1)}</td><td>${N(v3,1)}</td><td style="font-weight:600">${N(total,1)}</td><td>${Rs(cost)}</td><td>${Rs(v1Pay)}</td></tr>`;
   });
@@ -4405,6 +4446,7 @@ function gatherMilkData() {
     v2_cm_qty:gn('v2_cm_qty'), v2_cm_fat:gn('v2_cm_fat'), v2_cm_snf:gn('v2_cm_snf'),
     v2_bm_qty:gn('v2_bm_qty'), v2_bm_fat:gn('v2_bm_fat'), v2_bm_snf:gn('v2_bm_snf'),
     v2_cm_rate:gn('v2_cm_rate')||41, v2_bm_rate:gn('v2_bm_rate')||57, v2_notes:gv('v2_notes'),
+    v3_bm_qty:gn('v3_bm_qty'), v3_bm_rate:gn('v3_bm_rate'),
     v3_sk_qty:gn('v3_sk_qty'), v3_sk_snf:gn('v3_sk_snf'),
     v3_sk_rate:gn('v3_sk_rate'), v3_notes:gv('v3_notes'),
     v1m_deduct:gn('v1m_deduct')||0, v1e_deduct:gn('v1e_deduct')||0,
@@ -4596,13 +4638,14 @@ async function saveProducts() {
   // These are needed by logCOGSDaily in Apps Script to calculate COGS correctly
   const m = STATE.todayMilk || {};
   const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
-  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0);
+  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0);
   const _cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)
              + (m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)
              + (m.v2_cm_qty||0)*(m.v2_cm_rate||41);
   const _bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)
              + (m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)
-             + (m.v2_bm_qty||0)*(m.v2_bm_rate||57);
+             + (m.v2_bm_qty||0)*(m.v2_bm_rate||57)
+             + (m.v3_bm_qty||0)*(m.v3_bm_rate||57);
   data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
   data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
   data.milk_wSK = m.v3_sk_rate || 24.5;
@@ -5998,6 +6041,20 @@ function logMilk(ss, d) {
   const sh = getOrCreateSheet(ss, sheetName);
   const needsHeader = sh.getLastRow() === 0 ||
     (sh.getLastRow() >= 1 && sh.getRange(1,1).getValue() !== 'Date');
+  // Also check if V3 BM columns exist - if not, we need to insert them
+  if (!needsHeader && sh.getLastRow() >= 1) {
+    var existingHeaders = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    var hasV3BM = existingHeaders.indexOf('V3 BM Qty(L)') >= 0;
+    if (!hasV3BM) {
+      // Find V2 Deduct column and insert 2 columns after it (before V3 Skim)
+      var v2DeductIdx = existingHeaders.indexOf('V2 Deduct(L)');
+      if (v2DeductIdx >= 0) {
+        sh.insertColumnsAfter(v2DeductIdx + 1, 2);  // +1 for 1-based index
+        sh.getRange(1, v2DeductIdx + 2).setValue('V3 BM Qty(L)');
+        sh.getRange(1, v2DeductIdx + 3).setValue('V3 BM Rate(Rs/L)');
+      }
+    }
+  }
   if (needsHeader) {
     const targetSh = ss.getSheetByName(sheetName);
     targetSh.appendRow([
@@ -6014,7 +6071,7 @@ function logMilk(ss, d) {
       'V2 BM Qty(L)','V2 BM Fat%','V2 BM SNF%','V2 BM Rate(Rs/L)','V2 BM Amount(Rs)',
       'V2 Notes',
       'V2 Deduct(L)',
-      'V3 Skim Qty(L)','V3 Skim SNF%','V3 Skim Rate(Rs/L)','V3 Skim Amount(Rs)','V3 Notes',
+      'V3 BM Qty(L)','V3 BM Rate(Rs/L)','V3 Skim Qty(L)','V3 Skim SNF%','V3 Skim Rate(Rs/L)','V3 Skim Amount(Rs)','V3 Notes',
       'V3 Deduct(L)',
 
       'TOTAL CM Qty(L)','TOTAL CM Amount(Rs)','Avg CM Rate(Rs/L)',
@@ -6039,13 +6096,14 @@ function logMilkData(sh, d) {
   const v1eBMqty=d.v1e_bm_qty||0, v1eBMrate=d.v1e_bm_rate||0;
   const v2CMqty=d.v2_cm_qty||0,   v2CMrate=d.v2_cm_rate||41;
   const v2BMqty=d.v2_bm_qty||0,   v2BMrate=d.v2_bm_rate||57;
+  const v3BMqty=d.v3_bm_qty||0,   v3BMrate=d.v3_bm_rate||57;
   const v3SKqty=d.v3_sk_qty||0,   v3SKrate=d.v3_sk_rate||24.5;
   const v1mCMamt=v1mCMqty*v1mCMrate, v1mBMamt=v1mBMqty*v1mBMrate;
   const v1eCMamt=v1eCMqty*v1eCMrate, v1eBMamt=v1eBMqty*v1eBMrate;
   const v2CMamt=v2CMqty*v2CMrate, v2BMamt=v2BMqty*v2BMrate;
   const v3SKamt=v3SKqty*v3SKrate;
-  const totCMqty=v1mCMqty+v1eCMqty+v2CMqty, totBMqty=v1mBMqty+v1eBMqty+v2BMqty;
-  const totCMamt=v1mCMamt+v1eCMamt+v2CMamt, totBMamt=v1mBMamt+v1eBMamt+v2BMamt;
+  const totCMqty=v1mCMqty+v1eCMqty+v2CMqty, totBMqty=v1mBMqty+v1eBMqty+v2BMqty+v3BMqty;
+  const totCMamt=v1mCMamt+v1eCMamt+v2CMamt, totBMamt=v1mBMamt+v1eBMamt+v2BMamt+v3BMqty*v3BMrate;
   const avgCMrate=totCMqty>0?(totCMamt/totCMqty).toFixed(2):0;
   const avgBMrate=totBMqty>0?(totBMamt/totBMqty).toFixed(2):0;
   const grandTotal=totCMamt+totBMamt+v3SKamt;
@@ -6065,12 +6123,12 @@ function logMilkData(sh, d) {
     v2BMqty,d.v2_bm_fat||'',d.v2_bm_snf||'',v2BMrate,r(v2BMamt),
     d.v2_notes||'',
     d.v2_deduct||0,
-    v3SKqty,d.v3_sk_snf||'',v3SKrate,r(v3SKamt),d.v3_notes||'',
+    v3BMqty,v3BMrate,v3SKqty,d.v3_sk_snf||'',v3SKrate,r(v3SKamt),d.v3_notes||'',
     d.v3_deduct||0,
     totCMqty,r(totCMamt),avgCMrate,
     totBMqty,r(totBMamt),avgBMrate,
-    v3SKqty,r(v3SKamt),r(grandTotal),
-    r(v1Payable),r(v2CMamt),r(v2BMamt),r(v3SKamt),
+    v3BMqty,r(v3BMqty*v3BMrate),v3SKqty,r(v3SKamt),r(grandTotal),
+    r(v1Payable),r(v2CMamt),r(v2BMamt),r(v3BMqty*v3BMrate),r(v3SKamt),
     d.cream_milk_l||0,d.cream_yield_kg||0,d.cream_std_pct||5.7,
     d.cream_theor_kg||0,d.cream_actual_pct||0,d.cream_var_kg||0,d.cream_var_pct||0
   ]);
@@ -6267,12 +6325,55 @@ function colorVarianceRow(sh, row, variance) {
   sh.getRange(row, 1, 1, 9).setBackground(color);
 }
 `;
-  document.getElementById('apps-script-code').textContent = code;
+  // Script code is loaded lazily when user clicks to reveal (see toggleScriptPanel)
+}
+
+function toggleScriptPanel() {
+  const panel = document.getElementById('script-panel');
+  const icon  = document.getElementById('script-toggle-icon');
+  const isHidden = panel.style.display === 'none';
+  panel.style.display = isHidden ? 'block' : 'none';
+  icon.textContent = isHidden ? '🔓 Visible — click to hide' : '🔒 Hidden — click to reveal';
+  // Load script content only when first revealed (lazy load)
+  if(isHidden) {
+    const pre = document.getElementById('apps-script-code');
+    if(!pre.textContent) pre.textContent = getAppsScriptCode ? getAppsScriptCode() : '';
+  }
 }
 
 function copyScript() {
   const code = document.getElementById('apps-script-code').textContent;
-  navigator.clipboard.writeText(code).then(() => showToast('Script copied to clipboard!', 'success'));
+  if(navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code)
+      .then(() => showToast('✓ Script copied! Now paste in Apps Script editor.', 'success'))
+      .catch(() => _fallbackCopy(code));
+  } else {
+    _fallbackCopy(code);
+  }
+}
+
+function _fallbackCopy(text) {
+  // Create a visible textarea so user can manually select and copy
+  var existing = document.getElementById('_fallback-copy-area');
+  if(existing) existing.remove();
+  var ta = document.createElement('textarea');
+  ta.id = '_fallback-copy-area';
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:10%;left:5%;width:90%;height:70%;z-index:9999;font-size:11px;font-family:monospace;padding:12px;border:3px solid #C8830A;border-radius:8px;background:#fff;';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕ Close';
+  closeBtn.style.cssText = 'position:fixed;top:calc(10% - 36px);right:5%;z-index:10000;background:#C8830A;color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:700;';
+  closeBtn.onclick = function() { ta.remove(); closeBtn.remove(); };
+  document.body.appendChild(ta);
+  document.body.appendChild(closeBtn);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('✓ Script copied! Now paste in Apps Script editor.', 'success');
+  } catch(e) {
+    showToast('Select all text in the box and press Ctrl+C to copy', 'info');
+  }
 }
 
 // ── RATE LOOKUP ──────────────────────────────────────────────────
@@ -6440,7 +6541,7 @@ function loadDateData(iso) {
     'v1e_bm_qty','v1e_bm_fat','v1e_bm_snf','v1e_bm_rate','v1e_notes','v1e_deduct',
     'v2_cm_qty','v2_cm_fat','v2_cm_snf','v2_cm_rate',
     'v2_bm_qty','v2_bm_fat','v2_bm_snf','v2_bm_rate','v2_notes','v2_deduct',
-    'v3_sk_qty','v3_sk_snf','v3_sk_rate','v3_notes','v3_deduct',
+    'v3_bm_qty','v3_bm_rate','v3_sk_qty','v3_sk_snf','v3_sk_rate','v3_notes','v3_deduct',
     'cream_milk_l','cream_yield_kg','cream_std_pct'
   ];
   if (savedMilk) {
