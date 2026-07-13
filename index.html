@@ -174,7 +174,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v134</span>
+    <span>PRODUCTION TRACKER v135</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -3243,7 +3243,7 @@ function _crISO(x){ x=String(x||"").trim().replace(/T.*$/,""); var p=x.split("/"
 async function fetchCreamSalesByDate(fromISO,toISO){
   var url=getSalesUrl(); var map={}; if(!url) return map;
   var months=[], d=new Date(fromISO+"T00:00:00"), end=new Date(toISO+"T00:00:00");
-  while(d<=end){ months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")); d.setDate(1); d.setMonth(d.getMonth()+1); }
+  var _g=0; while(d<=end && _g<18){ months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")); d.setDate(1); d.setMonth(d.getMonth()+1); _g++; }
   for(var i=0;i<months.length;i++){
     try{
       var r=await fetch(url+"?action=getMonthOrders&month="+months[i],{cache:"no-store"});
@@ -3282,13 +3282,14 @@ async function generateCreamReport(){
     });
   }catch(e){}
   // Sold — fetch from the first cream date (inception) through To, so it is included in the running balance
-  var pk=Object.keys(perDate).sort();
+  var _valid=function(d){ return /^\d{4}-\d{2}-\d{2}$/.test(d) && d>="2026-01-01" && d<=to; };
+  var pk=Object.keys(perDate).filter(_valid).sort();
   var earliest = pk.length ? pk[0] : from;
   if(earliest>from) earliest=from;
   var soldMap=await fetchCreamSalesByDate(earliest, to);
   Object.keys(soldMap).forEach(function(dt){ _ensure(dt).sold+=soldMap[dt]; });
   // Every date up to To, in order — accumulate from inception; display only From..To
-  var allKeys=Object.keys(perDate).filter(function(d){return d<=to;}).sort();
+  var allKeys=Object.keys(perDate).filter(_valid).sort();
   if(!allKeys.length){ document.getElementById("rpt-table-wrap").innerHTML='<div style="padding:16px;color:var(--muted);">No cream data up to this date. Check the Sales App URL and that production was logged.</div>'; return; }
   var oe=document.getElementById("cream-open-bal"); var bal=oe?(parseFloat(oe.value)||0):0;
   var tp=0,tpan=0,tg=0,ts=0, rowsHtml='';
