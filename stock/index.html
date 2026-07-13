@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Gaavn Physical Stock</title>
+<meta name="theme-color" content="#1a3a2a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gaavn Stock">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%231a3a2a'/%3E%3Ctext x='90' y='118' font-size='90' text-anchor='middle' fill='%23F3B23F' font-family='Arial' font-weight='bold'%3EGF%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Gaavn%20Physical%20Stock%22%2C%22short_name%22%3A%22Gaavn%20Stock%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a3a2a%22%2C%22theme_color%22%3A%22%231a3a2a%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%252F%252Fwww.w3.org%252F2000%252Fsvg%2527%2520width%253D%2527192%2527%2520height%253D%2527192%2527%253E%253Crect%2520width%253D%2527192%2527%2520height%253D%2527192%2527%2520fill%253D%2527%25231a3a2a%2527%252F%253E%253Ctext%2520x%253D%252796%2527%2520y%253D%2527126%2527%2520font-size%253D%252796%2527%2520text-anchor%253D%2527middle%2527%2520fill%253D%2527%2523F3B23F%2527%2520font-family%253D%2527Arial%2527%2520font-weight%253D%2527bold%2527%253EGF%253C%252Ftext%253E%253C%252Fsvg%253E%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+<style>
+:root{--dark:#1a3a2a;--gold:#F3B23F;--cream:#faf7ef;--ink:#1c1c1c;--muted:#7a7a6a;--border:#e2ddd0;--green:#2e7d32;--red:#C0392B;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--cream);color:var(--ink);padding-bottom:90px;}
+header{background:var(--dark);color:#fff;padding:14px 16px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;}
+header .t{font-size:16px;font-weight:800;}
+header .t small{display:block;font-size:10px;opacity:.6;font-weight:400;}
+header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;}
+.wrap{max-width:640px;margin:0 auto;padding:14px;}
+.datebar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:12px;}
+.datebar label{font-size:12px;color:var(--muted);font-weight:700;}
+.datebar input{flex:1;border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:15px;font-family:inherit;}
+.prow{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.prow .nm{flex:1;}
+.prow .nm b{font-size:14px;}
+.prow .nm span{display:block;font-size:11px;color:var(--muted);}
+.prow input{width:96px;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:16px;text-align:right;font-family:inherit;}
+.prow .u{width:42px;font-size:11px;color:var(--muted);text-align:left;}
+.submitbar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid var(--border);padding:12px 16px;display:flex;gap:10px;justify-content:center;}
+.submitbar button{max-width:640px;flex:1;background:var(--green);color:#fff;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 20px;border-radius:22px;font-size:14px;opacity:0;transition:.3s;z-index:99;max-width:90%;text-align:center;}
+.toast.show{opacity:1;}
+.overlay{position:fixed;inset:0;background:var(--dark);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;color:#fff;}
+.overlay h1{font-size:22px;margin:0 0 4px;}
+.overlay p{color:#cbb;font-size:13px;margin:0 0 22px;}
+.pinbox{display:flex;gap:8px;margin-bottom:18px;}
+.pinbox input{width:52px;height:60px;text-align:center;font-size:26px;border:2px solid var(--gold);border-radius:12px;background:rgba(255,255,255,.08);color:#fff;font-family:inherit;}
+.overlay button{background:var(--gold);color:var(--dark);border:none;border-radius:12px;padding:14px 34px;font-size:16px;font-weight:800;cursor:pointer;}
+.overlay .err{color:#ffb4b4;font-size:12px;height:16px;margin-bottom:8px;}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;display:none;align-items:center;justify-content:center;padding:16px;}
+.modal.open{display:flex;}
+.modal .card{background:#fff;border-radius:14px;padding:18px;max-width:460px;width:100%;}
+.modal h3{margin:0 0 12px;color:var(--dark);}
+.modal label{font-size:12px;color:var(--muted);font-weight:700;}
+.modal input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px;font-size:14px;margin:4px 0 12px;font-family:inherit;}
+.modal .row{display:flex;gap:8px;}
+.modal .row button{flex:1;border:none;border-radius:8px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
+.btn-p{background:var(--green);color:#fff;} .btn-s{background:#eee;color:#333;}
+.hint{font-size:11px;color:var(--muted);text-align:center;margin:6px 0 2px;}
+</style>
+</head>
+<body>
+
+<!-- PIN GATE -->
+<div class="overlay" id="pin-gate">
+  <h1>🐄 Gaavn Physical Stock</h1>
+  <p>Plant daily stock entry</p>
+  <div class="err" id="pin-err"></div>
+  <div class="pinbox">
+    <input type="password" inputmode="numeric" maxlength="1" id="p0">
+    <input type="password" inputmode="numeric" maxlength="1" id="p1">
+    <input type="password" inputmode="numeric" maxlength="1" id="p2">
+    <input type="password" inputmode="numeric" maxlength="1" id="p3">
+  </div>
+  <button onclick="checkPin()">Unlock</button>
+</div>
+
+<header>
+  <div class="t">🐄 Physical Stock <small>Gaavn Fresh · daily count</small></div>
+  <button class="gear" onclick="openSettings()">⚙</button>
+</header>
+
+<div class="wrap" id="app" style="display:none;">
+  <div class="datebar">
+    <label>Date</label>
+    <input type="date" id="entry-date">
+  </div>
+  <div class="hint">Enter the physical quantity counted today for each product. Leave blank if not counted.</div>
+  <div id="prod-list"></div>
+</div>
+
+<div class="submitbar" id="submitbar" style="display:none;">
+  <button onclick="submitStock()">✓ Submit Physical Stock</button>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="modal-set">
+  <div class="card">
+    <h3>Settings</h3>
+    <label>Google Sheet URL (same as production tracker)</label>
+    <input type="url" id="set-url" placeholder="https://script.google.com/macros/s/.../exec">
+    <label>Access PIN (4 digits)</label>
+    <input type="text" inputmode="numeric" maxlength="4" id="set-pin">
+    <div class="row">
+      <button class="btn-s" onclick="closeSettings()">Cancel</button>
+      <button class="btn-p" onclick="saveSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW / REVIEW MODAL -->
+<div class="modal" id="modal-preview">
+  <div class="card">
+    <h3>Review before submit</h3>
+    <div id="preview-body"></div>
+    <div class="row" style="margin-top:16px;">
+      <button class="btn-s" onclick="editPreview()">← Edit</button>
+      <button class="btn-p" onclick="confirmSubmit()">✓ Confirm &amp; Submit</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────
+var DEFAULT_URL='https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec';
+var DEFAULT_PIN='2580';
+// Products (physical count) — matches the production tracker's Stock_Register
+var PRODUCTS=[
+ {id:'cream',name:'Cream',unit:'kg'},
+ {id:'lp',name:'Lite Paneer',unit:'kg'},
+ {id:'mfp',name:'Med Fat Paneer',unit:'kg'},
+ {id:'lfp',name:'Low Fat Paneer',unit:'kg'},
+ {id:'mp',name:'Malai Paneer',unit:'pcs'},
+ {id:'gh_p',name:'Ghee Pouches 1L',unit:'nos'},
+ {id:'gh_j',name:'Ghee Jars 500ml',unit:'nos'},
+ {id:'gh_t',name:'Ghee Tins 5L',unit:'nos'},
+ {id:'fc',name:'Fresh Curd',unit:'kg'},
+ {id:'lc',name:'Lite Curd',unit:'kg'},
+ {id:'ch_500',name:'Chaach 500ml',unit:'bottles'},
+ {id:'ch_1l',name:'Chaach 1L',unit:'bottles'},
+ {id:'sl',name:'Sweet Lassi',unit:'cups'},
+ {id:'ml',name:'Mango Lassi',unit:'cups'},
+ {id:'cmk',name:'CM Khoya',unit:'kg'},
+ {id:'stk',name:'Std Khoya',unit:'kg'}
+];
+function gsUrl(){ return (localStorage.getItem('ps_url')||DEFAULT_URL).trim(); }
+function pin(){ return localStorage.getItem('ps_pin')||DEFAULT_PIN; }
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2600); }
+
+// ── PIN GATE ──────────────────────────────────────────────────────────
+['p0','p1','p2','p3'].forEach(function(id,i){
+  var el=document.getElementById(id);
+  el.addEventListener('input',function(){ if(el.value && i<3) document.getElementById('p'+(i+1)).focus(); if(i===3 && el.value) checkPin(); });
+  el.addEventListener('keydown',function(e){ if(e.key==='Backspace' && !el.value && i>0) document.getElementById('p'+(i-1)).focus(); });
+});
+function checkPin(){
+  var v=['p0','p1','p2','p3'].map(function(id){return document.getElementById(id).value;}).join('');
+  if(v.length<4) return;
+  if(v===pin()){ unlock(); } else { document.getElementById('pin-err').textContent='Wrong PIN'; ['p0','p1','p2','p3'].forEach(function(id){document.getElementById(id).value='';}); document.getElementById('p0').focus(); }
+}
+function unlock(){
+  document.getElementById('pin-gate').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('submitbar').style.display='flex';
+  sessionStorage.setItem('ps_ok','1');
+}
+
+// ── RENDER PRODUCTS ───────────────────────────────────────────────────
+function renderProducts(){
+  var h='';
+  PRODUCTS.forEach(function(p){
+    h+='<div class="prow"><div class="nm"><b>'+p.name+'</b><span>physical count</span></div>'
+      +'<input type="number" inputmode="decimal" step="0.01" min="0" id="q_'+p.id+'" placeholder="0">'
+      +'<div class="u">'+p.unit+'</div></div>';
+  });
+  document.getElementById('prod-list').innerHTML=h;
+}
+
+// ── SUBMIT ────────────────────────────────────────────────────────────
+var _pending=null;
+function submitStock(){
+  var date=document.getElementById('entry-date').value;
+  if(!date){ toast('Pick a date'); return; }
+  var data={date:date}, items=[], any=false;
+  PRODUCTS.forEach(function(p){
+    var v=document.getElementById('q_'+p.id).value;
+    if(v!=='' && v!=null){ data[p.id+'_close']=v; items.push({name:p.name,qty:v,unit:p.unit}); any=true; }  // physical count -> Closing column
+  });
+  if(!any){ toast('Enter at least one quantity'); return; }
+  _pending=data;
+  // Build a review list so staff can check before submitting
+  var h='<div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Date: <b style="color:var(--ink);">'+date+'</b></div>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:14px;">';
+  items.forEach(function(it){
+    h+='<tr style="border-bottom:1px solid var(--border);"><td style="padding:8px 4px;">'+it.name+'</td>'
+      +'<td style="padding:8px 4px;text-align:right;font-weight:800;">'+it.qty+' <span style="color:var(--muted);font-weight:400;font-size:11px;">'+it.unit+'</span></td></tr>';
+  });
+  h+='</table><div style="font-size:11px;color:var(--muted);margin-top:10px;">'+items.length+' product'+(items.length>1?'s':'')+' counted. Check the numbers, then confirm.</div>';
+  document.getElementById('preview-body').innerHTML=h;
+  document.getElementById('modal-preview').classList.add('open');
+}
+function editPreview(){ document.getElementById('modal-preview').classList.remove('open'); }
+async function confirmSubmit(){
+  if(!_pending) return;
+  var data=_pending, date=data.date;
+  document.getElementById('modal-preview').classList.remove('open');
+  // save locally (so it is not lost if offline)
+  try{ localStorage.setItem('ps_stock_'+date.replace(/-/g,''), JSON.stringify(data)); }catch(e){}
+  toast('⏳ Sending to sheet…');
+  try{
+    await sendStock(data);
+    toast('✓ Stock submitted for '+date);
+    PRODUCTS.forEach(function(p){ document.getElementById('q_'+p.id).value=''; });
+  }catch(e){ toast('Saved on phone — will need internet to reach the sheet'); }
+  _pending=null;
+}
+
+// ── SHEET SYNC (same mechanism as the production tracker) ─────────────
+function stripPayload(d){ var o={}; Object.keys(d).forEach(function(k){ var v=d[k]; if(v!==''&&v!=null&&!(parseFloat(v)===0)) o[k]=v; }); o.date=d.date; return o; }
+function xhrGet(url){
+  return new Promise(function(resolve){
+    if(typeof fetch!=='undefined'){
+      fetch(url,{method:'GET',mode:'no-cors',cache:'no-store'}).then(resolve).catch(function(){
+        try{ var x=new XMLHttpRequest(); x.open('GET',url,true); x.timeout=8000; x.onloadend=resolve; x.ontimeout=resolve; x.onerror=resolve; x.send(); }
+        catch(e){ var img=new Image(); img.onload=img.onerror=resolve; img.src=url+'&_t='+Date.now(); setTimeout(resolve,5000); }
+      });
+    } else { var img=new Image(); img.onload=img.onerror=resolve; img.src=url+'&_t='+Date.now(); setTimeout(resolve,5000); }
+  });
+}
+async function sendStock(data){
+  var url=gsUrl(); if(!url) throw new Error('no url');
+  var slim=stripPayload(data);
+  var getUrl=url+'?payload='+encodeURIComponent(JSON.stringify({type:'STOCK',data:slim}));
+  await xhrGet(getUrl);
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────
+function openSettings(){ document.getElementById('set-url').value=gsUrl(); document.getElementById('set-pin').value=pin(); document.getElementById('modal-set').classList.add('open'); }
+function closeSettings(){ document.getElementById('modal-set').classList.remove('open'); }
+function saveSettings(){
+  var u=document.getElementById('set-url').value.trim(); if(u) localStorage.setItem('ps_url',u);
+  var p=document.getElementById('set-pin').value.trim(); if(/^\d{4}$/.test(p)) localStorage.setItem('ps_pin',p); else if(p){ toast('PIN must be 4 digits'); return; }
+  closeSettings(); toast('✓ Settings saved');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────
+document.getElementById('entry-date').value=new Date().toISOString().slice(0,10);
+renderProducts();
+if(sessionStorage.getItem('ps_ok')==='1'){ unlock(); } else { document.getElementById('p0').focus(); }
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw-stock.js').catch(function(){}); }
+</script>
+</body>
+</html>
