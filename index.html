@@ -174,7 +174,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v1.06</span>
+    <span>PRODUCTION TRACKER v134</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -298,6 +298,8 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <div class="card-body">
       <div class="fg fg-3">
         <div class="field"><label>BM Qty (L)</label><div class="unit"><input type="number" id="v3_bm_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>BM Fat %</label><div class="unit"><input type="number" id="v3_bm_fat" placeholder="6.0" step="0.01"><span class="unit-label">%</span></div></div>
+        <div class="field"><label>BM SNF %</label><div class="unit"><input type="number" id="v3_bm_snf" placeholder="8.5" step="0.01"><span class="unit-label">%</span></div></div>
         <div class="field"><label>BM Rate (Rs/L)</label><div class="unit"><input type="number" id="v3_bm_rate" placeholder="35" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
       </div>
       <div class="fg fg-3" style="margin-top:8px;">
@@ -308,6 +310,34 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v3_notes" placeholder="Skim milk source / quality notes..."></textarea></div>
         <div class="field"><label>Deduct Qty (L) <small style="color:var(--red);">spoilt/rejected</small></label><div class="unit"><input type="number" id="v3_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- V4 MILK VENDOR -->
+  <div class="card">
+    <div class="card-head">
+      <div><h3>Vendor 4 — CM &amp; BM <span class="tag-info">FULL FAT</span></h3></div>
+    </div>
+    <div class="card-body">
+      <div class="fg fg-3" style="margin-bottom:8px;">
+        <div class="field"><label>CM Qty (L)</label><div class="unit"><input type="number" id="v4_cm_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>CM Fat %</label><div class="unit"><input type="number" id="v4_cm_fat" placeholder="3.5" step="0.01"><span class="unit-label">%</span></div></div>
+        <div class="field"><label>CM SNF %</label><div class="unit"><input type="number" id="v4_cm_snf" placeholder="8.5" step="0.01"><span class="unit-label">%</span></div></div>
+      </div>
+      <div class="fg fg-3" style="margin-bottom:8px;">
+        <div class="field"><label>CM Rate (Rs/L)</label><div class="unit"><input type="number" id="v4_cm_rate" placeholder="41" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
+        <div class="field"><label>BM Qty (L)</label><div class="unit"><input type="number" id="v4_bm_qty" placeholder="0" step="0.1" min="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>BM Fat %</label><div class="unit"><input type="number" id="v4_bm_fat" placeholder="6.0" step="0.01"><span class="unit-label">%</span></div></div>
+      </div>
+      <div class="fg fg-3">
+        <div class="field"><label>BM SNF %</label><div class="unit"><input type="number" id="v4_bm_snf" placeholder="8.5" step="0.01"><span class="unit-label">%</span></div></div>
+        <div class="field"><label>BM Rate (Rs/L)</label><div class="unit"><input type="number" id="v4_bm_rate" placeholder="57" step="0.1" min="0"><span class="unit-label">Rs/L</span></div></div>
+        <div class="field"><label>Notes</label><input type="text" id="v4_notes" placeholder="Vendor 4 notes..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;"></div>
+      </div>
+      <div class="fg fg-2" style="margin-top:8px;">
+        <div class="field"><label>Deduct Qty (L) <small>spoilt/rejected</small></label><div class="unit"><input type="number" id="v4_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -1263,6 +1293,16 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 </div>
 </div><!-- end tab-products -->
 
+<!-- Fixed bottom save bar for product cards -->
+<div id="prod-save-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;
+  background:var(--green);padding:12px 16px;z-index:200;
+  box-shadow:0 -2px 12px rgba(0,0,0,0.2);">
+  <button onclick="saveProdAndBack()" style="width:100%;background:#fff;color:var(--green);
+    border:none;border-radius:8px;padding:12px;font-size:15px;font-weight:800;cursor:pointer;">
+    💾 Save &amp; Back to Products
+  </button>
+</div>
+
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- TAB 3 — TODAY'S COGS SUMMARY -->
 <!-- ════════════════════════════════════════════════════════════ -->
@@ -1822,6 +1862,18 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <span id="rpt-gs-status" style="color:var(--muted);">Checking connection...</span>
   </div>
 
+  <div class="card"><div class="card-body">
+    <label style="font-size:10px;color:var(--muted);">Sales App URL — for cream-sales auto-fetch</label>
+    <div style="display:flex;gap:8px;margin-top:4px;">
+      <input type="url" id="sales-gs-url" placeholder="Sales App /exec URL" style="flex:1;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:11px;color:var(--ink);">
+      <button onclick="saveSalesUrl(document.getElementById('sales-gs-url').value)" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;cursor:pointer;">Save</button>
+    </div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <label style="font-size:10px;color:var(--muted);">Opening cream before the first tracked day (kg)</label>
+      <input type="number" id="cream-open-bal" value="0" step="0.01" style="width:110px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;color:var(--ink);">
+    </div>
+  </div></div>
+
   <!-- Date range picker -->
   <div class="card">
     <div class="card-body">
@@ -1871,6 +1923,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     </button>
     <button class="rpt-btn" onclick="generateReport('cogs')" ontouchstart="">
       💰 COGS Summary<br><small>Revenue, cost, GM% by product</small>
+    </button>
+    <button class="rpt-btn" onclick="generateCreamReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(46,125,50,0.06);border-color:rgba(46,125,50,0.35);">
+      🫙 Cream Reconciliation<br><small>Produced − Ghee − Sold = inventory as of any date · sold auto-fetched from Sales App</small>
     </button>
     <button class="rpt-btn" onclick="runDiagnostic()" ontouchstart=""
       style="grid-column:1/-1;background:rgba(26,82,118,0.06);border-color:rgba(26,82,118,0.3);">
@@ -1962,7 +2017,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg" style="margin-top:14px">
         <div class="field">
           <label>Google Apps Script Web App URL</label>
-          <input class="config-input" type="url" id="gs_url" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec">
+          <input class="config-input" type="url" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec">
         </div>
       </div>
       <button class="btn-submit" onclick="saveConfig()" style="margin-top:12px;">Save Configuration</button>
@@ -2354,8 +2409,16 @@ let RATE_TABLES = (function() {
 })();
 
 // ── STATE ────────────────────────────────────────────────────────
+// Ensure URL is in localStorage for future loads
+(function(){
+  var stored = localStorage.getItem('gs_url');
+  if (!stored || stored === '' || stored === 'YOUR_SCRIPT_ID') {
+    localStorage.setItem('gs_url', 'https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec');
+  }
+})();
+
 const STATE = {
-  gsUrl: localStorage.getItem('gs_url') || '',
+  gsUrl: localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec',
   stdRates: JSON.parse(localStorage.getItem('std_rates') || '{}'),
   todayMilk: JSON.parse(localStorage.getItem('today_milk') || '{}'),
   todayProd:  JSON.parse(localStorage.getItem('today_prod')  || '{}'),
@@ -2497,14 +2560,25 @@ function selectProduct(pid) {
     if (btn) btn.classList.add('active-prod');
     if (selector) selector.style.display = 'none';
     if (submitBtn) submitBtn.style.display = 'none';
+    var saveBar = document.getElementById('prod-save-bar');
+    if (saveBar) saveBar.style.display = 'block';
     activeProduct = pid;
   } else {
     // Show selector grid
     if (selector) selector.style.display = 'grid';
     if (submitBtn) submitBtn.style.display = 'block';
+    var saveBar = document.getElementById('prod-save-bar');
+    if (saveBar) saveBar.style.display = 'none';
     activeProduct = null;
     updateProductStatus();
   }
+}
+
+function saveProdAndBack() {
+  if(activeProduct) {
+    saveProductCard(activeProduct);
+  }
+  selectProduct(null);
 }
 
 function saveProductCard(pid) {
@@ -2844,10 +2918,22 @@ function parseMilkSheetRows(headers, rows) {
     d.v2_bm_snf   = get(row,'V2 BM SNF%');
     d.v2_bm_rate  = get(row,'V2 BM Rate(Rs/L)');
     d.v3_bm_qty   = get(row,'V3 BM Qty(L)');
+    d.v3_bm_fat   = get(row,'V3 BM Fat%');
+    d.v3_bm_snf   = get(row,'V3 BM SNF%');
     d.v3_bm_rate  = get(row,'V3 BM Rate(Rs/L)');
     d.v3_sk_qty   = get(row,'V3 Skim Qty(L)');
     d.v3_sk_snf   = get(row,'V3 Skim SNF%');
     d.v3_sk_rate  = get(row,'V3 Skim Rate(Rs/L)');
+    d.v4_cm_qty   = get(row,'V4 CM Qty(L)');
+    d.v4_cm_fat   = get(row,'V4 CM Fat%');
+    d.v4_cm_snf   = get(row,'V4 CM SNF%');
+    d.v4_cm_rate  = get(row,'V4 CM Rate(Rs/L)');
+    d.v4_bm_qty   = get(row,'V4 BM Qty(L)');
+    d.v4_bm_fat   = get(row,'V4 BM Fat%');
+    d.v4_bm_snf   = get(row,'V4 BM SNF%');
+    d.v4_bm_rate  = get(row,'V4 BM Rate(Rs/L)');
+    d.v4_notes    = get(row,'V4 Notes');
+    d.v4_deduct   = get(row,'V4 Deduct(L)');
     // Notes — quality notes for payment decisions
     d.v1m_notes   = String(get(row,'V1 Morning Notes')||'').trim();
     d.v1e_notes   = String(get(row,'V1 Evening Notes')||'').trim();
@@ -3149,6 +3235,76 @@ function fmtDate(iso) {
 }
 function Rs(n) { return '₹' + (parseFloat(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function N(n,dp=2) { return (parseFloat(n)||0).toFixed(dp); }
+
+const DEFAULT_SALES_URL="https://script.google.com/macros/s/AKfycbwNAn6_OXoTRRwm8Dg6TyU0T746OSYIQejMNS41zgky-i9brq9YyjXIBjvw8P-cu1pWMw/exec";
+function getSalesUrl(){ return (localStorage.getItem("sales_gs_url")||DEFAULT_SALES_URL).trim(); }
+function saveSalesUrl(v){ localStorage.setItem("sales_gs_url",(v||"").trim()); showToast("Sales App URL saved"); }
+function _crISO(x){ x=String(x||"").trim().replace(/T.*$/,""); var p=x.split("/"); if(p.length===3){ return p[2]+"-"+String(p[1]).padStart(2,"0")+"-"+String(p[0]).padStart(2,"0"); } if(/^\d{4}-\d{2}-\d{2}/.test(x)) return x.slice(0,10); return ""; }
+async function fetchCreamSalesByDate(fromISO,toISO){
+  var url=getSalesUrl(); var map={}; if(!url) return map;
+  var months=[], d=new Date(fromISO+"T00:00:00"), end=new Date(toISO+"T00:00:00");
+  while(d<=end){ months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")); d.setDate(1); d.setMonth(d.getMonth()+1); }
+  for(var i=0;i<months.length;i++){
+    try{
+      var r=await fetch(url+"?action=getMonthOrders&month="+months[i],{cache:"no-store"});
+      var j=await r.json();
+      (j.orders||[]).forEach(function(o){
+        var pr=String(o["Product"]||o.product||"").trim().toLowerCase();
+        if(pr!=="cream") return;
+        var dt=String(o["_date"]||o["Date"]||"").slice(0,10);
+        var q=parseFloat(o["Qty"]||o.qty||0)||0;
+        if(dt) map[dt]=(map[dt]||0)+q;
+      });
+    }catch(e){}
+  }
+  return map;
+}
+async function generateCreamReport(){
+  var from=document.getElementById("rpt-from").value, to=document.getElementById("rpt-to").value;
+  if(!from||!to){ showToast("Pick a From and To date","error"); return; }
+  var out=document.getElementById("rpt-output"); out.style.display="block";
+  document.getElementById("rpt-title").textContent="🫙 Cream Reconciliation";
+  document.getElementById("rpt-table-wrap").innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;">Loading cream trail from production + sales…</div>';
+  document.getElementById("rpt-total-wrap").innerHTML="";
+  try{ out.scrollIntoView({behavior:"smooth",block:"start"}); }catch(e){}
+  var perDate={}, url=STATE.gsUrl;
+  function _ensure(iso){ if(!perDate[iso]) perDate[iso]={prod:0,pan:0,ghee:0,sold:0}; return perDate[iso]; }
+  // Produced + paneer + ghee — for ALL dates (the running balance must start at inception, not at the selected From)
+  try{
+    var rc=await fetch(url+"?action=getCreamData");
+    var jc=await rc.json();
+    (jc.rows||[]).forEach(function(row){
+      var iso=String(row.date||"").slice(0,10); if(!iso) return;
+      var e=_ensure(iso);
+      e.prod += parseFloat(row.produced)||0;
+      e.pan  += parseFloat(row.paneer)||0;
+      e.ghee += parseFloat(row.ghee)||0;
+    });
+  }catch(e){}
+  // Sold — fetch from the first cream date (inception) through To, so it is included in the running balance
+  var pk=Object.keys(perDate).sort();
+  var earliest = pk.length ? pk[0] : from;
+  if(earliest>from) earliest=from;
+  var soldMap=await fetchCreamSalesByDate(earliest, to);
+  Object.keys(soldMap).forEach(function(dt){ _ensure(dt).sold+=soldMap[dt]; });
+  // Every date up to To, in order — accumulate from inception; display only From..To
+  var allKeys=Object.keys(perDate).filter(function(d){return d<=to;}).sort();
+  if(!allKeys.length){ document.getElementById("rpt-table-wrap").innerHTML='<div style="padding:16px;color:var(--muted);">No cream data up to this date. Check the Sales App URL and that production was logged.</div>'; return; }
+  var oe=document.getElementById("cream-open-bal"); var bal=oe?(parseFloat(oe.value)||0):0;
+  var tp=0,tpan=0,tg=0,ts=0, rowsHtml='';
+  allKeys.forEach(function(dt){
+    var e=perDate[dt], open=bal, close=open+e.prod-e.pan-e.ghee-e.sold;
+    bal=close;                       // always carry forward from inception
+    if(dt<from) return;              // computed (carried) but not displayed
+    tp+=e.prod; tpan+=e.pan; tg+=e.ghee; ts+=e.sold;
+    var neg=close<0?"color:#C0392B;font-weight:700;":"";
+    rowsHtml+='<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 8px;">'+dt+'</td><td style="padding:6px 6px;text-align:right;">'+open.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;color:#2e7d32;">'+e.prod.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.pan.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.ghee.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.sold.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;font-weight:700;'+neg+'">'+close.toFixed(2)+'</td></tr>';
+  });
+  var html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1a3a2a;color:#fff;"><th style="padding:8px 8px;text-align:left;">Date</th><th style="padding:8px 6px;text-align:right;">Open</th><th style="padding:8px 6px;text-align:right;">Produced</th><th style="padding:8px 6px;text-align:right;">→Paneer</th><th style="padding:8px 6px;text-align:right;">→Ghee</th><th style="padding:8px 6px;text-align:right;">Sold</th><th style="padding:8px 6px;text-align:right;">Available</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>';
+  document.getElementById("rpt-table-wrap").innerHTML=html;
+  document.getElementById("rpt-total-wrap").innerHTML='<div style="font-size:12px;"><b>In range — Produced:</b> '+tp.toFixed(2)+' &nbsp;·&nbsp; <b>→Paneer:</b> '+tpan.toFixed(2)+' &nbsp;·&nbsp; <b>→Ghee:</b> '+tg.toFixed(2)+' &nbsp;·&nbsp; <b>Sold:</b> '+ts.toFixed(2)+' kg<div style="margin-top:8px;font-size:15px;font-weight:800;color:#2e7d32;">🫙 Cream available as of '+to+' : '+bal.toFixed(2)+' kg</div><div style="margin-top:4px;font-size:10px;color:var(--muted);">Balance runs from the first cream date, so it is the same whatever From you pick. A negative value means usage &gt; produced over time \u2014 either cream stock existed before tracking, some separation was not logged, or paneer cream wasn\'t drawn from separated stock. Cross-check with a physical count.</div></div>';
+}
+(function(){ try{ var el=document.getElementById("sales-gs-url"); if(el) el.value=getSalesUrl(); }catch(e){} })();
 
 async function generateReport(type) {
   const from = document.getElementById('rpt-from').value;
@@ -3806,6 +3962,24 @@ function calcLCYieldAndPacking() {
   calcVariance('lc');
 }
 
+function calcIngTotal(prod) {
+  // Recalculate total ingredient cost for a product
+  // Finds all ing*_amt fields for the product and sums them
+  var total = 0;
+  var i = 1;
+  while(true) {
+    var amtEl = document.getElementById(prod + '_ing' + i + '_amt');
+    if(!amtEl) break;
+    total += parseFloat(amtEl.value) || 0;
+    i++;
+  }
+  var totalEl = document.getElementById(prod + '_ing_total');
+  if(totalEl) totalEl.value = total.toFixed(2);
+  // Also update ing_cost field used in COGS
+  var ingCostEl = document.getElementById(prod + '_ing_cost');
+  if(ingCostEl) ingCostEl.value = total.toFixed(2);
+}
+
 function calcLCCulture() {
   const type    = document.getElementById('lc_culture_type')?.value || '5dcu';
   const qty     = parseFloat(document.getElementById('lc_culture_qty')?.value) || 0;
@@ -4017,6 +4191,7 @@ function gv(id) { const el = document.getElementById(id); return el ? (el.value 
 function gn(id) { return parseFloat(gv(id)) || 0; }
 
 async function saveMilk() {
+  console.log('[PT] saveMilk() called, STATE.gsUrl=', STATE.gsUrl ? STATE.gsUrl.slice(0,40) : 'EMPTY');
   const data = gatherMilkData();
   STATE.todayMilk = data;
   const dateKey = (document.getElementById('entry-date').value||'').replace(/-/g,'');
@@ -4052,8 +4227,8 @@ function calculateAndShowSummary() {
 
   // Weighted milk rates
   const cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
-  const bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0);
-  const cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)+(m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)+(m.v2_cm_qty||0)*(m.v2_cm_rate||41);
+  const bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0)+(m.v4_bm_qty||0);
+  const cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)+(m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)+(m.v2_cm_qty||0)*(m.v2_cm_rate||41)+(m.v4_cm_qty||0)*(m.v4_cm_rate||41);
   const bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57);
   const wCM = cm > 0 ? cmC/cm : 41;
   const wBM = bm > 0 ? bmC/bm : 57;
@@ -4446,8 +4621,11 @@ function gatherMilkData() {
     v2_cm_qty:gn('v2_cm_qty'), v2_cm_fat:gn('v2_cm_fat'), v2_cm_snf:gn('v2_cm_snf'),
     v2_bm_qty:gn('v2_bm_qty'), v2_bm_fat:gn('v2_bm_fat'), v2_bm_snf:gn('v2_bm_snf'),
     v2_cm_rate:gn('v2_cm_rate')||41, v2_bm_rate:gn('v2_bm_rate')||57, v2_notes:gv('v2_notes'),
-    v3_bm_qty:gn('v3_bm_qty'), v3_bm_rate:gn('v3_bm_rate'),
+    v3_bm_qty:gn('v3_bm_qty'), v3_bm_fat:gn('v3_bm_fat'), v3_bm_snf:gn('v3_bm_snf'), v3_bm_rate:gn('v3_bm_rate'),
     v3_sk_qty:gn('v3_sk_qty'), v3_sk_snf:gn('v3_sk_snf'),
+    v4_cm_qty:gn('v4_cm_qty'), v4_cm_fat:gn('v4_cm_fat'), v4_cm_snf:gn('v4_cm_snf'), v4_cm_rate:gn('v4_cm_rate'),
+    v4_bm_qty:gn('v4_bm_qty'), v4_bm_fat:gn('v4_bm_fat'), v4_bm_snf:gn('v4_bm_snf'), v4_bm_rate:gn('v4_bm_rate'),
+    v4_notes:gv('v4_notes'), v4_deduct:gn('v4_deduct'),
     v3_sk_rate:gn('v3_sk_rate'), v3_notes:gv('v3_notes'),
     v1m_deduct:gn('v1m_deduct')||0, v1e_deduct:gn('v1e_deduct')||0,
     v2_deduct:gn('v2_deduct')||0,   v3_deduct:gn('v3_deduct')||0,
@@ -4637,15 +4815,17 @@ async function saveProducts() {
   // ── Inject weighted milk rates from today's milk purchase ──────────────
   // These are needed by logCOGSDaily in Apps Script to calculate COGS correctly
   const m = STATE.todayMilk || {};
-  const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
-  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0);
+  const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0)+(m.v4_cm_qty||0);
+  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0)+(m.v4_bm_qty||0);
   const _cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)
              + (m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)
-             + (m.v2_cm_qty||0)*(m.v2_cm_rate||41);
+             + (m.v2_cm_qty||0)*(m.v2_cm_rate||41)
+             + (m.v4_cm_qty||0)*(m.v4_cm_rate||41);
   const _bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)
              + (m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)
              + (m.v2_bm_qty||0)*(m.v2_bm_rate||57)
-             + (m.v3_bm_qty||0)*(m.v3_bm_rate||57);
+             + (m.v3_bm_qty||0)*(m.v3_bm_rate||57)
+             + (m.v4_bm_qty||0)*(m.v4_bm_rate||57);
   data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
   data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
   data.milk_wSK = m.v3_sk_rate || 24.5;
@@ -4720,10 +4900,18 @@ async function sendToGoogleSheet(type, data) {
     } else {
       await xhrGet(getUrl);
     }
-    showToast(type === 'MILK' ? 'Milk data sent ✓' : 'Production data sent ✓', 'success');
+    showToast(type === 'MILK' ? '✅ Milk data saved to sheet!' : '✅ Production data saved to sheet!', 'success');
+    // Also show a longer notification for milk saves
+    if(type === 'MILK') {
+      setTimeout(function() {
+        showToast('✅ Milk purchase saved successfully', 'success');
+      }, 100);
+    }
   } catch(err) {
     console.warn('Sheet sync failed:', err);
-    showToast('Sheet sync failed — saved locally. Check Setup URL.', 'error');
+    const errMsg = 'Sheet sync failed: ' + (err.message||err) + ' — Check URL in Setup';
+    showToast(errMsg, 'error');
+    console.error('sendToGoogleSheet failed:', err);
   }
 }
 
@@ -4937,7 +5125,7 @@ function autoApplyIngredientRates() {
   const saved = localStorage.getItem('ingredient_rates');
   if (!saved) return; // no saved rates yet — use defaults from HTML
   const r = JSON.parse(saved);
-  _applyRatesToForms(r);
+  _applyRatesToForms(r, true); // silent - no toast on auto-apply
 }
 
 function applyIngredientRatesToProducts() {
@@ -4946,7 +5134,7 @@ function applyIngredientRatesToProducts() {
   _applyRatesToForms(r);
 }
 
-function _applyRatesToForms(r) {
+function _applyRatesToForms(r, silent) {
 
   function set(id, val) {
     const el = document.getElementById(id);
@@ -5081,7 +5269,7 @@ function _applyRatesToForms(r) {
 
   const st = document.getElementById('ir_status');
   if (st) { st.textContent = '✓ Applied to all products'; st.style.display='inline-block'; setTimeout(()=>st.style.display='none',3000); }
-  showToast('✅ Ingredient rates applied to all products!', 'success');
+  if(!silent) showToast('✅ Ingredient rates applied to all products!', 'success');
 }
 
 // Override calcLCCulture and calcFCCulture to read rate from saved ingredient rates
@@ -5232,10 +5420,50 @@ function doGet(e) {
         .setMimeType(ContentService.MimeType.JSON);
     }
 
+    if (e.parameter.action === 'getCreamData') {
+      var tzCr = ss.getSpreadsheetTimeZone();
+      var acc = {};
+      function isoCr(cell){
+        if (cell instanceof Date) return Utilities.formatDate(cell, tzCr, 'yyyy-MM-dd');
+        var s = String(cell||'').trim().replace(/T.*$/,'');
+        var p = s.split(/[\/-]/);
+        if (p.length===3){ if (p[0].length===4) return p[0]+'-'+('0'+p[1]).slice(-2)+'-'+('0'+p[2]).slice(-2); return p[2]+'-'+('0'+p[1]).slice(-2)+'-'+('0'+p[0]).slice(-2); }
+        return '';
+      }
+      function ensCr(d){ if(!acc[d]) acc[d]={prod:0,pan:0,ghee:0}; return acc[d]; }
+      ss.getSheets().forEach(function(shx){
+        var nm = shx.getName();
+        var isMilk = nm.indexOf('Milk_Purchase')===0;
+        var isProd = nm==='Production' || nm.indexOf('Prod_OLD')===0;
+        if(!isMilk && !isProd) return;
+        if(shx.getLastRow()<2) return;
+        var data = shx.getRange(1,1,shx.getLastRow(),shx.getLastColumn()).getValues();
+        var hdr = data[0];
+        function ix(n){ return hdr.indexOf(n); }
+        var iPrd=ix('Cream Yield(kg)');
+        var iLP=ix('LP Cream(kg)'), iMFP=ix('MFP Cream(kg)'), iLFP=ix('LFP Cream(kg)'), iMP=ix('MP Cream(kg)'), iGh=ix('Ghee Cream In(kg)');
+        for(var r=1;r<data.length;r++){
+          var d=isoCr(data[r][0]); if(!d) continue;
+          var e2=ensCr(d);
+          if(isMilk && iPrd>=0) e2.prod += parseFloat(data[r][iPrd])||0;
+          if(isProd){
+            if(iLP>=0)  e2.pan  += parseFloat(data[r][iLP])||0;
+            if(iMFP>=0) e2.pan  += parseFloat(data[r][iMFP])||0;
+            if(iLFP>=0) e2.pan  += parseFloat(data[r][iLFP])||0;
+            if(iMP>=0)  e2.pan  += parseFloat(data[r][iMP])||0;
+            if(iGh>=0)  e2.ghee += parseFloat(data[r][iGh])||0;
+          }
+        }
+      });
+      var rowsCr = Object.keys(acc).sort().map(function(d){ return {date:d, produced:acc[d].prod, paneer:acc[d].pan, ghee:acc[d].ghee}; });
+      return ContentService.createTextOutput(JSON.stringify({rows:rowsCr})).setMimeType(ContentService.MimeType.JSON);
+    }
+
     if (e.parameter.action === 'getReportData') {
       var tz = ss.getSpreadsheetTimeZone();
       var baseSheet = e.parameter.sheet || 'COGS_Daily';
       if (baseSheet === 'Production') baseSheet = 'COGS_Daily';
+      if (baseSheet === 'ProductionRaw') baseSheet = 'Production';  // cream report reads raw Production sheet
       var sheetPrefix = baseSheet; // e.g. 'Milk_Purchase' or 'COGS_Daily'
 
       // If from/to dates provided, collect rows from ALL monthly sheets that
@@ -5698,6 +5926,13 @@ function logStock(ss, d) {
     sh.appendRow([parseDateStr(d.date)||'','FC to Lassi','kg',d.fc_to_lassi||0,'','','','','','','']);
 }
 
+
+function migrateMilkPurchaseSheet(ss, sheetName) {
+  // No longer needed - logMilkData now writes by column name
+  // and adds missing columns automatically
+}
+
+
 function getOrCreateSheet(ss, name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
@@ -6038,23 +6273,11 @@ function insertRowInDateOrder(sh, rowData, dateStr) {
 function logMilk(ss, d) {
   // Use month-wise sheet e.g. Milk_Purchase_Apr2026
   const sheetName = getMonthlySheetName('Milk_Purchase', d.date);
+  migrateMilkPurchaseSheet(ss, sheetName);
   const sh = getOrCreateSheet(ss, sheetName);
   const needsHeader = sh.getLastRow() === 0 ||
     (sh.getLastRow() >= 1 && sh.getRange(1,1).getValue() !== 'Date');
-  // Also check if V3 BM columns exist - if not, we need to insert them
-  if (!needsHeader && sh.getLastRow() >= 1) {
-    var existingHeaders = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
-    var hasV3BM = existingHeaders.indexOf('V3 BM Qty(L)') >= 0;
-    if (!hasV3BM) {
-      // Find V2 Deduct column and insert 2 columns after it (before V3 Skim)
-      var v2DeductIdx = existingHeaders.indexOf('V2 Deduct(L)');
-      if (v2DeductIdx >= 0) {
-        sh.insertColumnsAfter(v2DeductIdx + 1, 2);  // +1 for 1-based index
-        sh.getRange(1, v2DeductIdx + 2).setValue('V3 BM Qty(L)');
-        sh.getRange(1, v2DeductIdx + 3).setValue('V3 BM Rate(Rs/L)');
-      }
-    }
-  }
+
   if (needsHeader) {
     const targetSh = ss.getSheetByName(sheetName);
     targetSh.appendRow([
@@ -6071,8 +6294,12 @@ function logMilk(ss, d) {
       'V2 BM Qty(L)','V2 BM Fat%','V2 BM SNF%','V2 BM Rate(Rs/L)','V2 BM Amount(Rs)',
       'V2 Notes',
       'V2 Deduct(L)',
-      'V3 BM Qty(L)','V3 BM Rate(Rs/L)','V3 Skim Qty(L)','V3 Skim SNF%','V3 Skim Rate(Rs/L)','V3 Skim Amount(Rs)','V3 Notes',
+      'V3 BM Qty(L)','V3 BM Fat%','V3 BM SNF%','V3 BM Rate(Rs/L)','V3 Skim Qty(L)','V3 Skim SNF%','V3 Skim Rate(Rs/L)','V3 Skim Amount(Rs)','V3 Notes',
       'V3 Deduct(L)',
+      'V4 CM Qty(L)','V4 CM Fat%','V4 CM SNF%','V4 CM Rate(Rs/L)','V4 CM Amount(Rs)',
+      'V4 BM Qty(L)','V4 BM Fat%','V4 BM SNF%','V4 BM Rate(Rs/L)','V4 BM Amount(Rs)',
+      'V4 Notes',
+      'V4 Deduct(L)',
 
       'TOTAL CM Qty(L)','TOTAL CM Amount(Rs)','Avg CM Rate(Rs/L)',
       'TOTAL BM Qty(L)','TOTAL BM Amount(Rs)','Avg BM Rate(Rs/L)',
@@ -6097,46 +6324,108 @@ function logMilkData(sh, d) {
   const v2CMqty=d.v2_cm_qty||0,   v2CMrate=d.v2_cm_rate||41;
   const v2BMqty=d.v2_bm_qty||0,   v2BMrate=d.v2_bm_rate||57;
   const v3BMqty=d.v3_bm_qty||0,   v3BMrate=d.v3_bm_rate||57;
+  const v4CMqty=d.v4_cm_qty||0,   v4CMrate=d.v4_cm_rate||41;
+  const v4BMqty=d.v4_bm_qty||0,   v4BMrate=d.v4_bm_rate||57;
+  const v4CMamt=v4CMqty*v4CMrate,  v4BMamt=v4BMqty*v4BMrate;
   const v3SKqty=d.v3_sk_qty||0,   v3SKrate=d.v3_sk_rate||24.5;
   const v1mCMamt=v1mCMqty*v1mCMrate, v1mBMamt=v1mBMqty*v1mBMrate;
   const v1eCMamt=v1eCMqty*v1eCMrate, v1eBMamt=v1eBMqty*v1eBMrate;
   const v2CMamt=v2CMqty*v2CMrate, v2BMamt=v2BMqty*v2BMrate;
   const v3SKamt=v3SKqty*v3SKrate;
-  const totCMqty=v1mCMqty+v1eCMqty+v2CMqty, totBMqty=v1mBMqty+v1eBMqty+v2BMqty+v3BMqty;
-  const totCMamt=v1mCMamt+v1eCMamt+v2CMamt, totBMamt=v1mBMamt+v1eBMamt+v2BMamt+v3BMqty*v3BMrate;
+  const totCMqty=v1mCMqty+v1eCMqty+v2CMqty+v4CMqty;
+  const totBMqty=v1mBMqty+v1eBMqty+v2BMqty+v3BMqty+v4BMqty;
+  const totCMamt=v1mCMamt+v1eCMamt+v2CMamt+v4CMamt;
+  const totBMamt=v1mBMamt+v1eBMamt+v2BMamt+v3BMqty*v3BMrate+v4BMamt;
   const avgCMrate=totCMqty>0?(totCMamt/totCMqty).toFixed(2):0;
   const avgBMrate=totBMqty>0?(totBMamt/totBMqty).toFixed(2):0;
   const grandTotal=totCMamt+totBMamt+v3SKamt;
   const v1Payable=v1mCMamt+v1mBMamt+v1eCMamt+v1eBMamt;
   const r=n=>Math.round(n*100)/100;
-  insertRowInDateOrder(sh, [
-    parseDateStr(d.date),
-    v1mCMqty,d.v1m_cm_fat||'',d.v1m_cm_snf||'',v1mCMrate||'',r(v1mCMamt)||'',
-    v1mBMqty,d.v1m_bm_fat||'',d.v1m_bm_snf||'',v1mBMrate||'',r(v1mBMamt)||'',
-    d.v1m_notes||'',
-    d.v1m_deduct||0,
-    v1eCMqty,d.v1e_cm_fat||'',d.v1e_cm_snf||'',v1eCMrate||'',r(v1eCMamt)||'',
-    v1eBMqty,d.v1e_bm_fat||'',d.v1e_bm_snf||'',v1eBMrate||'',r(v1eBMamt)||'',
-    d.v1e_notes||'',
-    d.v1e_deduct||0,
-    v2CMqty,d.v2_cm_fat||'',d.v2_cm_snf||'',v2CMrate,r(v2CMamt),
-    v2BMqty,d.v2_bm_fat||'',d.v2_bm_snf||'',v2BMrate,r(v2BMamt),
-    d.v2_notes||'',
-    d.v2_deduct||0,
-    v3BMqty,v3BMrate,v3SKqty,d.v3_sk_snf||'',v3SKrate,r(v3SKamt),d.v3_notes||'',
-    d.v3_deduct||0,
-    totCMqty,r(totCMamt),avgCMrate,
-    totBMqty,r(totBMamt),avgBMrate,
-    v3BMqty,r(v3BMqty*v3BMrate),v3SKqty,r(v3SKamt),r(grandTotal),
-    r(v1Payable),r(v2CMamt),r(v2BMamt),r(v3BMqty*v3BMrate),r(v3SKamt),
-    d.cream_milk_l||0,d.cream_yield_kg||0,d.cream_std_pct||5.7,
-    d.cream_theor_kg||0,d.cream_actual_pct||0,d.cream_var_kg||0,d.cream_var_pct||0
-  ]);
-  const lr=sh.getLastRow(), lc=sh.getLastColumn();
+
+  // Build data map: column header → value
+  const dataMap = {
+    'Date': parseDateStr(d.date),
+    'V1 Morn CM Qty(L)': v1mCMqty, 'V1 Morn CM Fat%': d.v1m_cm_fat||'',
+    'V1 Morn CM SNF%': d.v1m_cm_snf||'', 'V1 Morn CM Rate(Rs/L)': v1mCMrate||'',
+    'V1 Morn CM Amount(Rs)': r(v1mCMamt)||'',
+    'V1 Morn BM Qty(L)': v1mBMqty, 'V1 Morn BM Fat%': d.v1m_bm_fat||'',
+    'V1 Morn BM SNF%': d.v1m_bm_snf||'', 'V1 Morn BM Rate(Rs/L)': v1mBMrate||'',
+    'V1 Morn BM Amount(Rs)': r(v1mBMamt)||'',
+    'V1 Morning Notes': d.v1m_notes||'', 'V1 Morning Deduct(L)': d.v1m_deduct||0,
+    'V1 Eve CM Qty(L)': v1eCMqty, 'V1 Eve CM Fat%': d.v1e_cm_fat||'',
+    'V1 Eve CM SNF%': d.v1e_cm_snf||'', 'V1 Eve CM Rate(Rs/L)': v1eCMrate||'',
+    'V1 Eve CM Amount(Rs)': r(v1eCMamt)||'',
+    'V1 Eve BM Qty(L)': v1eBMqty, 'V1 Eve BM Fat%': d.v1e_bm_fat||'',
+    'V1 Eve BM SNF%': d.v1e_bm_snf||'', 'V1 Eve BM Rate(Rs/L)': v1eBMrate||'',
+    'V1 Eve BM Amount(Rs)': r(v1eBMamt)||'',
+    'V1 Evening Notes': d.v1e_notes||'', 'V1 Evening Deduct(L)': d.v1e_deduct||0,
+    'V2 CM Qty(L)': v2CMqty, 'V2 CM Fat%': d.v2_cm_fat||'',
+    'V2 CM SNF%': d.v2_cm_snf||'', 'V2 CM Rate(Rs/L)': v2CMrate,
+    'V2 CM Amount(Rs)': r(v2CMamt),
+    'V2 BM Qty(L)': v2BMqty, 'V2 BM Fat%': d.v2_bm_fat||'',
+    'V2 BM SNF%': d.v2_bm_snf||'', 'V2 BM Rate(Rs/L)': v2BMrate,
+    'V2 BM Amount(Rs)': r(v2BMamt),
+    'V2 Notes': d.v2_notes||'', 'V2 Deduct(L)': d.v2_deduct||0,
+    'V3 BM Qty(L)': v3BMqty, 'V3 BM Fat%': d.v3_bm_fat||'',
+    'V3 BM SNF%': d.v3_bm_snf||'', 'V3 BM Rate(Rs/L)': v3BMrate,
+    'V3 Skim Qty(L)': v3SKqty, 'V3 Skim SNF%': d.v3_sk_snf||'',
+    'V3 Skim Rate(Rs/L)': v3SKrate, 'V3 Skim Amount(Rs)': r(v3SKamt),
+    'V3 Notes': d.v3_notes||'', 'V3 Deduct(L)': d.v3_deduct||0,
+    'V4 CM Qty(L)': v4CMqty, 'V4 CM Fat%': d.v4_cm_fat||'',
+    'V4 CM SNF%': d.v4_cm_snf||'', 'V4 CM Rate(Rs/L)': v4CMrate,
+    'V4 CM Amount(Rs)': r(v4CMamt),
+    'V4 BM Qty(L)': v4BMqty, 'V4 BM Fat%': d.v4_bm_fat||'',
+    'V4 BM SNF%': d.v4_bm_snf||'', 'V4 BM Rate(Rs/L)': v4BMrate,
+    'V4 BM Amount(Rs)': r(v4BMamt),
+    'V4 Notes': d.v4_notes||'', 'V4 Deduct(L)': d.v4_deduct||0,
+    'TOTAL CM Qty(L)': totCMqty, 'TOTAL CM Amount(Rs)': r(totCMamt),
+    'Avg CM Rate(Rs/L)': avgCMrate,
+    'TOTAL BM Qty(L)': totBMqty, 'TOTAL BM Amount(Rs)': r(totBMamt),
+    'Avg BM Rate(Rs/L)': avgBMrate,
+    'TOTAL Skim Qty(L)': v3SKqty, 'TOTAL Skim Amount(Rs)': r(v3SKamt),
+    'GRAND TOTAL MILK COST(Rs)': r(grandTotal),
+    'V1 TOTAL PAYABLE(Rs)': r(v1Payable),
+    'V2 CM PAYABLE(Rs)': r(v2CMamt),
+    'V2 BM PAYABLE(Rs)': r(v2BMamt),
+    'V3 PAYABLE(Rs)': r(v3BMqty*v3BMrate+v3SKamt+v4CMamt+v4BMamt),
+    'Cream CM Separated(L)': d.cream_milk_l||0,
+    'Cream Yield(kg)': d.cream_yield_kg||0,
+    'Cream Std%': d.cream_std_pct||5.7,
+    'Cream Theoretical(kg)': d.cream_theor_kg||0,
+    'Cream Actual%': d.cream_actual_pct||0,
+    'Cream Variance(kg)': d.cream_var_kg||0,
+    'Cream Variance%': d.cream_var_pct||0
+  };
+
+  // Get current headers from sheet
+  var lastCol = sh.getLastColumn();
+  var headers = lastCol > 0 ? sh.getRange(1, 1, 1, lastCol).getValues()[0] : [];
+
+  // Add any missing headers
+  var expectedHeaders = Object.keys(dataMap);
+  expectedHeaders.forEach(function(h) {
+    if (headers.indexOf(h) === -1) {
+      lastCol++;
+      sh.getRange(1, lastCol).setValue(h)
+        .setBackground('#1A1208').setFontColor('#FFFFFF').setFontWeight('bold');
+      headers.push(h);
+    }
+  });
+
+  // Build row array matching current header order
+  var rowArr = headers.map(function(h) {
+    return (h in dataMap) ? dataMap[h] : '';
+  });
+
+  // Insert row in date order
+  insertRowInDateOrder(sh, rowArr);
+
+  var lr = sh.getLastRow(), lc = sh.getLastColumn();
   sh.getRange(lr,1,1,1).setNumberFormat('dd/mm/yyyy');
   sh.getRange(lr,lc-3,1,4).setBackground('#FFF3CD').setFontWeight('bold');
   sh.getRange(lr,lc-4,1,1).setBackground('#FDEDEC').setFontWeight('bold');
 }
+
 
 function logProducts(ss, d) {
   const shP = getOrCreateSheet(ss, 'Production');
@@ -6325,7 +6614,7 @@ function colorVarianceRow(sh, row, variance) {
   sh.getRange(row, 1, 1, 9).setBackground(color);
 }
 `;
-  // Script code is loaded lazily when user clicks to reveal (see toggleScriptPanel)
+  return code;
 }
 
 function toggleScriptPanel() {
@@ -6337,12 +6626,14 @@ function toggleScriptPanel() {
   // Load script content only when first revealed (lazy load)
   if(isHidden) {
     const pre = document.getElementById('apps-script-code');
-    if(!pre.textContent) pre.textContent = getAppsScriptCode ? getAppsScriptCode() : '';
+    if(!pre.textContent) pre.textContent = (typeof setAppsScriptCode==='function' ? setAppsScriptCode() : '');
   }
 }
 
 function copyScript() {
-  const code = document.getElementById('apps-script-code').textContent;
+  var preEl = document.getElementById('apps-script-code');
+  var code = preEl.textContent;
+  if(!code && typeof setAppsScriptCode==='function'){ code = setAppsScriptCode(); preEl.textContent = code; }
   if(navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(code)
       .then(() => showToast('✓ Script copied! Now paste in Apps Script editor.', 'success'))
@@ -6541,7 +6832,10 @@ function loadDateData(iso) {
     'v1e_bm_qty','v1e_bm_fat','v1e_bm_snf','v1e_bm_rate','v1e_notes','v1e_deduct',
     'v2_cm_qty','v2_cm_fat','v2_cm_snf','v2_cm_rate',
     'v2_bm_qty','v2_bm_fat','v2_bm_snf','v2_bm_rate','v2_notes','v2_deduct',
-    'v3_bm_qty','v3_bm_rate','v3_sk_qty','v3_sk_snf','v3_sk_rate','v3_notes','v3_deduct',
+    'v3_bm_qty','v3_bm_fat','v3_bm_snf','v3_bm_rate','v3_sk_qty','v3_sk_snf','v3_sk_rate','v3_notes','v3_deduct',
+    'v4_cm_qty','v4_cm_fat','v4_cm_snf','v4_cm_rate',
+    'v4_bm_qty','v4_bm_fat','v4_bm_snf','v4_bm_rate',
+    'v4_notes','v4_deduct',
     'cream_milk_l','cream_yield_kg','cream_std_pct'
   ];
   if (savedMilk) {
