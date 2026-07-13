@@ -174,7 +174,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v135</span>
+    <span>PRODUCTION TRACKER v137</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -1869,7 +1869,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <button onclick="saveSalesUrl(document.getElementById('sales-gs-url').value)" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:11px;cursor:pointer;">Save</button>
     </div>
     <div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <label style="font-size:10px;color:var(--muted);">Opening cream before the first tracked day (kg)</label>
+      <label style="font-size:10px;color:var(--muted);">Physical cream count on the From date (kg)</label>
       <input type="number" id="cream-open-bal" value="0" step="0.01" style="width:110px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:6px 8px;font-size:11px;color:var(--ink);">
     </div>
   </div></div>
@@ -3260,8 +3260,9 @@ async function fetchCreamSalesByDate(fromISO,toISO){
   return map;
 }
 async function generateCreamReport(){
+  var ANCHOR_DATE="2026-07-10", ANCHOR_KG=56;   // hardcoded physical count — baseline for the running balance
   var from=document.getElementById("rpt-from").value, to=document.getElementById("rpt-to").value;
-  if(!from||!to){ showToast("Pick a From and To date","error"); return; }
+  if(!to){ to=new Date().toISOString().slice(0,10); }
   var out=document.getElementById("rpt-output"); out.style.display="block";
   document.getElementById("rpt-title").textContent="🫙 Cream Reconciliation";
   document.getElementById("rpt-table-wrap").innerHTML='<div style="padding:16px;color:var(--muted);font-size:12px;">Loading cream trail from production + sales…</div>';
@@ -3269,41 +3270,36 @@ async function generateCreamReport(){
   try{ out.scrollIntoView({behavior:"smooth",block:"start"}); }catch(e){}
   var perDate={}, url=STATE.gsUrl;
   function _ensure(iso){ if(!perDate[iso]) perDate[iso]={prod:0,pan:0,ghee:0,sold:0}; return perDate[iso]; }
-  // Produced + paneer + ghee — for ALL dates (the running balance must start at inception, not at the selected From)
+  // Produced + paneer + ghee — only AFTER the anchor date (that is the complete, reliable period)
   try{
     var rc=await fetch(url+"?action=getCreamData");
     var jc=await rc.json();
     (jc.rows||[]).forEach(function(row){
-      var iso=String(row.date||"").slice(0,10); if(!iso) return;
+      var iso=String(row.date||"").slice(0,10);
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(iso) || iso<=ANCHOR_DATE || iso>to) return;
       var e=_ensure(iso);
       e.prod += parseFloat(row.produced)||0;
       e.pan  += parseFloat(row.paneer)||0;
       e.ghee += parseFloat(row.ghee)||0;
     });
   }catch(e){}
-  // Sold — fetch from the first cream date (inception) through To, so it is included in the running balance
-  var _valid=function(d){ return /^\d{4}-\d{2}-\d{2}$/.test(d) && d>="2026-01-01" && d<=to; };
-  var pk=Object.keys(perDate).filter(_valid).sort();
-  var earliest = pk.length ? pk[0] : from;
-  if(earliest>from) earliest=from;
-  var soldMap=await fetchCreamSalesByDate(earliest, to);
-  Object.keys(soldMap).forEach(function(dt){ _ensure(dt).sold+=soldMap[dt]; });
-  // Every date up to To, in order — accumulate from inception; display only From..To
-  var allKeys=Object.keys(perDate).filter(_valid).sort();
-  if(!allKeys.length){ document.getElementById("rpt-table-wrap").innerHTML='<div style="padding:16px;color:var(--muted);">No cream data up to this date. Check the Sales App URL and that production was logged.</div>'; return; }
-  var oe=document.getElementById("cream-open-bal"); var bal=oe?(parseFloat(oe.value)||0):0;
+  var soldMap=await fetchCreamSalesByDate(ANCHOR_DATE, to);
+  Object.keys(soldMap).forEach(function(dt){ if(dt>ANCHOR_DATE && dt<=to) _ensure(dt).sold+=soldMap[dt]; });
+  var accKeys=Object.keys(perDate).sort();          // all dates after the anchor, up to To
+  var bal=ANCHOR_KG;                                 // start from the measured 56 kg
+  var showFrom=(from && from>ANCHOR_DATE)?from:ANCHOR_DATE;
   var tp=0,tpan=0,tg=0,ts=0, rowsHtml='';
-  allKeys.forEach(function(dt){
+  rowsHtml+='<tr style="border-bottom:2px solid #1a3a2a;background:#f4f1e8;"><td style="padding:6px 8px;font-weight:700;">'+ANCHOR_DATE+'</td><td colspan="4" style="padding:6px 6px;color:var(--muted);">\u2b50 Physical count (baseline)</td><td></td><td style="padding:6px 6px;text-align:right;font-weight:800;">'+ANCHOR_KG.toFixed(2)+'</td></tr>';
+  accKeys.forEach(function(dt){
     var e=perDate[dt], open=bal, close=open+e.prod-e.pan-e.ghee-e.sold;
-    bal=close;                       // always carry forward from inception
-    if(dt<from) return;              // computed (carried) but not displayed
-    tp+=e.prod; tpan+=e.pan; tg+=e.ghee; ts+=e.sold;
+    tp+=e.prod; tpan+=e.pan; tg+=e.ghee; ts+=e.sold; bal=close;
+    if(from && dt<from) return;   // carried forward but not displayed
     var neg=close<0?"color:#C0392B;font-weight:700;":"";
     rowsHtml+='<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 8px;">'+dt+'</td><td style="padding:6px 6px;text-align:right;">'+open.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;color:#2e7d32;">'+e.prod.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.pan.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.ghee.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;">'+e.sold.toFixed(2)+'</td><td style="padding:6px 6px;text-align:right;font-weight:700;'+neg+'">'+close.toFixed(2)+'</td></tr>';
   });
   var html='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1a3a2a;color:#fff;"><th style="padding:8px 8px;text-align:left;">Date</th><th style="padding:8px 6px;text-align:right;">Open</th><th style="padding:8px 6px;text-align:right;">Produced</th><th style="padding:8px 6px;text-align:right;">→Paneer</th><th style="padding:8px 6px;text-align:right;">→Ghee</th><th style="padding:8px 6px;text-align:right;">Sold</th><th style="padding:8px 6px;text-align:right;">Available</th></tr></thead><tbody>'+rowsHtml+'</tbody></table>';
   document.getElementById("rpt-table-wrap").innerHTML=html;
-  document.getElementById("rpt-total-wrap").innerHTML='<div style="font-size:12px;"><b>In range — Produced:</b> '+tp.toFixed(2)+' &nbsp;·&nbsp; <b>→Paneer:</b> '+tpan.toFixed(2)+' &nbsp;·&nbsp; <b>→Ghee:</b> '+tg.toFixed(2)+' &nbsp;·&nbsp; <b>Sold:</b> '+ts.toFixed(2)+' kg<div style="margin-top:8px;font-size:15px;font-weight:800;color:#2e7d32;">🫙 Cream available as of '+to+' : '+bal.toFixed(2)+' kg</div><div style="margin-top:4px;font-size:10px;color:var(--muted);">Balance runs from the first cream date, so it is the same whatever From you pick. A negative value means usage &gt; produced over time \u2014 either cream stock existed before tracking, some separation was not logged, or paneer cream wasn\'t drawn from separated stock. Cross-check with a physical count.</div></div>';
+  document.getElementById("rpt-total-wrap").innerHTML='<div style="font-size:12px;"><b>Since 10 Jul \u2014 Produced:</b> '+tp.toFixed(2)+' &nbsp;·&nbsp; <b>→Paneer:</b> '+tpan.toFixed(2)+' &nbsp;·&nbsp; <b>→Ghee:</b> '+tg.toFixed(2)+' &nbsp;·&nbsp; <b>Sold:</b> '+ts.toFixed(2)+' kg<div style="margin-top:8px;font-size:15px;font-weight:800;color:#2e7d32;">🫙 Cream available as of '+to+' : '+bal.toFixed(2)+' kg</div><div style="margin-top:4px;font-size:10px;color:var(--muted);">Anchored to your physical count of <b>56 kg on 10 Jul 2026</b>, then produced \u2212 paneer \u2212 ghee \u2212 sold each day. Same result whatever From you pick. Cross-check with a fresh physical count any time; any gap = leakage / measurement variance.</div></div>';
 }
 (function(){ try{ var el=document.getElementById("sales-gs-url"); if(el) el.value=getSalesUrl(); }catch(e){} })();
 
