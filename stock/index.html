@@ -91,8 +91,10 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
     <h3>Settings</h3>
     <label>Google Sheet URL (same as production tracker)</label>
     <input type="url" id="set-url" placeholder="https://script.google.com/macros/s/.../exec">
-    <label>Access PIN (4 digits)</label>
+    <label>Access PIN (4 digits) — for staff to enter stock</label>
     <input type="text" inputmode="numeric" maxlength="4" id="set-pin">
+    <label>Admin PIN (4 digits) — to open this Settings screen</label>
+    <input type="text" inputmode="numeric" maxlength="4" id="set-admin">
     <div class="row">
       <button class="btn-s" onclick="closeSettings()">Cancel</button>
       <button class="btn-p" onclick="saveSettings()">Save</button>
@@ -118,6 +120,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 // ── CONFIG ────────────────────────────────────────────────────────────
 var DEFAULT_URL='https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec';
 var DEFAULT_PIN='2580';
+var DEFAULT_ADMIN='1379';   // admin-only PIN to open Settings / see the Sheet link
 // Products (physical count) — matches the production tracker's Stock_Register
 var PRODUCTS=[
  {id:'cream',name:'Cream',unit:'kg'},
@@ -125,20 +128,21 @@ var PRODUCTS=[
  {id:'mfp',name:'Med Fat Paneer',unit:'kg'},
  {id:'lfp',name:'Low Fat Paneer',unit:'kg'},
  {id:'mp',name:'Malai Paneer',unit:'pcs'},
- {id:'gh_p',name:'Ghee Pouches 1L',unit:'nos'},
+ {id:'gh_p',name:'Ghee Pouches 500ml',unit:'nos'},
  {id:'gh_j',name:'Ghee Jars 500ml',unit:'nos'},
- {id:'gh_t',name:'Ghee Tins 5L',unit:'nos'},
  {id:'fc',name:'Fresh Curd',unit:'kg'},
  {id:'lc',name:'Lite Curd',unit:'kg'},
  {id:'ch_500',name:'Chaach 500ml',unit:'bottles'},
  {id:'ch_1l',name:'Chaach 1L',unit:'bottles'},
  {id:'sl',name:'Sweet Lassi',unit:'cups'},
  {id:'ml',name:'Mango Lassi',unit:'cups'},
- {id:'cmk',name:'CM Khoya',unit:'kg'},
+ {id:'cmk',name:'CM Khoya 5kg Bags',unit:'bags'},
+ {id:'cmk1',name:'CM Khoya 1kg Bags',unit:'bags'},
  {id:'stk',name:'Std Khoya',unit:'kg'}
 ];
 function gsUrl(){ return (localStorage.getItem('ps_url')||DEFAULT_URL).trim(); }
 function pin(){ return localStorage.getItem('ps_pin')||DEFAULT_PIN; }
+function adminPin(){ return localStorage.getItem('ps_adminpin')||DEFAULT_ADMIN; }
 function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2600); }
 
 // ── PIN GATE ──────────────────────────────────────────────────────────
@@ -229,11 +233,20 @@ async function sendStock(data){
 }
 
 // ── SETTINGS ──────────────────────────────────────────────────────────
-function openSettings(){ document.getElementById('set-url').value=gsUrl(); document.getElementById('set-pin').value=pin(); document.getElementById('modal-set').classList.add('open'); }
+function openSettings(){
+  var a=prompt('Admin PIN (staff cannot open Settings):');
+  if(a===null) return;
+  if(a.trim()!==adminPin()){ toast('Wrong admin PIN'); return; }
+  document.getElementById('set-url').value=gsUrl();
+  document.getElementById('set-pin').value=pin();
+  document.getElementById('set-admin').value=adminPin();
+  document.getElementById('modal-set').classList.add('open');
+}
 function closeSettings(){ document.getElementById('modal-set').classList.remove('open'); }
 function saveSettings(){
   var u=document.getElementById('set-url').value.trim(); if(u) localStorage.setItem('ps_url',u);
   var p=document.getElementById('set-pin').value.trim(); if(/^\d{4}$/.test(p)) localStorage.setItem('ps_pin',p); else if(p){ toast('PIN must be 4 digits'); return; }
+  var ap=document.getElementById('set-admin').value.trim(); if(/^\d{4}$/.test(ap)) localStorage.setItem('ps_adminpin',ap); else if(ap){ toast('Admin PIN must be 4 digits'); return; }
   closeSettings(); toast('✓ Settings saved');
 }
 
