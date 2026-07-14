@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="theme-color" content="#1A1208">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gaavn Tracker">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27180%27%20height%3D%27180%27%3E%3Crect%20width%3D%27180%27%20height%3D%27180%27%20rx%3D%2740%27%20fill%3D%27%23E8870A%27/%3E%3Ctext%20x%3D%2790%27%20y%3D%27120%27%20font-size%3D%2792%27%20font-family%3D%27Arial%27%20font-weight%3D%27bold%27%20text-anchor%3D%27middle%27%20fill%3D%27%231A1208%27%3EGF%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22Gaavn%20Production%20Tracker%22%2C%20%22short_name%22%3A%20%22Gaavn%20Tracker%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22scope%22%3A%20%22.%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22orientation%22%3A%20%22portrait%22%2C%20%22background_color%22%3A%20%22%23FDF6E3%22%2C%20%22theme_color%22%3A%20%22%231A1208%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A//www.w3.org/2000/svg%2527%2520width%253D%2527180%2527%2520height%253D%2527180%2527%253E%253Crect%2520width%253D%2527180%2527%2520height%253D%2527180%2527%2520rx%253D%252740%2527%2520fill%253D%2527%2523E8870A%2527/%253E%253Ctext%2520x%253D%252790%2527%2520y%253D%2527120%2527%2520font-size%253D%252792%2527%2520font-family%253D%2527Arial%2527%2520font-weight%253D%2527bold%2527%2520text-anchor%253D%2527middle%2527%2520fill%253D%2527%25231A1208%2527%253EGF%253C/text%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%22any%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%22%7D%5D%7D">
 <title>Gaavn Fresh — Production Tracker v1.06</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -32,7 +39,7 @@ body{background:var(--cream);font-family:'Space Grotesk',sans-serif;color:var(--
 .app-title span{color:var(--gold);display:block;font-size:10px;font-family:'Space Mono';letter-spacing:2px;font-weight:400;margin-top:1px;}
 .date-pill{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-family:'Space Mono';font-size:11px;color:var(--gold);}
 /* TABS */
-.tabs{display:flex;background:var(--ink);border-bottom:2px solid var(--amber);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.tabs{display:flex;scroll-snap-type:x proximity;background:var(--ink);border-bottom:2px solid var(--amber);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
 .tabs::-webkit-scrollbar{display:none;}
 input[type=number],input[type=text],textarea{font-size:16px!important;} /* prevents iOS zoom on focus */
 .btn-submit{min-height:48px;} /* larger tap target for submit buttons */
@@ -55,7 +62,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 .prod-btn.done::after{content:'✓';position:absolute;top:4px;right:6px;font-size:10px;color:var(--green);font-weight:700;}
 .prod-card{display:none;}
 .btn-back{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);-webkit-tap-highlight-color:rgba(0,0,0,0.1);}
-.tab{padding:13px 14px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;margin-bottom:-2px;transition:all 0.2s;font-family:'Space Mono';-webkit-tap-highlight-color:rgba(200,150,50,0.3);user-select:none;-webkit-user-select:none;min-width:50px;text-align:center;background:transparent;-webkit-appearance:none;appearance:none;outline:none;}
+.tab{flex:0 0 auto;scroll-snap-align:start;padding:13px 16px;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:rgba(255,255,255,0.5);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;margin-bottom:-2px;transition:all 0.2s;font-family:'Space Mono';-webkit-tap-highlight-color:rgba(200,150,50,0.3);user-select:none;-webkit-user-select:none;min-width:50px;text-align:center;background:transparent;-webkit-appearance:none;appearance:none;outline:none;}
 .tab.active{color:var(--gold);border-bottom-color:var(--gold);}
 /* SECTIONS */
 .section{display:none;padding:16px;max-width:900px;margin:0 auto;}
@@ -174,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v138</span>
+    <span>PRODUCTION TRACKER v141</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -187,6 +194,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       onchange="onDateChange(this.value)">
   </div>
 </div>
+<div id="net-banner" style="display:none;text-align:center;padding:8px 12px;font-family:'Space Mono';font-size:11px;font-weight:700;color:#fff;letter-spacing:0.3px;"></div>
 <div id="date-banner" style="display:none;background:var(--amber2);color:#fff;
      text-align:center;padding:7px;font-family:'Space Mono';font-size:11px;font-weight:700;
      letter-spacing:1px;"></div>
@@ -1924,6 +1932,15 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button class="rpt-btn" onclick="generateReport('cogs')" ontouchstart="">
       💰 COGS Summary<br><small>Revenue, cost, GM% by product</small>
     </button>
+    <button class="rpt-btn" onclick="generateReport('avgcogs')" ontouchstart="" style="grid-column:1/-1;background:rgba(230,126,34,0.08);border-color:rgba(230,126,34,0.45);">
+      📊 Avg COGS / kg — for Quotes<br><small>Weighted average cost per kg per product · pick a single date or a range</small>
+    </button>
+    <button class="rpt-btn" onclick="generateReport('avgyield')" ontouchstart="" style="grid-column:1/-1;background:rgba(41,128,185,0.07);border-color:rgba(41,128,185,0.4);">
+      📈 Avg Yield by Product<br><small>Weighted average yield % &amp; variance per product over the range</small>
+    </button>
+    <button class="rpt-btn" onclick="generateReport('milkquality')" ontouchstart="" style="grid-column:1/-1;background:rgba(192,57,43,0.06);border-color:rgba(192,57,43,0.4);">
+      ⚠️ Milk Quality / Spoilage<br><small>Dates with spoilt/rejected milk &amp; quality notes — spot weather-driven spoilage</small>
+    </button>
     <button class="rpt-btn" onclick="generateCreamReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(46,125,50,0.06);border-color:rgba(46,125,50,0.35);">
       🫙 Cream Reconciliation<br><small>Produced − Ghee − Sold = inventory as of any date · sold auto-fetched from Sales App</small>
     </button>
@@ -2492,6 +2509,7 @@ function showTab(id, el) {
   // Mark active tab button — use passed element or find by id
   var btn = el || document.getElementById('tab-btn-'+id);
   if (btn) btn.classList.add('active');
+  if (btn && btn.scrollIntoView) { try{ btn.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'}); }catch(e){} }
   if (id === 'summary') calculateAndShowSummary();
   if (id === 'history') loadHistory();
   if (id === 'stock') initStockTab();
@@ -3137,6 +3155,129 @@ function buildProductionFromCOGS(headers, rows, wrap, tot) {
   tot.innerHTML = `<div style="font-family:Space Mono,monospace;font-size:10px;color:var(--muted);">${dates.length} days | ${prods.length} products</div>`;
 }
 
+function buildAvgYieldReport(title, wrap, tot, sheetData){
+  title.textContent = 'Average Yield by Product';
+  if(!sheetData || !sheetData.rows || !sheetData.rows.length){
+    wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No production data found in this date range.</div>'; tot.innerHTML=''; return;
+  }
+  const headers=sheetData.headers, rows=sheetData.rows;
+  const hmap={}; headers.forEach((h,i)=>{hmap[String(h).trim()]=i;});
+  const g=(row,key)=>{const i=hmap[key]; return i!==undefined?row[i]:'';};
+  const agg={};
+  rows.forEach(row=>{
+    const prod=String(g(row,'Product')||'').trim();
+    if(!prod || prod==='Product' || prod.indexOf('Intermediate')>=0) return;
+    const yld=parseFloat(g(row,'Yield (kg/L/cups)'))||0; if(yld<=0) return;
+    const ay=parseFloat(g(row,'Actual Yield%'));
+    const vv=parseFloat(g(row,'Yield Variance%'));
+    if(!agg[prod]) agg[prod]={n:0,yld:0,ywy:0,yw:0,vwy:0,vw:0};
+    const a=agg[prod]; a.n++; a.yld+=yld;
+    if(isFinite(ay)){ a.ywy+=ay*yld; a.yw+=yld; }
+    if(isFinite(vv)){ a.vwy+=vv*yld; a.vw+=yld; }
+  });
+  const prods=Object.keys(agg).sort();
+  if(!prods.length){ wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No product batches in this range.</div>'; tot.innerHTML=''; return; }
+  let html='<table class="rpt-table"><thead><tr><th>Product</th><th>Batches</th><th>Total Yield</th><th>Avg Yield / batch</th><th>Avg Actual Yield%</th><th>Avg Variance%</th></tr></thead><tbody>';
+  prods.forEach(p=>{ const a=agg[p];
+    const avgPer=a.yld/a.n;
+    const ay=a.yw>0?(a.ywy/a.yw):NaN;
+    const vv=a.vw>0?(a.vwy/a.vw):NaN;
+    const vColor=isFinite(vv)?(vv>=0?'var(--green)':'var(--red)'):'var(--muted)';
+    html+='<tr><td style="font-weight:700">'+p+'</td><td>'+a.n+'</td><td>'+N(a.yld,1)+'</td><td>'+N(avgPer,1)+'</td>'+
+      '<td style="font-weight:700">'+(isFinite(ay)?N(ay,1)+'%':'—')+'</td>'+
+      '<td style="color:'+vColor+'">'+(isFinite(vv)?N(vv,1)+'%':'—')+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+  tot.innerHTML='<div style="font-family:Space Mono,monospace;font-size:11px;color:var(--muted);line-height:1.6;"><b>Avg Actual Yield%</b> is weighted by batch size. A negative variance means you produced less than the standard yield on those batches &mdash; often a milk-quality or process issue; cross-check the Milk Quality / Spoilage report for the same dates.</div>';
+}
+
+function buildMilkQualityReport(dates, title, wrap, tot, sheetData){
+  title.textContent = 'Milk Quality & Spoilage Log';
+  if(!sheetData || !sheetData.rows || !sheetData.rows.length){
+    wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No milk data found in this date range.</div>'; tot.innerHTML=''; return;
+  }
+  const mrows=parseMilkSheetRows(sheetData.headers, sheetData.rows);
+  const vend=[['v1m','Vendor 1 (Morn)'],['v1e','Vendor 1 (Eve)'],['v2','Vendor 2'],['v3','Vendor 3'],['v4','Vendor 4']];
+  const out=[]; let totalSpoilt=0; const issueDates={};
+  mrows.forEach(m=>{
+    vend.forEach(function(v){
+      const k=v[0], label=v[1];
+      const ded=parseFloat(m[k+'_deduct'])||0;
+      const note=String(m[k+'_notes']||'').trim();
+      if(ded>0 || note){
+        out.push({date:m._date, vendor:label, deduct:ded, note:note});
+        if(ded>0) totalSpoilt+=ded;
+        issueDates[m._date]=1;
+      }
+    });
+  });
+  if(!out.length){ wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--green);font-family:Space Mono;font-size:12px;">✓ No spoilage or quality notes recorded in this range.</div>'; tot.innerHTML=''; return; }
+  out.sort(function(a,b){return toReportDateInt(a.date)-toReportDateInt(b.date);});
+  let html='<table class="rpt-table"><thead><tr><th>Date</th><th>Vendor</th><th>Spoilt / Rejected (L)</th><th>Quality Note</th></tr></thead><tbody>';
+  out.forEach(function(r){
+    const dColor=r.deduct>0?'var(--red)':'var(--muted)';
+    html+='<tr><td>'+fmtDate(r.date)+'</td><td>'+r.vendor+'</td>'+
+      '<td style="color:'+dColor+';font-weight:700">'+(r.deduct>0?N(r.deduct,1):'—')+'</td>'+
+      '<td>'+(r.note?r.note:'—')+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+  const nDates=Object.keys(issueDates).length;
+  tot.innerHTML='<div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:var(--red)">Spoilt / rejected total: '+N(totalSpoilt,1)+' L across '+nDates+' day(s)</div>'+
+    '<div style="font-family:Space Mono,monospace;font-size:10px;color:var(--muted);margin-top:4px;">Track these dates against weather to spot spoilage-prone periods for future planning.</div>';
+}
+
+function buildAvgCOGSReport(title, wrap, tot, sheetData){
+  title.textContent = 'Average COGS / kg — for Quotes';
+  if(!sheetData || !sheetData.rows || !sheetData.rows.length){
+    wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No COGS data found in this date range.</div>';
+    tot.innerHTML=''; return;
+  }
+  const headers=sheetData.headers, rows=sheetData.rows;
+  const hmap={}; headers.forEach((h,i)=>{hmap[String(h).trim()]=i;});
+  const g=(row,key)=>{const i=hmap[key]; return i!==undefined?row[i]:'';};
+  const agg={};
+  rows.forEach(row=>{
+    const prod=String(g(row,'Product')||'').trim();
+    if(!prod || prod==='Product' || prod.indexOf('Intermediate')>=0) return;
+    const yld=parseFloat(g(row,'Yield (kg/L/cups)'))||0;
+    if(yld<=0) return;
+    const milk=parseFloat(g(row,'Milk Cost (Rs)'))||0;
+    const ing=parseFloat(g(row,'Ing Cost (Rs)'))||0;
+    const gas=parseFloat(g(row,'Gas/Fuel (Rs)'))||0;
+    const fixed=parseFloat(g(row,'Fixed Cost (Rs)'))||0;
+    let total=parseFloat(g(row,'Total COGS (Rs)'));
+    if(!(total>0)) total=milk+ing+gas+fixed;
+    if(!agg[prod]) agg[prod]={n:0,yld:0,milk:0,ing:0,gas:0,fixed:0,total:0};
+    const a=agg[prod];
+    a.n++; a.yld+=yld; a.milk+=milk; a.ing+=ing; a.gas+=gas; a.fixed+=fixed; a.total+=total;
+  });
+  const prods=Object.keys(agg).sort();
+  if(!prods.length){ wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-family:Space Mono;font-size:12px;">No product batches in this range.</div>'; tot.innerHTML=''; return; }
+  let html='<table class="rpt-table"><thead><tr>'+
+    '<th>Product</th><th>Batches</th><th>Total Yield</th>'+
+    '<th>Avg COGS/kg<br><small>excl fixed</small></th>'+
+    '<th>Avg COGS/kg<br><small>incl fixed</small></th>'+
+    '<th>Milk/kg</th><th>Ing+Gas/kg</th></tr></thead><tbody>';
+  prods.forEach(p=>{
+    const a=agg[p];
+    const exf=(a.total-a.fixed)/a.yld;
+    const inf=a.total/a.yld;
+    const mk=a.milk/a.yld;
+    const ig=(a.ing+a.gas)/a.yld;
+    html+='<tr><td style="font-weight:700">'+p+'</td>'+
+      '<td>'+a.n+'</td><td>'+N(a.yld,1)+'</td>'+
+      '<td style="font-weight:700;color:var(--green)">'+Rs(exf)+'</td>'+
+      '<td>'+Rs(inf)+'</td><td>'+Rs(mk)+'</td><td>'+Rs(ig)+'</td></tr>';
+  });
+  html+='</tbody></table>';
+  wrap.innerHTML=html;
+  tot.innerHTML='<div style="font-family:Space Mono,monospace;font-size:11px;color:var(--muted);line-height:1.6;">'+
+    '<b>Avg COGS/kg (excl fixed)</b> = milk + ingredients + gas per kg — use this as your true production cost when quoting (fixed cost is overhead, recovered separately).<br>'+
+    'Weighted average = total cost &divide; total yield across every batch in the range, so small trial batches are averaged in by weight and do not distort the number.</div>';
+}
+
 function buildCOGSFromSheet(headers, rows, wrap, tot) {
   // COGS_Daily sheet already has: Date,Product,Yield,Milk Cost,Ing Cost,Gas/Fuel,Fixed Cost,Total COGS,COGS/Unit,Revenue,GM,GM%,Actual Yield%,Std Yield%,Yield Variance%,Notes
   const hmap = {};
@@ -3360,7 +3501,7 @@ async function generateReport(type) {
   // Sheet-to-report mapping
   const sheetMap = {
     vendor1: 'Milk_Purchase', vendor2: 'Milk_Purchase', vendor3: 'Milk_Purchase',
-    milksummary: 'Milk_Purchase', production: 'COGS_Daily', cogs: 'COGS_Daily'
+    milksummary: 'Milk_Purchase', production: 'COGS_Daily', cogs: 'COGS_Daily', avgcogs: 'COGS_Daily', avgyield: 'COGS_Daily', milkquality: 'Milk_Purchase'
   };
   const sheetName = sheetMap[type] || 'COGS_Daily';
 
@@ -3444,6 +3585,9 @@ async function generateReport(type) {
     }
   }
   else if (type === 'cogs')        buildCOGSReport(dates, title, wrap, tot, sheetData);
+  else if (type === 'avgcogs')     buildAvgCOGSReport(title, wrap, tot, sheetData);
+  else if (type === 'avgyield')    buildAvgYieldReport(title, wrap, tot, sheetData);
+  else if (type === 'milkquality') buildMilkQualityReport(dates, title, wrap, tot, sheetData);
 }
 
 function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetData) {
@@ -4887,11 +5031,50 @@ function stripPayload(data) {
   }
   return out;
 }
+// ═══ OFFLINE SYNC LAYER ═══
+function isOnline(){ return navigator.onLine !== false; }
+function getSyncQueue(){ try{ return JSON.parse(localStorage.getItem('gf_sync_queue')||'[]'); }catch(e){ return []; } }
+function setSyncQueue(q){ try{ localStorage.setItem('gf_sync_queue', JSON.stringify(q)); }catch(e){} }
+function queueSync(type,data){ var q=getSyncQueue(); q.push({type:type,data:data,ts:Date.now()}); setSyncQueue(q); updateNetIndicator(); }
+function updateNetIndicator(){
+  var b=document.getElementById('net-banner'); if(!b) return;
+  var q=getSyncQueue(); var on=isOnline();
+  if(!on){
+    b.style.display='block'; b.style.background='#C0392B';
+    b.innerHTML='📴 Offline — entries are saved on this device'+(q.length?(' · '+q.length+' waiting to sync'):'')+'. They upload automatically when you reconnect.';
+  } else if(q.length){
+    b.style.display='block'; b.style.background='#C46A00';
+    b.innerHTML='🔄 Syncing '+q.length+' saved entr'+(q.length>1?'ies':'y')+' to the sheet…';
+  } else { b.style.display='none'; }
+}
+async function flushSyncQueue(){
+  if(!isOnline()){ updateNetIndicator(); return; }
+  var q=getSyncQueue(); if(!q.length){ updateNetIndicator(); return; }
+  updateNetIndicator();
+  var url=(typeof STATE!=='undefined'&&STATE.gsUrl)?STATE.gsUrl:''; if(!url){ return; }
+  var remaining=[];
+  for(var i=0;i<q.length;i++){
+    var item=q[i];
+    try{
+      var slim=item.type==='MILK'?item.data:stripPayload(item.data);
+      var payload=encodeURIComponent(JSON.stringify({type:item.type,data:slim}));
+      var getUrl=url+'?payload='+payload;
+      if(getUrl.length>7800){ await sendChunked(url,item.type,slim); } else { await xhrGet(getUrl); }
+    }catch(e){ remaining.push(item); }
+  }
+  setSyncQueue(remaining); updateNetIndicator();
+  if(remaining.length===0){ try{ showToast('✅ Offline entries synced to sheet','success'); }catch(e){} }
+}
 
 async function sendToGoogleSheet(type, data) {
   const url = STATE.gsUrl;
   if (!url) {
     showToast('Google Sheet not configured — saved locally only', 'error');
+    return;
+  }
+  if (!isOnline()) {
+    queueSync(type, data);
+    showToast('📴 Offline — saved on this device, will sync when back online', 'success');
     return;
   }
   try {
@@ -4915,8 +5098,8 @@ async function sendToGoogleSheet(type, data) {
     }
   } catch(err) {
     console.warn('Sheet sync failed:', err);
-    const errMsg = 'Sheet sync failed: ' + (err.message||err) + ' — Check URL in Setup';
-    showToast(errMsg, 'error');
+    queueSync(type, data);
+    showToast('Saved on device — will retry sync automatically', 'error');
     console.error('sendToGoogleSheet failed:', err);
   }
 }
@@ -7921,6 +8104,17 @@ if(_origSaveProducts) {
 // Init inventory on tab show
 const _origShowTab = typeof showTab==='function' ? showTab : null;
 
+
+// ═══ network wiring + service worker ═══
+try {
+  window.addEventListener('online', function(){ updateNetIndicator(); flushSyncQueue(); });
+  window.addEventListener('offline', updateNetIndicator);
+  updateNetIndicator();
+  setTimeout(function(){ if(isOnline()) flushSyncQueue(); }, 1500);
+} catch(e){}
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw-tracker.js').catch(function(){}); });
+}
 </script>
 </body>
 </html><
