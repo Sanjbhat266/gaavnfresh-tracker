@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v143</span>
+    <span>PRODUCTION TRACKER v146</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -1335,7 +1335,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <!-- ════════════════════════════════════════════════════════════ -->
 <div class="section" id="tab-history">
   <div class="page-title">Production History</div>
-  <div class="page-sub">Last 40 days · All dates with milk OR production data shown</div>
+  <div class="page-sub">Last 60 days · All dates with milk OR production data shown</div>
 
   <!-- MANUAL DATE RE-SUBMIT ──────────────────────────── -->
   <div class="card" style="margin-bottom:12px;border:1.5px solid var(--border);">
@@ -5320,26 +5320,31 @@ function renderHistoryTable(){
     +'<th>COGS/kg</th><th>GM %</th><th>Variance %</th>'
     +'<th style="min-width:120px"></th>'
     +'</tr></thead><tbody>';
-  const datesSeen=new Set();
   rows.forEach(r=>{
     const dateStr=r[0]||'';
-    const isFirstForDate=!datesSeen.has(dateStr);
-    if(dateStr) datesSeen.add(dateStr);
-    const btnCell=isFirstForDate
-      ? `<td><button onclick="startResubmit('${dateStr}')"
-           style="background:var(--amber);color:#fff;border:none;border-radius:6px;
-                  padding:4px 10px;font-family:'Space Mono';font-size:9px;
-                  cursor:pointer;font-weight:700;white-space:nowrap;">
-           ✏ Re-submit Day
-         </button></td>`
-      : '<td></td>';
+    // v146: every row gets its own button. Product rows pass the product name so
+    // the correction panel opens with exactly that product pre-ticked.
+    const prodName=String(r[1]||'');
+    const isMilkOnly=prodName.indexOf('(milk only')===0;
+    const prodArg=isMilkOnly?'':prodName.replace(/\\/g,'').replace(/'/g,"\\'");
+    const btnCell=`<td><button onclick="startResubmit('${dateStr}','${prodArg}')"
+         style="background:var(--amber);color:#fff;border:none;border-radius:6px;
+                padding:4px 10px;font-family:'Space Mono';font-size:9px;
+                cursor:pointer;font-weight:700;white-space:nowrap;">
+         ${isMilkOnly?'✏ Re-submit Day':'✏ Correct'}
+       </button></td>`;
+    // v143 FIX: COGS_Daily rows are [Date,Product,Yield,MilkCost,IngCost,Gas,Fixed,
+    // Total,COGS/Unit,Revenue,GM,GM%,ActYld%,StdYld%,Var%,Notes] — the table was
+    // printing Milk Cost as COGS/kg, Ing Cost as GM% and Gas Cost as Variance%.
+    const isFull=r.length>10; // raw COGS row (getHistory fallback) vs pre-mapped 6-col row
+    const cogsKg=isFull?r[8]:(r[3]??''), gmPct=isFull?r[11]:(r[4]??''), varPct=isFull?r[14]:(r[5]??'');
     html+=`<tr>
       <td>${dateStr}</td>
       <td>${r[1]||''}</td>
       <td>${r[2]||''}</td>
-      <td>₹${r[3]||''}</td>
-      <td>${r[4]||''}%</td>
-      <td>${r[5]||''}%</td>
+      <td>${cogsKg!==''&&cogsKg!==undefined?'₹'+cogsKg:'—'}</td>
+      <td>${gmPct!==''&&gmPct!==undefined?gmPct+'%':'—'}</td>
+      <td>${varPct!==''&&varPct!==undefined?varPct+'%':'—'}</td>
       ${btnCell}
     </tr>`;
   });
@@ -5348,35 +5353,66 @@ function renderHistoryTable(){
 }
 async function loadHistory() {
   const url = STATE.gsUrl;
+  const body = document.getElementById('history-body');
   if (!url) {
-    document.getElementById('history-body').innerHTML =
-      '<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">Configure Google Sheet in Setup tab to see history</div>';
+    body.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">Configure Google Sheet in Setup tab to see history</div>';
     return;
   }
-  document.getElementById('history-body').innerHTML =
-    '<div style="text-align:center;padding:20px;color:var(--muted);font-family:\'Space Mono\';font-size:11px;">Loading from Google Sheet...</div>';
+  body.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);font-family:\'Space Mono\';font-size:11px;">Loading from Google Sheet...</div>';
+  const _to=new Date(), _from=new Date(); _from.setDate(_from.getDate()-60);
+  const fISO=_from.toISOString().slice(0,10), tISO=_to.toISOString().slice(0,10);
+  let rows=[];
+  // v145 FIX: fetch FULL COGS rows so EVERY product of a date is listed.
+  // The old getHistory action kept only one product row per date (each product
+  // overwrote the previous), so date filters showed a single product.
   try {
-    const res  = await fetch(url + '?action=getHistory');
-    const json = await res.json();
-    if (json.rows && json.rows.length > 0) {
-      // v142: normalise dates (ISO timestamps / mm-dd text → dd/mm/yyyy),
-      // sort newest first, and render with date + product filters.
-      _histRows = json.rows.map(r => { const rr = r.slice(); rr[0] = _histDateNorm(rr[0]); return rr; });
-      _histRows.sort((a,b) => {
-        const pa = String(a[0]).split('/'), pb = String(b[0]).split('/');
-        const da = pa.length===3 ? new Date(pa[2],pa[1]-1,pa[0]) : new Date(0);
-        const db = pb.length===3 ? new Date(pb[2],pb[1]-1,pb[0]) : new Date(0);
-        return db - da;
-      });
-      renderHistoryTable();
-    } else {
-      document.getElementById('history-body').innerHTML =
-        '<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">No history yet. Start entering data!</div>';
+    const res=await fetch(url+'?action=getReportData&sheet=COGS_Daily&from='+fISO+'&to='+tISO);
+    const json=await res.json();
+    if(json.headers&&Array.isArray(json.rows)){
+      const h={}; json.headers.forEach((x,i)=>{ h[String(x).trim()]=i; });
+      const gi=(r,keys)=>{ for(const k of keys){ const i=h[k]; if(i!==undefined&&r[i]!==''&&r[i]!==undefined&&r[i]!==null) return r[i]; } return ''; };
+      rows=json.rows
+        .filter(r=>String(gi(r,['Product'])||'').trim())
+        .map(r=>[_histDateNorm(r[0]), String(gi(r,['Product'])).trim(),
+                 gi(r,['Yield (kg/L/cups)','Yield(kg)','Yield']),
+                 gi(r,['COGS/Unit (Rs)','COGS/Unit']),
+                 gi(r,['GM%']),
+                 gi(r,['Yield Variance%','Variance%'])]);
     }
-  } catch(e) {
-    document.getElementById('history-body').innerHTML =
-      '<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">Could not load history — check sheet URL in Setup</div>';
+  } catch(e) {}
+  // add milk-only dates (milk entered but no production written yet)
+  try {
+    const rm=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+fISO+'&to='+tISO);
+    const jm=await rm.json();
+    if(jm&&Array.isArray(jm.rows)){
+      const have=new Set(rows.map(r=>r[0]));
+      jm.rows.forEach(r=>{
+        const ds=_histDateNorm(r[0]);
+        if(ds&&!have.has(ds)){ have.add(ds); rows.push([ds,'(milk only — no production data)','','','','']); }
+      });
+    }
+  } catch(e) {}
+  // fallback: old getHistory action if the range fetch returned nothing
+  if(!rows.length){
+    try {
+      const res=await fetch(url+'?action=getHistory');
+      const json=await res.json();
+      if(json.rows&&json.rows.length) rows=json.rows.map(r=>{ const rr=r.slice(); rr[0]=_histDateNorm(rr[0]); return rr; });
+    } catch(e) {
+      body.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">Could not load history — check sheet URL in Setup</div>';
+      return;
+    }
   }
+  if(!rows.length){
+    body.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">No history yet. Start entering data!</div>';
+    return;
+  }
+  _histRows=rows;
+  _histRows.sort((a,b)=>{ const pa=String(a[0]).split('/'), pb=String(b[0]).split('/');
+    const da=pa.length===3?new Date(pa[2],pa[1]-1,pa[0]):new Date(0);
+    const db=pb.length===3?new Date(pb[2],pb[1]-1,pb[0]):new Date(0);
+    return db-da; });
+  renderHistoryTable();
 }
 
 // ── CONFIG ────────────────────────────────────────────────────────
@@ -5723,7 +5759,7 @@ function doGet(e) {
         cogsData.slice(-60).forEach(function(r) {
           var cell = r[0];
           var ds = cell instanceof Date ? Utilities.formatDate(cell, tzH, 'dd/MM/yyyy') : String(cell||'').trim();
-          if (ds && r[1]) allDates[ds] = r;  // store full COGS row keyed by date
+          if (ds && r[1]) { if (!allDates[ds]) allDates[ds] = []; allDates[ds].push(r); }  // v145: keep ALL product rows per date
         });
       });
 
@@ -5747,11 +5783,15 @@ function doGet(e) {
         return db - da;
       }).slice(0, 40);  // limit to 40 most recent
 
-      var responseRows = sortedDates.map(function(ds) {
-        var r = allDates[ds];
-        if (r) { var rr = r.slice(); rr[0] = ds; return rr; }  // v142: date normalised to dd/MM/yyyy
-        // Milk-only date — return minimal row with just the date so History can show it
-        return [ds, '(milk only — no production data)', '', '', '', ''];
+      var responseRows = [];
+      sortedDates.forEach(function(ds) {
+        var arr = allDates[ds];
+        if (arr) {
+          // v145: emit EVERY product row for the date, date normalised to dd/MM/yyyy
+          arr.forEach(function(r){ var rr = r.slice(); rr[0] = ds; responseRows.push(rr); });
+        } else {
+          responseRows.push([ds, '(milk only — no production data)', '', '', '', '']);
+        }
       });
 
       return ContentService.createTextOutput(JSON.stringify({rows: responseRows}))
@@ -7404,8 +7444,9 @@ function selectAllResubmitProducts(val) {
 }
 
 // ── initiate resubmit for a date ──────────────────────────────────
-function startResubmit(dateStr) {
+function startResubmit(dateStr, productName) {
   // dateStr arrives as DD/MM/YYYY from the history table and from startManualResubmit.
+  // productName (optional, v146): pre-tick that product in the correction panel.
   if (!dateStr) return;
   // v142 FIX: raw sheet cells could arrive as ISO timestamps (2026-07-14T18:30:00.000Z).
   // Convert via Date so the timezone shift lands on the correct calendar day.
@@ -7443,6 +7484,14 @@ function startResubmit(dateStr) {
   if (panel) { panel.style.display = ''; panel.scrollIntoView({behavior:'smooth',block:'nearest'}); }
   setResubmitMode(STATE.resubmitProductMode);
   renderResubmitProductChecks();
+
+  // v146: when opened from a product row, tick exactly that product
+  if (productName) {
+    RESUBMIT_PRODUCTS.forEach(pr => {
+      const el = document.getElementById('rsub_chk_' + pr.id);
+      if (el) el.checked = (pr.sheetName === productName || pr.label === productName);
+    });
+  }
 
   // Check if local data exists for this date
   const hasMilk = !!localStorage.getItem('milk_' + dateKey6);
