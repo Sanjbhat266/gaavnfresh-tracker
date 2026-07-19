@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v142</span>
+    <span>PRODUCTION TRACKER v143</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -5190,15 +5190,12 @@ function _restoreDateKey(ds){
   if(isNaN(d)) return null;
   return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
 }
-async function restoreAllFromSheet(){
+async function _restoreRange(fromISO, toISO, overwrite){
+  // Pull production + milk data for a date range from the Sheet into localStorage.
+  // Returns {prodOK, prodSkip, milkOK, milkSkip}. Used by the Restore card and
+  // by doResubmitLoad's automatic single-day fetch.
   const url=STATE.gsUrl;
-  const st=document.getElementById('restore-status');
-  const say=t=>{ if(st) st.textContent=t; };
-  if(!url){ say('⚠ Configure Google Sheet URL in Setup first'); return; }
-  const overwrite=!!document.getElementById('restore-overwrite')?.checked;
-  const toISO=new Date().toISOString().slice(0,10);
-  let fromISO=document.getElementById('restore-from')?.value||'';
-  if(!fromISO){ const d=new Date(); d.setDate(d.getDate()-120); fromISO=d.toISOString().slice(0,10); }
+  if(!url) throw new Error('no url');
   let prodOK=0, prodSkip=0, milkOK=0, milkSkip=0;
   // Extra column mappings beyond parseProdSheetRows (ING details, notes, qty/rate splits)
   const PFX={LP:'lp',MFP:'mfp',LFP:'lfp',MP:'mp',LC:'lc',FC:'fc',CH:'ch',SL:'sl',ML:'ml',CMK:'cmk',STK:'stk',Ghee:'gh',Chaach:'ch'};
@@ -5215,7 +5212,6 @@ async function restoreAllFromSheet(){
     'SL Syrup(L)':'sl_syrup_l','SL Boxes':'sl_boxes','SL Cup Rate(Rs)':'sl_cup_rate','SL Box Rate(Rs)':'sl_box_rate',
     'ML Syrup(L)':'ml_syrup_l','ML Boxes':'ml_boxes','ML Cup Rate(Rs)':'ml_cup_rate','ML Box Rate(Rs)':'ml_box_rate',
     'CMK PM Packs':'cmk_pm_qty','CMK PM Rate(Rs)':'cmk_pm_rate','STK PM Packs':'stk_pm_qty','STK PM Rate(Rs)':'stk_pm_rate'};
-  say('⏳ Downloading production data...');
   try{
     const r=await fetch(url+'?action=getReportData&sheet=ProductionRaw&from='+fromISO+'&to='+toISO);
     const j=await r.json();
@@ -5246,8 +5242,7 @@ async function restoreAllFromSheet(){
         localStorage.setItem(lsKey, JSON.stringify(d)); prodOK++;
       });
     }
-  }catch(e){ say('✗ Production restore failed — check Sheet URL in Setup'); return; }
-  say('⏳ Downloading milk purchase data...');
+  }catch(e){ throw new Error('production fetch failed'); }
   try{
     const r=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+fromISO+'&to='+toISO);
     const j=await r.json();
@@ -5260,11 +5255,97 @@ async function restoreAllFromSheet(){
       });
     }
   }catch(e){ /* milk data optional — production already restored */ }
-  const kept=(prodSkip+milkSkip)?(' · kept '+(prodSkip+milkSkip)+' existing local day(s) (tick Overwrite to replace)'):'';
-  say('✅ Restored '+prodOK+' production day(s) + '+milkOK+' milk day(s)'+kept+'. Use Re-submit above to correct any date.');
+  return {prodOK:prodOK, prodSkip:prodSkip, milkOK:milkOK, milkSkip:milkSkip};
+}
+async function restoreAllFromSheet(){
+  const st=document.getElementById('restore-status');
+  const say=t=>{ if(st) st.textContent=t; };
+  if(!STATE.gsUrl){ say('⚠ Configure Google Sheet URL in Setup first'); return; }
+  const overwrite=!!document.getElementById('restore-overwrite')?.checked;
+  const toISO=new Date().toISOString().slice(0,10);
+  let fromISO=document.getElementById('restore-from')?.value||'';
+  if(!fromISO){ const d=new Date(); d.setDate(d.getDate()-120); fromISO=d.toISOString().slice(0,10); }
+  say('⏳ Downloading data from Sheet...');
+  let res;
+  try{ res=await _restoreRange(fromISO,toISO,overwrite); }
+  catch(e){ say('✗ Restore failed — check Sheet URL in Setup and connection'); return; }
+  const kept=(res.prodSkip+res.milkSkip)?(' · kept '+(res.prodSkip+res.milkSkip)+' existing local day(s) (tick Overwrite to replace)'):'';
+  say('✅ Restored '+res.prodOK+' production day(s) + '+res.milkOK+' milk day(s)'+kept+'. Use Re-submit above to correct any date.');
   try{ showToast('✅ Old data restored from Sheet','success'); }catch(e){}
 }
 
+let _histRows = null;
+function _histDateNorm(ds){
+  // Normalise any date representation to dd/mm/yyyy for display + resubmit.
+  ds=String(ds||'').trim();
+  if(/^\d{4}-\d{2}-\d{2}T/.test(ds)){
+    const d=new Date(ds); // ISO timestamp — TZ shift lands on the intended local day
+    if(!isNaN(d)) return String(d.getDate()).padStart(2,'0')+'/'+String(d.getMonth()+1).padStart(2,'0')+'/'+d.getFullYear();
+  }
+  let m=ds.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(m) return m[3]+'/'+m[2]+'/'+m[1];
+  m=ds.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m){
+    let dd=+m[1], mm=+m[2], yy=+m[3];
+    // Legacy text rows are sometimes mm/dd/yyyy. If dd/mm reads as a FUTURE date
+    // but the swapped reading is in the past, prefer the swap (fixes 03/12/2026 → 12/03/2026).
+    const now=new Date(); now.setHours(23,59,59,999);
+    const asDM=new Date(yy,mm-1,dd), asMD=new Date(yy,dd-1,mm);
+    if(mm<=12&&dd<=12&&asDM>now&&asMD<=now){ const t=dd; dd=mm; mm=t; }
+    return String(dd).padStart(2,'0')+'/'+String(mm).padStart(2,'0')+'/'+yy;
+  }
+  return ds;
+}
+function renderHistoryTable(){
+  const body=document.getElementById('history-body');
+  if(!body||!_histRows) return;
+  const fd=document.getElementById('hist-filter-date')?.value||'';
+  const fp=document.getElementById('hist-filter-prod')?.value||'';
+  const fdDisp=fd?(fd.slice(8,10)+'/'+fd.slice(5,7)+'/'+fd.slice(0,4)):'';
+  const rows=_histRows.filter(r=>(!fdDisp||String(r[0])===fdDisp)&&(!fp||String(r[1]||'')===fp));
+  const prods=[...new Set(_histRows.map(r=>String(r[1]||'')).filter(x=>x))].sort();
+  let html='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">'
+    +'<label style="font-family:\'Space Mono\';font-size:10px;color:var(--muted);">Date <input type="date" id="hist-filter-date" value="'+fd+'" onchange="renderHistoryTable()" style="font-family:\'Space Mono\';font-size:11px;border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;background:var(--cream);"></label>'
+    +'<label style="font-family:\'Space Mono\';font-size:10px;color:var(--muted);">Product <select id="hist-filter-prod" onchange="renderHistoryTable()" style="font-family:\'Space Mono\';font-size:11px;border:1.5px solid var(--border);border-radius:8px;padding:4px 8px;background:var(--cream);max-width:220px;"><option value="">All products</option>'
+    +prods.map(pn=>'<option value="'+pn.replace(/"/g,'&quot;')+'"'+(pn===fp?' selected':'')+'>'+pn+'</option>').join('')
+    +'</select></label>'
+    +'<button onclick="const a=document.getElementById(\'hist-filter-date\');const b=document.getElementById(\'hist-filter-prod\');if(a)a.value=\'\';if(b)b.value=\'\';renderHistoryTable()" style="background:none;border:1px solid var(--border);border-radius:8px;padding:4px 10px;font-family:\'Space Mono\';font-size:10px;cursor:pointer;color:var(--muted);">Clear</button>'
+    +'<span style="font-family:\'Space Mono\';font-size:10px;color:var(--muted);">'+rows.length+' row(s)</span></div>';
+  if(!rows.length){
+    body.innerHTML=html+'<div style="text-align:center;padding:20px;color:var(--muted);font-family:\'Space Mono\';font-size:11px;">No rows match the selected date/product</div>';
+    return;
+  }
+  html+='<table class="hist-table"><thead><tr>'
+    +'<th>Date</th><th>Product</th><th>Yield kg</th>'
+    +'<th>COGS/kg</th><th>GM %</th><th>Variance %</th>'
+    +'<th style="min-width:120px"></th>'
+    +'</tr></thead><tbody>';
+  const datesSeen=new Set();
+  rows.forEach(r=>{
+    const dateStr=r[0]||'';
+    const isFirstForDate=!datesSeen.has(dateStr);
+    if(dateStr) datesSeen.add(dateStr);
+    const btnCell=isFirstForDate
+      ? `<td><button onclick="startResubmit('${dateStr}')"
+           style="background:var(--amber);color:#fff;border:none;border-radius:6px;
+                  padding:4px 10px;font-family:'Space Mono';font-size:9px;
+                  cursor:pointer;font-weight:700;white-space:nowrap;">
+           ✏ Re-submit Day
+         </button></td>`
+      : '<td></td>';
+    html+=`<tr>
+      <td>${dateStr}</td>
+      <td>${r[1]||''}</td>
+      <td>${r[2]||''}</td>
+      <td>₹${r[3]||''}</td>
+      <td>${r[4]||''}%</td>
+      <td>${r[5]||''}%</td>
+      ${btnCell}
+    </tr>`;
+  });
+  html+='</tbody></table>';
+  body.innerHTML=html;
+}
 async function loadHistory() {
   const url = STATE.gsUrl;
   if (!url) {
@@ -5278,37 +5359,16 @@ async function loadHistory() {
     const res  = await fetch(url + '?action=getHistory');
     const json = await res.json();
     if (json.rows && json.rows.length > 0) {
-      // Group rows by date so we show one Re-submit button per date
-      const datesSeen = new Set();
-      let html = '<table class="hist-table"><thead><tr>'
-        + '<th>Date</th><th>Product</th><th>Yield kg</th>'
-        + '<th>COGS/kg</th><th>GM %</th><th>Variance %</th>'
-        + '<th style="min-width:120px"></th>'
-        + '</tr></thead><tbody>';
-      json.rows.forEach(r => {
-        const dateStr = r[0] || '';
-        const isFirstForDate = !datesSeen.has(dateStr);
-        if (dateStr) datesSeen.add(dateStr);
-        const btnCell = isFirstForDate
-          ? `<td><button onclick="startResubmit('${dateStr}')"
-               style="background:var(--amber);color:#fff;border:none;border-radius:6px;
-                      padding:4px 10px;font-family:'Space Mono';font-size:9px;
-                      cursor:pointer;font-weight:700;white-space:nowrap;">
-               ✏ Re-submit Day
-             </button></td>`
-          : '<td></td>';
-        html += `<tr>
-          <td>${dateStr}</td>
-          <td>${r[1]||''}</td>
-          <td>${r[2]||''}</td>
-          <td>₹${r[3]||''}</td>
-          <td>${r[4]||''}%</td>
-          <td>${r[5]||''}%</td>
-          ${btnCell}
-        </tr>`;
+      // v142: normalise dates (ISO timestamps / mm-dd text → dd/mm/yyyy),
+      // sort newest first, and render with date + product filters.
+      _histRows = json.rows.map(r => { const rr = r.slice(); rr[0] = _histDateNorm(rr[0]); return rr; });
+      _histRows.sort((a,b) => {
+        const pa = String(a[0]).split('/'), pb = String(b[0]).split('/');
+        const da = pa.length===3 ? new Date(pa[2],pa[1]-1,pa[0]) : new Date(0);
+        const db = pb.length===3 ? new Date(pb[2],pb[1]-1,pb[0]) : new Date(0);
+        return db - da;
       });
-      html += '</tbody></table>';
-      document.getElementById('history-body').innerHTML = html;
+      renderHistoryTable();
     } else {
       document.getElementById('history-body').innerHTML =
         '<div style="text-align:center;padding:30px;color:var(--muted);font-family:\'Space Mono\';font-size:12px;">No history yet. Start entering data!</div>';
@@ -5689,7 +5749,7 @@ function doGet(e) {
 
       var responseRows = sortedDates.map(function(ds) {
         var r = allDates[ds];
-        if (r) return r;  // full COGS row
+        if (r) { var rr = r.slice(); rr[0] = ds; return rr; }  // v142: date normalised to dd/MM/yyyy
         // Milk-only date — return minimal row with just the date so History can show it
         return [ds, '(milk only — no production data)', '', '', '', ''];
       });
@@ -7347,6 +7407,13 @@ function selectAllResubmitProducts(val) {
 function startResubmit(dateStr) {
   // dateStr arrives as DD/MM/YYYY from the history table and from startManualResubmit.
   if (!dateStr) return;
+  // v142 FIX: raw sheet cells could arrive as ISO timestamps (2026-07-14T18:30:00.000Z).
+  // Convert via Date so the timezone shift lands on the correct calendar day.
+  dateStr = String(dateStr).trim();
+  if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) {
+    const _d = new Date(dateStr);
+    if (!isNaN(_d)) dateStr = String(_d.getDate()).padStart(2,'0')+'/'+String(_d.getMonth()+1).padStart(2,'0')+'/'+_d.getFullYear();
+  }
 
   // Normalise to DD/MM/YYYY regardless of input format
   let display = dateStr;           // assume DD/MM/YYYY unless we detect otherwise
@@ -7523,9 +7590,21 @@ function doResubmitLoad() {
   }
 
   if (!milkRaw && !prodRaw) {
-    const w = document.getElementById('resubmit-warning');
-    if (w) w.style.display = '';
-    showToast('No local data found for ' + STATE.resubmitDate + ' — enter manually', 'error');
+    // v142: no local copy (e.g. after a version upgrade) — pull this one day from the Sheet
+    showToast('⏳ No local data for ' + STATE.resubmitDate + ' — fetching from Sheet...', 'success');
+    _restoreRange(iso, iso, false).then(res => {
+      if (res && (res.prodOK + res.milkOK) > 0) {
+        doResubmitLoad(); // local copies now exist — reload the form
+      } else {
+        const w = document.getElementById('resubmit-warning');
+        if (w) w.style.display = '';
+        showToast('No data found for ' + STATE.resubmitDate + ' in the Sheet either — enter manually', 'error');
+      }
+    }).catch(() => {
+      const w = document.getElementById('resubmit-warning');
+      if (w) w.style.display = '';
+      showToast('Could not fetch ' + STATE.resubmitDate + ' from Sheet — check connection', 'error');
+    });
   } else {
     showToast('✅ Data loaded for ' + STATE.resubmitDate + ' — correct and click Update Selected Products', 'success');
   }
