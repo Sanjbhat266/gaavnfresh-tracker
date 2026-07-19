@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v141</span>
+    <span>PRODUCTION TRACKER v142</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -573,11 +573,11 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div id="prod-card-lfp" class="prod-card" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
       <button onclick="selectProduct(null)" class="btn-back" style="background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;color:var(--muted);">← Products</button>
-      <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Med Fat Paneer</span>
+      <span style="font-family:'Space Mono';font-size:11px;font-weight:700;color:var(--accent);">Low Fat Paneer</span>
       <button onclick="saveProductCard('lfp')" id="save-btn-lfp" style="background:var(--amber);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;font-weight:700;">💾 Save</button>
     </div>
   <div class="card">
-    <div class="card-head"><h3>Med Fat Paneer</h3></div>
+    <div class="card-head"><h3>Low Fat Paneer</h3></div>
     <div class="card-body">
       <!-- Milk & Cream Inputs -->
       <div class="fg fg-4">
@@ -645,7 +645,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lfp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
-      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lfp_notes" placeholder="Med Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
+      <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lfp_notes" placeholder="Low Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:11px;resize:vertical;"></textarea></div>
     </div>
   </div>
   </div><!-- end prod-card -->
@@ -1433,6 +1433,28 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     </div>
   </div>
 
+  <!-- v142: RESTORE OLD DATA FROM SHEET -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-head"><h3>⬇ Restore Old Data from Sheet</h3></div>
+    <div class="card-body">
+      <div style="font-family:'Space Mono';font-size:10px;color:var(--muted);margin-bottom:10px;line-height:1.6;">
+        Pulls all saved days (production + milk purchase) from the Google Sheet back onto this device.
+        Use this after upgrading to a new version — old local data does not carry over.
+        After restoring, use Re-submit on any date to correct it.
+      </div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <label style="font-family:'Space Mono';font-size:10px;color:var(--muted);">From
+          <input type="date" id="restore-from" style="font-family:'Space Mono';font-size:11px;border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;background:var(--cream);margin-left:4px;">
+        </label>
+        <label style="font-family:'Space Mono';font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px;">
+          <input type="checkbox" id="restore-overwrite"> Overwrite local data
+        </label>
+        <button onclick="restoreAllFromSheet()" style="background:var(--green,#2E7D32);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;">⬇ Restore</button>
+      </div>
+      <div id="restore-status" style="font-family:'Space Mono';font-size:10px;margin-top:8px;color:var(--muted);"></div>
+    </div>
+  </div>
+
   <!-- HISTORY TABLE ────────────────────────────────── -->
   <div class="card">
     <div class="card-body" id="history-body">
@@ -1676,7 +1698,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <td style="text-align:center"><input type="number" id="stk_mfp_var" placeholder="—" readonly style="background:transparent;color:var(--muted);width:60px;border:none;text-align:center;font-family:'Space Mono',monospace;font-size:11px;"></td>
       </tr>
       <tr class="stk-row" id="stk-row-lfp">
-        <td class="stk-name">Med Fat Paneer</td>
+        <td class="stk-name">Low Fat Paneer</td>
         <td><div class="unit"><input type="number" id="stk_lfp_open" placeholder="0" step="0.01" min="0" oninput="calcStockRow('lfp')"><span class="unit-label">kg</span></div></td>
         <td><div class="unit"><input type="number" id="stk_lfp_prod" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></td>
         <td><div class="unit"><input type="number" id="stk_lfp_sales" placeholder="0" step="0.01" min="0" oninput="calcStockRow('lfp')"><span class="unit-label">kg</span></div></td>
@@ -3970,7 +3992,7 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
     };
     const lp=parseFloat(p.lp_yield)||0;if(lp>0)addProdRow('Lite Paneer',lp,(parseFloat(p.lp_bm)||0)*bmR+(parseFloat(p.lp_sm)||0)*skR+(parseFloat(p.lp_cream)||0)*(parseFloat(p.lp_cream_rate)||300),parseFloat(p.lp_ing_cost)||0,parseFloat(p.lp_pm_cost)||0,lp*(parseFloat(p.lp_rate)||230),'kg');
     const mfp=parseFloat(p.mfp_yield)||0;if(mfp>0)addProdRow('Med Fat',mfp,(parseFloat(p.mfp_bm)||0)*bmR+(parseFloat(p.mfp_sm)||0)*skR+(parseFloat(p.mfp_cream)||0)*(parseFloat(p.mfp_cream_rate)||300),parseFloat(p.mfp_ing_cost)||0,parseFloat(p.mfp_pm_cost)||0,mfp*(parseFloat(p.mfp_rate)||240),'kg');
-    const lfp=parseFloat(p.lfp_yield)||0;if(lfp>0)addProdRow('Med Fat Paneer',lfp,(parseFloat(p.lfp_bm)||0)*bmR+(parseFloat(p.lfp_sm)||0)*skR+(parseFloat(p.lfp_cream)||0)*(parseFloat(p.lfp_cream_rate)||300),parseFloat(p.lfp_ing_cost)||0,parseFloat(p.lfp_pm_cost)||0,lfp*(parseFloat(p.lfp_rate)||230),'kg');
+    const lfp=parseFloat(p.lfp_yield)||0;if(lfp>0)addProdRow('Low Fat Paneer',lfp,(parseFloat(p.lfp_bm)||0)*bmR+(parseFloat(p.lfp_sm)||0)*skR+(parseFloat(p.lfp_cream)||0)*(parseFloat(p.lfp_cream_rate)||300),parseFloat(p.lfp_ing_cost)||0,parseFloat(p.lfp_pm_cost)||0,lfp*(parseFloat(p.lfp_rate)||230),'kg');
     const mp=parseFloat(p.mp_packs)||0;if(mp>0)addProdRow('Malai',parseFloat(p.mp_yield)||0,(parseFloat(p.mp_bm)||0)*bmR+(parseFloat(p.mp_sm)||0)*skR+(parseFloat(p.mp_cream)||0)*(parseFloat(p.mp_cream_rate)||300),parseFloat(p.mp_ing_cost)||0,parseFloat(p.mp_pm_cost)||0,mp*(parseFloat(p.mp_rate)||350),'kg');
     const gh=parseFloat(p.gh_yield_kg)||0;if(gh>0){const rev=(parseFloat(p.gh_pouches)||0)*(parseFloat(p.gh_pouch_rate)||780)+(parseFloat(p.gh_pouches_500)||0)*(parseFloat(p.gh_pouch_500_rate)||390)+(parseFloat(p.gh_jars)||0)*390+(parseFloat(p.gh_tins)||0)*3900;addProdRow('Ghee',gh,(parseFloat(p.gh_cream_in)||0)*(parseFloat(p.gh_cream_rate)||300),0,parseFloat(p.gh_pm_cost)||0,rev,'kg');}
     const lc=parseFloat(p.lc_yield)||0;if(lc>0)addProdRow('Lite Curd',lc,(parseFloat(p.lc_bm)||0)*bmR+(parseFloat(p.lc_cm)||0)*cmR+(parseFloat(p.lc_sm)||0)*skR,parseFloat(p.lc_ing_cost)||0,parseFloat(p.lc_pm_cost)||0,(parseFloat(p.lc_jars)||0)*(parseFloat(p.lc_jar_rate)||300)+(parseFloat(p.lc_bulk_kg)||0)*60,'kg');
@@ -4404,8 +4426,8 @@ function calculateAndShowSummary() {
   if(ic('lp_yield')>0){const mlk=(ic('lp_bm')+ic('lp_sm'));addRow('Lite Paneer',ic('lp_yield'),ic('lp_bm')*wBM+ic('lp_sm')*wSK+ic('lp_cream')*(ic('lp_cream_rate')||300),ic('lp_ing_cost'),ic('lp_pm_cost'),ic('lp_gas'),ic('lp_yield')*(ic('lp_rate')||230),mlk>0?(ic('lp_yield')/mlk*100):0,ic('lp_std')||16.0);}
   // ── Med Fat Paneer
   if(ic('mfp_yield')>0){const mlk=(ic('mfp_bm')+ic('mfp_sm'));addRow('Med Fat Paneer',ic('mfp_yield'),ic('mfp_bm')*wBM+ic('mfp_sm')*wSK+ic('mfp_cream')*(ic('mfp_cream_rate')||300),ic('mfp_ing_cost'),ic('mfp_pm_cost'),ic('mfp_gas'),ic('mfp_yield')*(ic('mfp_rate')||240),mlk>0?(ic('mfp_yield')/mlk*100):0,ic('mfp_std')||16.5);}
-  // ── Med Fat Paneer
-  if(ic('lfp_yield')>0){const mlk=(ic('lfp_bm')+ic('lfp_sm'));addRow('Med Fat Paneer',ic('lfp_yield'),ic('lfp_bm')*wBM+ic('lfp_sm')*wSK+ic('lfp_cream')*(ic('lfp_cream_rate')||300),ic('lfp_ing_cost'),ic('lfp_pm_cost'),ic('lfp_gas'),ic('lfp_yield')*(ic('lfp_rate')||230),mlk>0?(ic('lfp_yield')/mlk*100):0,ic('lfp_std_yield_pct')||19.0);}
+  // ── Low Fat Paneer
+  if(ic('lfp_yield')>0){const mlk=(ic('lfp_bm')+ic('lfp_sm'));addRow('Low Fat Paneer',ic('lfp_yield'),ic('lfp_bm')*wBM+ic('lfp_sm')*wSK+ic('lfp_cream')*(ic('lfp_cream_rate')||300),ic('lfp_ing_cost'),ic('lfp_pm_cost'),ic('lfp_gas'),ic('lfp_yield')*(ic('lfp_rate')||230),mlk>0?(ic('lfp_yield')/mlk*100):0,ic('lfp_std_yield_pct')||19.0);}
   // ── Malai Paneer
   if(ic('mp_yield')>0){const mlk=(ic('mp_bm')+ic('mp_sm'));addRow('Malai Paneer',ic('mp_yield'),ic('mp_bm')*wBM+ic('mp_sm')*wSK+ic('mp_cream')*(ic('mp_cream_rate')||300),ic('mp_ing_cost'),ic('mp_pm_cost'),ic('mp_gas'),ic('mp_packs')*(ic('mp_rate')||350),mlk>0?(ic('mp_yield')/mlk*100):0,22);}
   // ── Ghee
@@ -4497,7 +4519,7 @@ const STOCK_PRODUCTS = [
   {id:'cream',  name:'Cream',            unit:'kg',      prodField:'cream_yield_kg'},
   {id:'lp',     name:'Lite Paneer',       unit:'kg',      prodField:'lp_yield'},
   {id:'mfp',    name:'Med Fat Paneer',    unit:'kg',      prodField:'mfp_yield'},
-  {id:'lfp',    name:'Med Fat Paneer',    unit:'kg',      prodField:'lfp_yield'},
+  {id:'lfp',    name:'Low Fat Paneer',    unit:'kg',      prodField:'lfp_yield'},
   {id:'mp',     name:'Malai Paneer',      unit:'pcs',     prodField:'mp_packs'},
   {id:'gh_p',   name:'Ghee Pouches 1L',  unit:'nos',     prodField:'gh_pouches'},
   {id:'gh_j',   name:'Ghee Jars 500ml',  unit:'nos',     prodField:'gh_jars'},
@@ -4882,7 +4904,7 @@ function gatherProductData() {
     mfp_std:gn('mfp_std')||16.5, mfp_gas_qty:gn('mfp_gas_qty'), mfp_gas_rate:gn('mfp_gas_rate')||100, mfp_gas:gn('mfp_gas')||(gn('mfp_gas_qty')*(gn('mfp_gas_rate||100'))),  // fallback: qty*rate if field empty
     mfp_pm_qty:gn('mfp_pm_qty'), mfp_pm_rate:gn('mfp_pm_rate')||1.6, mfp_pm_cost:gn('mfp_pm_cost'), mfp_rate:gn('mfp_rate')||240, mfp_notes:gv('mfp_notes'),
     mfp_ing_cost:getIngTotalCost('mfp'), mfp_ings:gatherIngredients('mfp'),
-    // Med Fat Paneer
+    // Low Fat Paneer
     lfp_bm:gn('lfp_bm'), lfp_sm:gn('lfp_sm'), lfp_cream:gn('lfp_cream'), lfp_cream_rate:gn('lfp_cream_rate')||300, lfp_cream_amt:gn('lfp_cream_amt'), lfp_cream_pct:gn('lfp_cream_pct'), lfp_yield:gn('lfp_yield'),
     lfp_std_yield_pct:gn('lfp_std')||19.0, lfp_gas_qty:gn('lfp_gas_qty'), lfp_gas_rate:gn('lfp_gas_rate')||100, lfp_gas:gn('lfp_gas')||(gn('lfp_gas_qty')*(gn('lfp_gas_rate')||100)),
     lfp_pm_qty:gn('lfp_pm_qty'), lfp_pm_rate:gn('lfp_pm_rate')||1.6, lfp_pm_cost:gn('lfp_pm_cost'), lfp_rate:gn('lfp_rate')||230, lfp_notes:gv('lfp_notes'),
@@ -5157,6 +5179,90 @@ function sendChunked(url, type, data) {
     }
     sendChunk(0);
   });
+}
+
+// ═══ v142: RESTORE OLD DATA FROM SHEET ═══
+function _restoreDateKey(ds){
+  ds=String(ds||'').trim(); if(!ds) return null;
+  const m=ds.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if(m) return m[3]+String(m[2]).padStart(2,'0')+String(m[1]).padStart(2,'0'); // dd/mm/yyyy
+  const d=new Date(ds);
+  if(isNaN(d)) return null;
+  return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
+}
+async function restoreAllFromSheet(){
+  const url=STATE.gsUrl;
+  const st=document.getElementById('restore-status');
+  const say=t=>{ if(st) st.textContent=t; };
+  if(!url){ say('⚠ Configure Google Sheet URL in Setup first'); return; }
+  const overwrite=!!document.getElementById('restore-overwrite')?.checked;
+  const toISO=new Date().toISOString().slice(0,10);
+  let fromISO=document.getElementById('restore-from')?.value||'';
+  if(!fromISO){ const d=new Date(); d.setDate(d.getDate()-120); fromISO=d.toISOString().slice(0,10); }
+  let prodOK=0, prodSkip=0, milkOK=0, milkSkip=0;
+  // Extra column mappings beyond parseProdSheetRows (ING details, notes, qty/rate splits)
+  const PFX={LP:'lp',MFP:'mfp',LFP:'lfp',MP:'mp',LC:'lc',FC:'fc',CH:'ch',SL:'sl',ML:'ml',CMK:'cmk',STK:'stk',Ghee:'gh',Chaach:'ch'};
+  const EXPLICIT={'LP Cream Amt(Rs)':'lp_cream_amt','LP Cream%':'lp_cream_pct','LP Std%':'lp_std',
+    'MFP Cream Amt(Rs)':'mfp_cream_amt','MFP Cream%':'mfp_cream_pct','MFP Std%':'mfp_std',
+    'LFP Cream Amt(Rs)':'lfp_cream_amt','LFP Cream%':'lfp_cream_pct','LFP Std%':'lfp_std_yield_pct',
+    'MP Cream Amt(Rs)':'mp_cream_amt','MP Cream%':'mp_cream_pct','MP Rework(kg)':'mp_rework',
+    'Ghee Yield(L)':'gh_yield_l','Ghee Pouch Rate(Rs)':'gh_pouch_rate','Ghee Pouch Cost(Rs)':'gh_pouch_cost',
+    'Ghee Jar Rate(Rs)':'gh_jar_rate','Ghee Jar Cost(Rs)':'gh_jar_cost','Ghee Tin Rate(Rs)':'gh_tin_rate','Ghee Tin Cost(Rs)':'gh_tin_cost',
+    'LC Jar PM Rate(Rs)':'lc_pm_rate','FC Jar Rate':'fc_jar_rate',
+    'Chaach Water(L)':'ch_water','Chaach Yield(L)':'ch_yield_l','Chaach Water%':'ch_water_pct',
+    'Chaach 500ml PM Rate':'ch_500ml_rate','Chaach 500ml PM Cost':'ch_500ml_cost','Chaach 1L PM Rate':'ch_1l_rate','Chaach 1L PM Cost':'ch_1l_cost',
+    'Chaach 500ml Case Rate':'ch_500ml_case_rate','Chaach 500ml Cases':'ch_500ml_cases','Chaach 1L Case Rate':'ch_1l_case_rate','Chaach 1L Cases':'ch_1l_cases',
+    'SL Syrup(L)':'sl_syrup_l','SL Boxes':'sl_boxes','SL Cup Rate(Rs)':'sl_cup_rate','SL Box Rate(Rs)':'sl_box_rate',
+    'ML Syrup(L)':'ml_syrup_l','ML Boxes':'ml_boxes','ML Cup Rate(Rs)':'ml_cup_rate','ML Box Rate(Rs)':'ml_box_rate',
+    'CMK PM Packs':'cmk_pm_qty','CMK PM Rate(Rs)':'cmk_pm_rate','STK PM Packs':'stk_pm_qty','STK PM Rate(Rs)':'stk_pm_rate'};
+  say('⏳ Downloading production data...');
+  try{
+    const r=await fetch(url+'?action=getReportData&sheet=ProductionRaw&from='+fromISO+'&to='+toISO);
+    const j=await r.json();
+    if(j.headers&&j.rows&&j.rows.length){
+      const hdrs=j.headers.map(h=>String(h).trim());
+      const extraMap={};
+      hdrs.forEach((h,i)=>{
+        let m=h.match(/^(LP|MFP|LFP|MP|LC|FC|CH|SL|ML|CMK|STK) ING(\d+) (Name|Qty|Rate|Amt)/);
+        if(m){ extraMap[i]=PFX[m[1]]+'_ing'+m[2]+'_'+m[3].toLowerCase(); return; }
+        m=h.match(/^(LP|MFP|LFP|MP|LC|FC|SL|ML|CMK|STK|Ghee|Chaach) Notes$/);
+        if(m){ extraMap[i]=PFX[m[1]]+'_notes'; return; }
+        m=h.match(/^(LP|MFP|LFP|MP|LC|FC|Ghee) Gas (Qty|Rate)/);
+        if(m){ extraMap[i]=PFX[m[1]]+'_gas_'+m[2].toLowerCase(); return; }
+        m=h.match(/^(LP|MFP|LFP|MP) PM (Qty|Rate)/);
+        if(m){ extraMap[i]=PFX[m[1]]+'_pm_'+m[2].toLowerCase(); return; }
+        m=h.match(/^(CMK|STK) Fuel (Qty|Rate)/);
+        if(m){ extraMap[i]=PFX[m[1]]+'_fuel_'+m[2].toLowerCase(); return; }
+        if(EXPLICIT[h]) extraMap[i]=EXPLICIT[h];
+      });
+      j.rows.forEach(row=>{
+        const parsed=parseProdSheetRows(j.headers,[row]);
+        const d=parsed&&parsed[0]; if(!d||!d._date) return;
+        Object.entries(extraMap).forEach(([i,fid])=>{ const v=row[i]; if(v!==undefined&&v!==null&&v!=='') d[fid]=v; });
+        const key=_restoreDateKey(d._date); if(!key) return;
+        d.date=key.slice(0,4)+'-'+key.slice(4,6)+'-'+key.slice(6,8);
+        const lsKey='prod_'+key;
+        if(!overwrite && localStorage.getItem(lsKey)){ prodSkip++; return; }
+        localStorage.setItem(lsKey, JSON.stringify(d)); prodOK++;
+      });
+    }
+  }catch(e){ say('✗ Production restore failed — check Sheet URL in Setup'); return; }
+  say('⏳ Downloading milk purchase data...');
+  try{
+    const r=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+fromISO+'&to='+toISO);
+    const j=await r.json();
+    if(j.headers&&j.rows&&j.rows.length){
+      parseMilkSheetRows(j.headers,j.rows).forEach(d=>{
+        const key=_restoreDateKey(d._date); if(!key) return;
+        const lsKey='milk_'+key;
+        if(!overwrite && localStorage.getItem(lsKey)){ milkSkip++; return; }
+        localStorage.setItem(lsKey, JSON.stringify(d)); milkOK++;
+      });
+    }
+  }catch(e){ /* milk data optional — production already restored */ }
+  const kept=(prodSkip+milkSkip)?(' · kept '+(prodSkip+milkSkip)+' existing local day(s) (tick Overwrite to replace)'):'';
+  say('✅ Restored '+prodOK+' production day(s) + '+milkOK+' milk day(s)'+kept+'. Use Re-submit above to correct any date.');
+  try{ showToast('✅ Old data restored from Sheet','success'); }catch(e){}
 }
 
 async function loadHistory() {
@@ -6097,7 +6203,7 @@ function logStock(ss, d) {
     sh.appendRow([parseDateStr(d.date)||'','Cream','kg',d.cream_open||0,d.cream_prod||0,'','','',d.cream_sales||0,d.cream_close||0,(parseFloat(d.cream_close)||0)-(parseFloat(d.cream_open)||0)-(parseFloat(d.cream_prod)||0)+(parseFloat(d.cream_sales)||0)]);
     sh.appendRow([parseDateStr(d.date)||'','Lite Paneer','kg',d.lp_open||0,d.lp_prod||0,'','','',d.lp_sales||0,d.lp_close||0,(parseFloat(d.lp_close)||0)-(parseFloat(d.lp_open)||0)-(parseFloat(d.lp_prod)||0)+(parseFloat(d.lp_sales)||0)]);
     sh.appendRow([parseDateStr(d.date)||'','Med Fat Paneer','kg',d.mfp_open||0,d.mfp_prod||0,'','','',d.mfp_sales||0,d.mfp_close||0,(parseFloat(d.mfp_close)||0)-(parseFloat(d.mfp_open)||0)-(parseFloat(d.mfp_prod)||0)+(parseFloat(d.mfp_sales)||0)]);
-    sh.appendRow([parseDateStr(d.date)||'','Med Fat Paneer','kg',d.lfp_open||0,d.lfp_prod||0,'','','',d.lfp_sales||0,d.lfp_close||0,(parseFloat(d.lfp_close)||0)-(parseFloat(d.lfp_open)||0)-(parseFloat(d.lfp_prod)||0)+(parseFloat(d.lfp_sales)||0)]);
+    sh.appendRow([parseDateStr(d.date)||'','Low Fat Paneer','kg',d.lfp_open||0,d.lfp_prod||0,'','','',d.lfp_sales||0,d.lfp_close||0,(parseFloat(d.lfp_close)||0)-(parseFloat(d.lfp_open)||0)-(parseFloat(d.lfp_prod)||0)+(parseFloat(d.lfp_sales)||0)]);
     sh.appendRow([parseDateStr(d.date)||'','Malai Paneer','pcs',d.mp_open||0,d.mp_prod||0,'','','',d.mp_sales||0,d.mp_close||0,(parseFloat(d.mp_close)||0)-(parseFloat(d.mp_open)||0)-(parseFloat(d.mp_prod)||0)+(parseFloat(d.mp_sales)||0)]);
     sh.appendRow([parseDateStr(d.date)||'','Ghee Pouches 1L','nos',d.gh_p_open||0,d.gh_p_prod||0,'','','',d.gh_p_sales||0,d.gh_p_close||0,(parseFloat(d.gh_p_close)||0)-(parseFloat(d.gh_p_open)||0)-(parseFloat(d.gh_p_prod)||0)+(parseFloat(d.gh_p_sales)||0)]);
     sh.appendRow([parseDateStr(d.date)||'','Ghee Jars 500ml','nos',d.gh_j_open||0,d.gh_j_prod||0,'','','',d.gh_j_sales||0,d.gh_j_close||0,(parseFloat(d.gh_j_close)||0)-(parseFloat(d.gh_j_open)||0)-(parseFloat(d.gh_j_prod)||0)+(parseFloat(d.gh_j_sales)||0)]);
@@ -6238,7 +6344,7 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
       var m=(d.mfp_bm||0)+(d.mfp_sm||0);
       var mc=(d.mfp_bm||0)*wBM+(d.mfp_sm||0)*wSK+(d.mfp_cream||0)*(d.mfp_cream_rate||300);
       if(mc>0) rowData=makeRowData(pName,d.mfp_yield,mc,d.mfp_ing_cost||ic(d.mfp_ings),(d.mfp_gas||0)+(d.mfp_pm_cost||0),(d.mfp_yield||0)*(d.mfp_rate||240),yp(d.mfp_yield,m),d.mfp_std||16.5,d.mfp_notes);
-    } else if (pName === 'Med Fat Paneer') {
+    } else if (pName === 'Low Fat Paneer') {
       var m=(d.lfp_bm||0)+(d.lfp_sm||0);
       var mc=(d.lfp_bm||0)*wBM+(d.lfp_sm||0)*wSK+(d.lfp_cream||0)*(d.lfp_cream_rate||300);
       if(mc>0) rowData=makeRowData(pName,d.lfp_yield,mc,d.lfp_ing_cost||ic(d.lfp_ings),(d.lfp_gas||0)+(d.lfp_pm_cost||0),(d.lfp_yield||0)*(d.lfp_rate||230),yp(d.lfp_yield,m),d.lfp_std_yield_pct||19.0,d.lfp_notes);
@@ -6751,7 +6857,7 @@ function logCOGSDaily(ss, d) {
   function yp(yld,milk){return milk>0?(yld/milk*100).toFixed(2):0;}
   if((d.lp_yield||0)>0){const m=(d.lp_bm||0)+(d.lp_sm||0);addRow('Lite Paneer',d.lp_yield,(d.lp_bm||0)*wBM+(d.lp_sm||0)*wSK+(d.lp_cream||0)*(d.lp_cream_rate||300),d.lp_ing_cost||ic(d.lp_ings),(d.lp_gas||0)+(d.lp_pm_cost||0),(d.lp_yield||0)*(d.lp_rate||230),yp(d.lp_yield,m),d.lp_std||16.0,d.lp_notes);}
   if((d.mfp_yield||0)>0){const m=(d.mfp_bm||0)+(d.mfp_sm||0);addRow('Med Fat Paneer',d.mfp_yield,(d.mfp_bm||0)*wBM+(d.mfp_sm||0)*wSK+(d.mfp_cream||0)*(d.mfp_cream_rate||300),d.mfp_ing_cost||ic(d.mfp_ings),(d.mfp_gas||0)+(d.mfp_pm_cost||0),(d.mfp_yield||0)*(d.mfp_rate||240),yp(d.mfp_yield,m),d.mfp_std||16.5,d.mfp_notes);}
-  if((d.lfp_yield||0)>0){const m=(d.lfp_bm||0)+(d.lfp_sm||0);addRow('Med Fat Paneer',d.lfp_yield,(d.lfp_bm||0)*wBM+(d.lfp_sm||0)*wSK+(d.lfp_cream||0)*(d.lfp_cream_rate||300),d.lfp_ing_cost||ic(d.lfp_ings),(d.lfp_gas||0)+(d.lfp_pm_cost||0),(d.lfp_yield||0)*(d.lfp_rate||230),yp(d.lfp_yield,m),d.lfp_std_yield_pct||19.0,d.lfp_notes);}
+  if((d.lfp_yield||0)>0){const m=(d.lfp_bm||0)+(d.lfp_sm||0);addRow('Low Fat Paneer',d.lfp_yield,(d.lfp_bm||0)*wBM+(d.lfp_sm||0)*wSK+(d.lfp_cream||0)*(d.lfp_cream_rate||300),d.lfp_ing_cost||ic(d.lfp_ings),(d.lfp_gas||0)+(d.lfp_pm_cost||0),(d.lfp_yield||0)*(d.lfp_rate||230),yp(d.lfp_yield,m),d.lfp_std_yield_pct||19.0,d.lfp_notes);}
   if((d.mp_yield||0)>0){const m=(d.mp_bm||0)+(d.mp_sm||0);addRow('Malai Paneer',d.mp_yield,(d.mp_bm||0)*wBM+(d.mp_sm||0)*wSK+(d.mp_cream||0)*(d.mp_cream_rate||300),d.mp_ing_cost||ic(d.mp_ings),(d.mp_gas||0)+(d.mp_pm_cost||0),(d.mp_packs||0)*(d.mp_rate||350),yp(d.mp_yield,m),22,d.mp_notes);}
   if((d.gh_yield_kg||0)>0){const rev=(d.gh_pouches||0)*(d.gh_pouch_rate||780)+(d.gh_pouches_500||0)*(d.gh_pouch_500_rate||390)+(d.gh_jars||0)*390+(d.gh_tins||0)*3900;addRow('Ghee',d.gh_yield_kg,(d.gh_cream_in||0)*(d.gh_cream_rate||300),0,(d.gh_gas||0)+(d.gh_pm_cost||0),rev,yp(d.gh_yield_kg,d.gh_cream_in||0),51.7,d.gh_notes);}
   // FIX: Lite Curd — require at least one milk input > 0 before writing row
@@ -7184,7 +7290,7 @@ function startManualResubmit() {
 
 // All COGS products and their Apps Script product name (must match COGS_Daily 'Product' column exactly)
 const RESUBMIT_PRODUCTS = [
-  { id:'lfp',  label:'Med Fat Paneer',         sheetName:'Med Fat Paneer',           dataField:'lfp_yield'  },
+  { id:'lfp',  label:'Low Fat Paneer',         sheetName:'Low Fat Paneer',           dataField:'lfp_yield'  },
   { id:'lp',   label:'Lite Paneer',             sheetName:'Lite Paneer',               dataField:'lp_yield'   },
   { id:'mfp',  label:'Med Fat Paneer',          sheetName:'Med Fat Paneer',            dataField:'mfp_yield'  },
   { id:'mp',   label:'Malai Paneer',            sheetName:'Malai Paneer',              dataField:'mp_yield'   },
