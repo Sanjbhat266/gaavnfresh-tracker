@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v156</span>
+    <span>PRODUCTION TRACKER v157</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -1949,6 +1949,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button class="rpt-btn" onclick="generateReport('milksummary')" ontouchstart="">
       🥛 Milk Summary<br><small>All vendors, daily totals</small>
     </button>
+    <button class="rpt-btn" onclick="generateMilkReconReport()" ontouchstart="" style="border-color:#C62828;">
+      ⚖ Milk Reconciliation<br><small>Milk in vs milk used — unaccounted per day</small>
+    </button>
     <button class="rpt-btn" onclick="generateReport('production')" ontouchstart="">
       🧀 Production Summary<br><small>Daily yield by product</small>
     </button>
@@ -3527,6 +3530,116 @@ async function fetchCreamSalesByDate(fromISO,toISO){
   }
   return map;
 }
+// ══ v157: MILK RECONCILIATION ═══════════════════════════════════════
+// Answers "how much milk is unaccounted for each day". Pulls Milk_Purchase
+// (what came in, less spoilage) and the raw Production sheet (what was entered
+// against products) for the whole date range in ONE click, and lines them up
+// day by day. Read-only: it changes no stored data and no cost formula.
+async function generateMilkReconReport(){
+  const from=document.getElementById('rpt-from').value || '';
+  const to  =document.getElementById('rpt-to').value   || new Date().toISOString().slice(0,10);
+  if(!from){ showToast('Pick a From date first','error'); return; }
+  const out=document.getElementById('rpt-output'); out.style.display='block';
+  document.getElementById('rpt-title').textContent='⚖ Milk Reconciliation — milk in vs milk used';
+  document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:24px;text-align:center;font-family:Space Mono;font-size:12px;color:var(--muted);">⏳ Reading milk purchases and production…</div>';
+  document.getElementById('rpt-total-wrap').innerHTML='';
+  try{ out.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  const url=STATE.gsUrl;
+  if(!url){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Set the Google Sheet URL in Setup first.</div>'; return; }
+
+  function hmap(headers){ const m={}; (headers||[]).forEach((h,i)=>{ m[String(h).trim()]=i; }); return m; }
+  const num=(row,m,k)=>{ const i=m[k]; return i===undefined?0:(parseFloat(row[i])||0); };
+  const day=d=>_restoreDateKey(String(d||'').trim(),'DMY');
+
+  let milkJ=null, prodJ=null;
+  try{
+    const [r1,r2]=await Promise.all([
+      fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+from+'&to='+to,{cache:'no-store'}),
+      fetch(url+'?action=getReportData&sheet=ProductionRaw&from='+from+'&to='+to,{cache:'no-store'})
+    ]);
+    milkJ=await r1.json(); prodJ=await r2.json();
+  }catch(e){
+    document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Could not reach the Sheet — check connection.</div>'; return;
+  }
+
+  const perDay={};
+  const ensure=k=>{ if(!perDay[k]) perDay[k]={cm:0,bm:0,sk:0,ded:0,prod:0,cream:0,hasProd:false,hasMilk:false}; return perDay[k]; };
+
+  // ── milk in ──
+  const mm=hmap(milkJ&&milkJ.headers);
+  (milkJ&&milkJ.rows||[]).forEach(row=>{
+    const k=day(row[0]); if(!k) return;
+    const d=ensure(k); d.hasMilk=true;
+    d.cm += num(row,mm,'V1 Morn CM Qty(L)')+num(row,mm,'V1 Eve CM Qty(L)')+num(row,mm,'V2 CM Qty(L)')+num(row,mm,'V4 CM Qty(L)');
+    d.bm += num(row,mm,'V1 Morn BM Qty(L)')+num(row,mm,'V1 Eve BM Qty(L)')+num(row,mm,'V2 BM Qty(L)')+num(row,mm,'V3 BM Qty(L)')+num(row,mm,'V4 BM Qty(L)');
+    d.sk += num(row,mm,'V3 Skim Qty(L)');
+    d.ded+= num(row,mm,'V1 Morning Deduct(L)')+num(row,mm,'V1 Evening Deduct(L)')+num(row,mm,'V2 Deduct(L)')+num(row,mm,'V3 Deduct(L)')+num(row,mm,'V4 Deduct(L)');
+  });
+
+  // ── milk used by products ──
+  const pm=hmap(prodJ&&prodJ.headers);
+  const USED=['LP BM(L)','LP SM(L)','MFP BM(L)','MFP SM(L)','LFP BM(L)','LFP SM(L)','MP BM(L)','MP SM(L)',
+              'LC BM(L)','LC CM(L)','LC SM(L)','FC BM(L)','FC CM(L)','FC SM(L)',
+              'CMK CM(L)','CMK SM(L)','STK BM(L)','STK CM(L)','STK SM(L)'];
+  const CREAM=['LP Cream(kg)','MFP Cream(kg)','LFP Cream(kg)','MP Cream(kg)'];
+  (prodJ&&prodJ.rows||[]).forEach(row=>{
+    const k=day(row[0]); if(!k) return;
+    const d=ensure(k); d.hasProd=true;
+    USED.forEach(h=>{ d.prod += num(row,pm,h); });
+    CREAM.forEach(h=>{ d.cream += num(row,pm,h); });
+  });
+
+  const keys=Object.keys(perDay).sort();
+  if(!keys.length){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);">No milk or production rows in this range.</div>'; return; }
+
+  const N=(x,dp)=>(Math.round(x*Math.pow(10,dp===undefined?1:dp))/Math.pow(10,dp===undefined?1:dp)).toLocaleString('en-IN');
+  let T={cm:0,bm:0,sk:0,ded:0,net:0,prod:0,cream:0,gap:0};
+  let rows='';
+  keys.forEach(k=>{
+    const d=perDay[k];
+    const inTot=d.cm+d.bm+d.sk, net=inTot-d.ded;
+    const gap=net-d.prod-d.cream;
+    const pct=net>0?(gap/net*100):0;
+    T.cm+=d.cm; T.bm+=d.bm; T.sk+=d.sk; T.ded+=d.ded; T.net+=net; T.prod+=d.prod; T.cream+=d.cream; T.gap+=gap;
+    const partial=!d.hasProd||!d.hasMilk;
+    const col = partial ? '#888' : (Math.abs(pct)>=10 ? 'var(--red)' : (Math.abs(pct)>=5 ? '#E65100' : 'var(--green)'));
+    const flag = partial ? ' ⚠ one side missing' : (Math.abs(pct)>=5 ? ' ◀ investigate' : '');
+    rows+='<tr'+(partial?' style="opacity:.6;font-style:italic;"':(Math.abs(pct)>=10?' style="background:#FDECEA;"':''))+'>'+
+      '<td>'+k.slice(6,8)+'/'+k.slice(4,6)+'</td>'+
+      '<td style="text-align:right;">'+N(d.cm)+'</td>'+
+      '<td style="text-align:right;">'+N(d.bm)+'</td>'+
+      '<td style="text-align:right;">'+N(d.sk)+'</td>'+
+      '<td style="text-align:right;color:'+(d.ded>0?'var(--red)':'var(--muted)')+';">'+(d.ded>0?N(d.ded):'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700;">'+N(net)+'</td>'+
+      '<td style="text-align:right;">'+N(d.prod)+'</td>'+
+      '<td style="text-align:right;">'+(d.cream>0?N(d.cream):'—')+'</td>'+
+      '<td style="text-align:right;font-weight:800;color:'+col+';">'+N(gap)+'</td>'+
+      '<td style="text-align:right;font-weight:700;color:'+col+';">'+N(pct,1)+'%'+flag+'</td></tr>';
+  });
+  const tPct=T.net>0?(T.gap/T.net*100):0;
+  document.getElementById('rpt-table-wrap').innerHTML=
+    '<table style="width:100%;border-collapse:collapse;font-family:Space Mono;font-size:11px;">'+
+    '<thead><tr style="background:var(--ink);color:#fff;">'+
+    ['Date','CM in','BM in','Skim in','Spoilt','NET IN','Used in products','Cream (kg)','UNACCOUNTED','%']
+      .map(h=>'<th style="padding:7px 8px;text-align:'+(h==='Date'?'left':'right')+';font-size:9px;letter-spacing:.5px;">'+h+'</th>').join('')+
+    '</tr></thead><tbody>'+rows+'</tbody></table>';
+  document.getElementById('rpt-total-wrap').innerHTML=
+    '<div style="margin-top:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);font-family:Space Mono;font-size:12px;line-height:1.9;">'+
+    '<b>PERIOD TOTAL ('+keys.length+' days)</b><br>'+
+    'Milk in '+N(T.cm+T.bm+T.sk)+' L &nbsp;−&nbsp; spoilt '+N(T.ded)+' L &nbsp;=&nbsp; <b>net '+N(T.net)+' L</b><br>'+
+    'Used in products '+N(T.prod)+' L &nbsp;+&nbsp; cream separated '+N(T.cream)+' kg<br>'+
+    '<span style="font-size:15px;font-weight:800;color:'+(Math.abs(tPct)>=5?'var(--red)':'var(--green)')+';">UNACCOUNTED '+N(T.gap)+' L ('+N(tPct,1)+'% of net)</span>'+
+    '</div>'+
+    '<div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#FFF8E1;border:1.5px solid #FFD54F;font-size:11.5px;line-height:1.7;">'+
+    '<b>How to read this.</b> “Unaccounted” = net milk in − milk entered against products − cream separated. It bundles together: '+
+    'evaporation and process loss in a manual plant, milk or skim carried over to the next day, and mis-keyed entries. '+
+    'A single day can look bad purely because milk was held overnight, so <b>judge the period total, not one day</b> — carry-over cancels out over a month, '+
+    'so the total is close to your true physical loss. Investigate the individual days flagged in red (10%+): those are where wastage, '+
+    'pilferage or a wrong entry actually sit. Grey italic rows have milk but no production (or vice versa), so their gap is not meaningful.'+
+    '</div>';
+  showToast('Milk reconciliation built for '+keys.length+' day(s)','success');
+}
+
 async function generateCreamReport(){
   var ANCHOR_DATE="2026-07-10", ANCHOR_KG=56;   // physical count baseline for the running balance
   var from=document.getElementById("rpt-from").value, to=document.getElementById("rpt-to").value;
