@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v146</span>
+    <span>PRODUCTION TRACKER v156</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -391,6 +391,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <div class="section" id="tab-products">
   <div class="page-title">Production Entry</div>
   <div class="page-sub">Select a product, enter data, save — then submit all at end</div>
+  <div id="milk-balance-panel" style="display:none;margin:0 0 14px;padding:10px 14px;border-radius:10px;font-family:'Space Mono';font-size:11px;line-height:1.7;"></div>
 
   <!-- Product selector grid -->
   <div id="product-selector" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px;">
@@ -2154,6 +2155,11 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>Transport/batch (Rs)</label><input type="number" id="std_transport" value="11.0" step="0.01" class="config-input"></div>
       </div>
       <button class="btn-submit" onclick="saveStdRates()" style="margin-top:12px;">Save Standard Rates</button>
+      <button class="btn-submit" onclick="applyStdRatesToThisDate()" style="margin-top:8px;background:#1565C0;">⟳ Apply These Rates to the Date Currently Open</button>
+      <div style="font-family:'Space Mono';font-size:10px;color:#888;margin-top:6px;">
+        Saved rates auto-fill any date that has no milk entry yet. A date already saved keeps the rate it was
+        entered with — use the blue button to overwrite that date deliberately.
+      </div>
     </div>
   </div>
 
@@ -2366,8 +2372,14 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         Khoya Ingredients
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:20px;">
-        
-        
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Khoya Ingredient (SMP)</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_khoya_ing" value="345" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/kg</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; cmk_ing1_rate, stk_ing1_rate</div>
+        </div>
       </div>
 
       <!-- ── PACKING ───────────────────────────────────────────────── -->
@@ -2376,12 +2388,12 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:24px;">
         <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
-          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">LP / LFP Packing</div>
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Paneer Packing (LP / MFP / LFP)</div>
           <div style="display:flex;align-items:center;gap:6px;">
             <input type="number" id="ir_paneer_pm" value="1.6" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
             <span style="font-family:'Space Mono';font-size:10px;color:#888;">₹/kg</span>
           </div>
-          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">→ lp_pm_rate, lfp_pm_rate</div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; lp_pm_rate, mfp_pm_rate, lfp_pm_rate</div>
         </div>
         <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
           <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Ghee Pouch 1L</div>
@@ -2398,6 +2410,86 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
             <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/pc</span>
           </div>
           <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; gh_pouch_500_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Malai Paneer Packing</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_malai_pm" value="1.5" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/kg</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; mp_pm_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Lite Curd Jar</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_lc_jar_pm" value="18" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/jar</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; lc_pm_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Khoya Packing</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_khoya_pm" value="5" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/pack</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; cmk_pm_rate, stk_pm_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Ghee Jar</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_ghee_jar" value="17" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/jar</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; gh_jar_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Ghee Tin</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_ghee_tin" value="25" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/tin</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; gh_tin_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Lassi Cup</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_lassi_cup" value="2.7" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/cup</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; sl_cup_rate, ml_cup_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Lassi Box</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_lassi_box" value="16" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/box</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; sl_box_rate, ml_box_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Chaas 500ml Bottle</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_chaas_500" value="6.3" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/btl</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; ch_500ml_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Chaas 1L Bottle</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_chaas_1l" value="8.5" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/btl</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; ch_1l_rate</div>
+        </div>
+        <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
+          <div style="font-family:'Space Mono';font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Chaas Case</div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="ir_chaas_case" value="10" step="0.01" min="0" style="flex:1;font-family:'Space Mono';font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <span style="font-family:'Space Mono';font-size:10px;color:#888;">&#8377;/case</span>
+          </div>
+          <div style="font-family:'Space Mono';font-size:9px;color:#888;margin-top:4px;">&#8594; ch_500ml_case_rate, ch_1l_case_rate</div>
         </div>
       </div>
 
@@ -2508,12 +2600,24 @@ function loadConfig() {
   }
 }
 
-function autoFillStdYields() {
+function autoFillStdYields(force) {
   const sr = STATE.stdRates;
   if (sr.lfp_yield) document.getElementById('lfp_std').value = sr.lfp_yield;
-  // V2 rates pre-filled in HTML (CM=41, BM=57); override if std_rates saved
-  if (sr.cm_rate && document.getElementById('v2_cm_rate') && !document.getElementById('v2_cm_rate').value) document.getElementById('v2_cm_rate').value = sr.cm_rate;
-  if (sr.bm_rate && document.getElementById('v2_bm_rate') && !document.getElementById('v2_bm_rate').value) document.getElementById('v2_bm_rate').value = sr.bm_rate;
+  // v154 FIX: the old guard was `&& !field.value` — but the HTML ships
+  // value="41" / value="57", so the field is NEVER empty and a saved standard
+  // rate could never be applied. Changing CM to 43 in Setup had no effect on
+  // the milk form. Now: apply the saved rate unless this date already has its
+  // own saved milk entry (historical days keep the rate they were entered with).
+  const _dk = (document.getElementById('entry-date')||{}).value || '';
+  const _hasSavedMilk = _dk ? !!localStorage.getItem('milk_' + _dk.replace(/-/g,'')) : false;
+  const _applyStd = force || !_hasSavedMilk;
+  function _setRate(id, val){
+    const el = document.getElementById(id);
+    if (!el || !(parseFloat(val) > 0)) return;
+    if (_applyStd) el.value = val;
+  }
+  _setRate('v2_cm_rate', sr.cm_rate);
+  _setRate('v2_bm_rate', sr.bm_rate);
   if (sr.sm_rate) document.getElementById('v3_sk_rate').value = sr.sm_rate;
   if (sr.labour)    document.getElementById('cost_labour').value    = sr.labour;
   if (sr.elec)      document.getElementById('cost_elec').value      = sr.elec;
@@ -2522,6 +2626,7 @@ function autoFillStdYields() {
 
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
+  if(id==='products')  { setTimeout(function(){ try{ calcMilkBalance(); }catch(e){} }, 50); }   // v156
   if(id==='inventory') { setTimeout(renderInventory, 50); }
   if(id==='setup') { setTimeout(initBMThresholds, 50); }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -4135,21 +4240,10 @@ function calcLCYieldAndPacking() {
 }
 
 function calcIngTotal(prod) {
-  // Recalculate total ingredient cost for a product
-  // Finds all ing*_amt fields for the product and sums them
-  var total = 0;
-  var i = 1;
-  while(true) {
-    var amtEl = document.getElementById(prod + '_ing' + i + '_amt');
-    if(!amtEl) break;
-    total += parseFloat(amtEl.value) || 0;
-    i++;
-  }
-  var totalEl = document.getElementById(prod + '_ing_total');
-  if(totalEl) totalEl.value = total.toFixed(2);
-  // Also update ing_cost field used in COGS
-  var ingCostEl = document.getElementById(prod + '_ing_cost');
-  if(ingCostEl) ingCostEl.value = total.toFixed(2);
+  // v147: legacy duplicate — it wrote .value on the total element while
+  // sumIngredients() writes .textContent on the same element, so the two
+  // could disagree. Delegate to the single implementation.
+  return sumIngredients(prod);
 }
 
 function calcLCCulture() {
@@ -4861,12 +4955,137 @@ function sumIngredients(prod) {
   const defs = INGREDIENT_DEFS[prod];
   if (!defs) return 0;
   let total = 0;
-  defs.forEach(d => { total += parseFloat(document.getElementById(d.amt)?.value) || 0; });
+  // v147: flag any ingredient that has a quantity but no rate. That silent
+  // combination is what let zero ingredient cost reach the COGS sheet.
+  const missing = [];
+  defs.forEach(d => {
+    total += parseFloat(document.getElementById(d.amt)?.value) || 0;
+    const q = parseFloat(document.getElementById(d.qty)?.value) || 0;
+    const r = parseFloat(document.getElementById(d.rate)?.value) || 0;
+    if (q > 0 && r <= 0) missing.push(document.getElementById(d.name)?.value || d.label);
+  });
   const totalEl  = document.getElementById(prod + '_ing_total');
   const hiddenEl = document.getElementById(prod + '_ing_cost');
-  if (totalEl)  totalEl.textContent = 'Rs ' + total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+  if (totalEl) {
+    totalEl.textContent = 'Rs ' + total.toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    totalEl.style.color = missing.length ? '#C62828' : '';
+    totalEl.title = missing.length ? ('No rate entered for: ' + missing.join(', ')) : '';
+  }
+  const warnId = prod + '_ing_warn';
+  let warnEl = document.getElementById(warnId);
+  if (missing.length) {
+    if (!warnEl && totalEl && totalEl.parentNode) {
+      warnEl = document.createElement('div');
+      warnEl.id = warnId;
+      warnEl.style.cssText = 'color:#C62828;font-size:11px;font-weight:700;margin-top:4px;';
+      totalEl.parentNode.appendChild(warnEl);
+    }
+    if (warnEl) warnEl.textContent = '\u26a0 Rate missing for: ' + missing.join(', ') + ' \u2014 ingredient cost will save as 0. Set it in Setup \u2192 Ingredient Rates.';
+  } else if (warnEl) { warnEl.textContent = ''; }
   if (hiddenEl) hiddenEl.value = total.toFixed(2);
   return total;
+}
+
+// ── v155: INGREDIENT NAMES ARE STRUCTURAL, NOT DAILY DATA ──────────
+// The name boxes (SMP / Citric / GDL / Calcium) were saved with every day and
+// restored per day. A day whose stored names were shifted by one slot pushed
+// those wrong names back into the form — which is how "ING 4 (Calcium)" came
+// to appear twice on 19/07 with SMP missing. ING_RESET only reset slots 2-4,
+// never slot 1, so the bad name in slot 1 survived every reload.
+// Names now live once, globally; no saved or restored day can alter them.
+const LS_ING_NAMES = 'gf_ing_names';
+function _ingNameOverrides(){ try{ return JSON.parse(localStorage.getItem(LS_ING_NAMES)||'{}'); }catch(e){ return {}; } }
+function enforceIngredientNames(){
+  const ov = _ingNameOverrides();
+  Object.keys(INGREDIENT_DEFS).forEach(prod=>{
+    (INGREDIENT_DEFS[prod]||[]).forEach(d=>{
+      const el = document.getElementById(d.name);
+      if (!el) return;
+      const want = ov[d.name] || d.label || '';
+      if (want && el.value !== want) el.value = want;
+    });
+  });
+}
+// editing a name box updates the global list, not just today's sheet row
+document.addEventListener('change', function(e){
+  const t = e.target;
+  if (!t || !t.id || !/_ing\d+_name$/.test(t.id)) return;
+  const ov = _ingNameOverrides();
+  let def = null;
+  Object.keys(INGREDIENT_DEFS).forEach(prod=>{
+    (INGREDIENT_DEFS[prod]||[]).forEach(d=>{ if (d.name === t.id) def = d; });
+  });
+  const v = String(t.value||'').trim();
+  if (!v || (def && v === def.label)) delete ov[t.id]; else ov[t.id] = v;
+  try{ localStorage.setItem(LS_ING_NAMES, JSON.stringify(ov)); }catch(err){}
+});
+
+// ── v156: MILK BALANCE CHECK (read-only) ───────────────────────────
+// 26 Jul: 80 L was spoilt and deducted from the vendors, but 435 L was still
+// entered as milk into the paneer vat (real batch: 355 L). Nothing in the app
+// noticed, so paneer carried Rs2,499 of milk it never used and its yield read
+// 13.84% instead of 16.96%.
+// This does NOT alter any cost formula. Deducted litres are deliberately NOT
+// auto-subtracted from product milk: an operator who already entered net milk
+// would then be double-deducted. Instead the mismatch is made visible.
+function _mbNum(id){ const el=document.getElementById(id); return el ? (parseFloat(el.value)||0) : 0; }
+function calcMilkBalance(){
+  const panel = document.getElementById('milk-balance-panel');
+  if (!panel) return null;
+  const purchased =
+      _mbNum('v1m_cm_qty')+_mbNum('v1e_cm_qty')+_mbNum('v2_cm_qty')+_mbNum('v4_cm_qty')
+    + _mbNum('v1m_bm_qty')+_mbNum('v1e_bm_qty')+_mbNum('v2_bm_qty')+_mbNum('v3_bm_qty')+_mbNum('v4_bm_qty')
+    + _mbNum('v3_sk_qty');
+  const deducted =
+      _mbNum('v1m_deduct')+_mbNum('v1e_deduct')+_mbNum('v2_deduct')+_mbNum('v3_deduct')+_mbNum('v4_deduct');
+  const allocated =
+      _mbNum('lp_bm')+_mbNum('lp_sm')
+    + _mbNum('mfp_bm')+_mbNum('mfp_sm')
+    + _mbNum('lfp_bm')+_mbNum('lfp_sm')
+    + _mbNum('mp_bm')+_mbNum('mp_sm')
+    + _mbNum('lc_bm')+_mbNum('lc_cm')+_mbNum('lc_sm')
+    + _mbNum('fc_bm')+_mbNum('fc_cm')+_mbNum('fc_sm')
+    + _mbNum('cmk_cm')+_mbNum('cmk_sm')
+    + _mbNum('stk_bm')+_mbNum('stk_cm')+_mbNum('stk_sm');
+  const creamKg = _mbNum('cream_yield_kg');
+  const net = purchased - deducted;
+  const over = allocated - (net - creamKg);      // >0 means more milk charged than was available
+  if (purchased <= 0 && allocated <= 0) { panel.style.display='none'; return null; }
+  // v156.1: an "allocated > net" test alone does NOT catch the 26 Jul case —
+  // unused milk is normal, so 435 L allocated out of 497 L net looks fine even
+  // though 80 L of it was spoilt. Spoilt litres are part of the purchase, so
+  // no total-level arithmetic can find them. The only reliable signal is that
+  // a deduction was recorded that day, so that is surfaced explicitly.
+  const overAlloc = over > 1;                    // hard error: more than existed
+  const spoiltToday = deducted > 0;              // needs an explicit confirmation
+  const level = overAlloc ? 'red' : (spoiltToday ? 'amber' : 'green');
+  const COL = {red:['#FDECEA','#C62828','#C62828'],
+               amber:['#FFF8E1','#FFB300','#8D6E00'],
+               green:['#F1F8E9','#A5D6A7','#33691E']}[level];
+  panel.style.display = '';
+  panel.style.background = COL[0];
+  panel.style.border = '1.5px solid ' + COL[1];
+  panel.style.color = COL[2];
+  const N1 = x => (Math.round(x*10)/10).toLocaleString('en-IN');
+  let verdict;
+  if (overAlloc) {
+    verdict = '<br>⛔ <b>' + N1(over) + ' L more milk is charged to products than existed today.</b> Check the BM/SM figures.';
+  } else if (spoiltToday) {
+    verdict = '<br>⚠ <b>' + N1(deducted) + ' L was recorded as spoilt/rejected today.</b> ' +
+              'Milk that spoilt must NOT be inside any product\'s BM/SM figure — if it is, that product\'s COGS is overstated and its yield understated. ' +
+              'Enter only the litres that actually went into the vat.';
+  } else {
+    verdict = '<br>✓ No spoilage recorded, and milk charged to products is within what was available.';
+  }
+  panel.innerHTML =
+    '<b>MILK BALANCE</b> &nbsp; purchased ' + N1(purchased) + ' L' +
+    (deducted>0 ? ' &nbsp;−&nbsp; spoilt/deducted <b>' + N1(deducted) + ' L</b>' : '') +
+    ' &nbsp;=&nbsp; net <b>' + N1(net) + ' L</b>' +
+    (creamKg>0 ? ' &nbsp;−&nbsp; cream separated ' + N1(creamKg) + ' kg' : '') +
+    ' &nbsp;|&nbsp; entered against products <b>' + N1(allocated) + ' L</b>' +
+    verdict;
+  return {purchased:purchased, deducted:deducted, net:net, allocated:allocated,
+          creamKg:creamKg, over:over, level:level};
 }
 
 function gatherIngredients(prod) {
@@ -5182,10 +5401,33 @@ function sendChunked(url, type, data) {
 }
 
 // ═══ v142: RESTORE OLD DATA FROM SHEET ═══
-function _restoreDateKey(ds){
+// v150: the Sheet's locale decides whether a slash date reads DD/MM/YYYY or
+// MM/DD/YYYY. This spreadsheet shows 7/20/2026 (= 20 July, M/D/Y) while the
+// tracker writes 20/07/2026 (D/M/Y). The old parser assumed D/M/Y always, so
+// "7/20/2026" became month 20 → key 20262007 → the day could never be found
+// again; and 7/2/2026 was silently filed as 7 Feb. Detect the order once per
+// batch from any unambiguous row, then apply it to the whole batch.
+function _detectDateOrder(list){
+  let firstBig=false, secondBig=false;
+  (list||[]).forEach(x=>{
+    const m=String(x||'').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if(!m) return;
+    if(+m[1]>12) firstBig=true;
+    if(+m[2]>12) secondBig=true;
+  });
+  if(secondBig && !firstBig) return 'MDY';
+  return 'DMY';   // default matches what this app writes
+}
+function _restoreDateKey(ds, order){
   ds=String(ds||'').trim(); if(!ds) return null;
   const m=ds.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if(m) return m[3]+String(m[2]).padStart(2,'0')+String(m[1]).padStart(2,'0'); // dd/mm/yyyy
+  if(m){
+    let day, mon;
+    if(order==='MDY'){ mon=+m[1]; day=+m[2]; } else { day=+m[1]; mon=+m[2]; }
+    if(mon>12 && day<=12){ const t=mon; mon=day; day=t; }   // impossible month → flip
+    if(mon<1||mon>12||day<1||day>31) return null;
+    return m[3]+String(mon).padStart(2,'0')+String(day).padStart(2,'0');
+  }
   const d=new Date(ds);
   if(isNaN(d)) return null;
   return d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0');
@@ -5197,6 +5439,8 @@ async function _restoreRange(fromISO, toISO, overwrite){
   const url=STATE.gsUrl;
   if(!url) throw new Error('no url');
   let prodOK=0, prodSkip=0, milkOK=0, milkSkip=0;
+  let prodRows=0, prodBad=0; const _prodDates=[];   // v150 diagnostics
+  const _diag={};                                   // v153 request/response trace
   // Extra column mappings beyond parseProdSheetRows (ING details, notes, qty/rate splits)
   const PFX={LP:'lp',MFP:'mfp',LFP:'lfp',MP:'mp',LC:'lc',FC:'fc',CH:'ch',SL:'sl',ML:'ml',CMK:'cmk',STK:'stk',Ghee:'gh',Chaach:'ch'};
   const EXPLICIT={'LP Cream Amt(Rs)':'lp_cream_amt','LP Cream%':'lp_cream_pct','LP Std%':'lp_std',
@@ -5213,8 +5457,17 @@ async function _restoreRange(fromISO, toISO, overwrite){
     'ML Syrup(L)':'ml_syrup_l','ML Boxes':'ml_boxes','ML Cup Rate(Rs)':'ml_cup_rate','ML Box Rate(Rs)':'ml_box_rate',
     'CMK PM Packs':'cmk_pm_qty','CMK PM Rate(Rs)':'cmk_pm_rate','STK PM Packs':'stk_pm_qty','STK PM Rate(Rs)':'stk_pm_rate'};
   try{
-    const r=await fetch(url+'?action=getReportData&sheet=ProductionRaw&from='+fromISO+'&to='+toISO);
-    const j=await r.json();
+    // v153: record the exact request + response so a failure is never guesswork
+    const _pUrl = url+'?action=getReportData&sheet=ProductionRaw&from='+fromISO+'&to='+toISO;
+    _diag.url = _pUrl;
+    const r=await fetch(_pUrl);
+    _diag.http = r.status;
+    const _txt = await r.text();
+    _diag.bytes = _txt.length;
+    let j; try { j = JSON.parse(_txt); } catch(pe){ _diag.parseError = String(pe.message||pe); j = {}; }
+    _diag.rowsLen = (j && j.rows) ? j.rows.length : -1;
+    _diag.headersLen = (j && j.headers) ? j.headers.length : -1;
+    _diag.serverTotal = (j && j.totalRows !== undefined) ? j.totalRows : null;
     if(j.headers&&j.rows&&j.rows.length){
       const hdrs=j.headers.map(h=>String(h).trim());
       const extraMap={};
@@ -5231,11 +5484,15 @@ async function _restoreRange(fromISO, toISO, overwrite){
         if(m){ extraMap[i]=PFX[m[1]]+'_fuel_'+m[2].toLowerCase(); return; }
         if(EXPLICIT[h]) extraMap[i]=EXPLICIT[h];
       });
+      prodRows=j.rows.length;
+      // v150: decide D/M/Y vs M/D/Y from the whole batch before mapping any row
+      const _prodOrder=_detectDateOrder(j.rows.map(r0=>String(r0[0]||'').trim()));
       j.rows.forEach(row=>{
         const parsed=parseProdSheetRows(j.headers,[row]);
         const d=parsed&&parsed[0]; if(!d||!d._date) return;
         Object.entries(extraMap).forEach(([i,fid])=>{ const v=row[i]; if(v!==undefined&&v!==null&&v!=='') d[fid]=v; });
-        const key=_restoreDateKey(d._date); if(!key) return;
+        const key=_restoreDateKey(d._date, _prodOrder); if(!key){ prodBad++; return; }
+        _prodDates.push(key.slice(6,8)+'/'+key.slice(4,6));
         d.date=key.slice(0,4)+'-'+key.slice(4,6)+'-'+key.slice(6,8);
         const lsKey='prod_'+key;
         if(!overwrite && localStorage.getItem(lsKey)){ prodSkip++; return; }
@@ -5247,15 +5504,17 @@ async function _restoreRange(fromISO, toISO, overwrite){
     const r=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+fromISO+'&to='+toISO);
     const j=await r.json();
     if(j.headers&&j.rows&&j.rows.length){
+      const _milkOrder=_detectDateOrder(j.rows.map(r0=>String(r0[0]||'').trim()));
       parseMilkSheetRows(j.headers,j.rows).forEach(d=>{
-        const key=_restoreDateKey(d._date); if(!key) return;
+        const key=_restoreDateKey(d._date, _milkOrder); if(!key) return;
         const lsKey='milk_'+key;
         if(!overwrite && localStorage.getItem(lsKey)){ milkSkip++; return; }
         localStorage.setItem(lsKey, JSON.stringify(d)); milkOK++;
       });
     }
   }catch(e){ /* milk data optional — production already restored */ }
-  return {prodOK:prodOK, prodSkip:prodSkip, milkOK:milkOK, milkSkip:milkSkip};
+  return {prodOK:prodOK, prodSkip:prodSkip, milkOK:milkOK, milkSkip:milkSkip,
+          prodRows:prodRows, prodBad:prodBad, prodDates:_prodDates, diag:_diag};
 }
 async function restoreAllFromSheet(){
   const st=document.getElementById('restore-status');
@@ -5270,7 +5529,11 @@ async function restoreAllFromSheet(){
   try{ res=await _restoreRange(fromISO,toISO,overwrite); }
   catch(e){ say('✗ Restore failed — check Sheet URL in Setup and connection'); return; }
   const kept=(res.prodSkip+res.milkSkip)?(' · kept '+(res.prodSkip+res.milkSkip)+' existing local day(s) (tick Overwrite to replace)'):'';
-  say('✅ Restored '+res.prodOK+' production day(s) + '+res.milkOK+' milk day(s)'+kept+'. Use Re-submit above to correct any date.');
+  // v150: say what the Sheet actually returned, so "0 restored" is diagnosable
+  let diag=' | Sheet sent '+(res.prodRows||0)+' production row(s)';
+  if(res.prodDates && res.prodDates.length) diag+=' for '+[...new Set(res.prodDates)].join(', ');
+  if(res.prodBad) diag+=' · '+res.prodBad+' row(s) had an unreadable date';
+  say('✅ Restored '+res.prodOK+' production day(s) + '+res.milkOK+' milk day(s)'+kept+'.'+diag+' Use Re-submit above to correct any date.');
   try{ showToast('✅ Old data restored from Sheet','success'); }catch(e){}
 }
 
@@ -5454,6 +5717,19 @@ function saveConfig() {
   showToast('Configuration saved!', 'success');
 }
 
+// v155: overwrite the open date's milk rates with the saved standard rates,
+// on explicit request. Auto-apply deliberately leaves saved days alone so
+// history is not rewritten silently — this is the manual override.
+function applyStdRatesToThisDate(){
+  const dk = (document.getElementById('entry-date')||{}).value || '';
+  if (!dk) { showToast('Pick a date first', 'error'); return; }
+  const sr = STATE.stdRates || {};
+  const before = (document.getElementById('v2_cm_rate')||{}).value;
+  autoFillStdYields(true);
+  const after = (document.getElementById('v2_cm_rate')||{}).value;
+  showToast('Standard rates applied to ' + dk + ' (CM ' + before + ' → ' + after + '). Save the milk entry to keep it.', 'success');
+}
+
 function saveStdRates() {
   const rates = {
     cm_rate:   parseFloat(document.getElementById('std_cm_rate').value)||41,
@@ -5468,7 +5744,10 @@ function saveStdRates() {
   };
   STATE.stdRates = rates;
   localStorage.setItem('std_rates', JSON.stringify(rates));
-  showToast('Standard rates saved!', 'success');
+  // v154: push straight into the open milk form so the change is visible now.
+  // force=true because the user has just explicitly set these rates.
+  try { autoFillStdYields(true); } catch(e) {}
+  showToast('Standard rates saved — applied to the milk form', 'success');
 }
 
 // ── INGREDIENT RATES — CENTRAL SETUP ─────────────────────────────
@@ -5481,13 +5760,23 @@ const IR_DEFAULTS = {
   ml_pulp:214, ml_flavour:1600, ml_stab1:550, ml_stab2:2.5, ml_citric:12,
 
   paneer_pm:1.6, ghee_pouch:5, ghee_pouch_500:3.5,
+  // v148: packing/PM rates that existed only as hardcoded fallbacks — Med Fat
+  // and Malai paneer were never driven from this screen at all.
+  malai_pm:1.5, lc_jar_pm:18, khoya_pm:5, khoya_ing:345,
+  ghee_jar:17, ghee_tin:25,
+  lassi_cup:2.7, lassi_box:16,
+  chaas_500:6.3, chaas_1l:8.5, chaas_case:10,
 };
 
 function loadIngredientRates() {
-  const saved = JSON.parse(localStorage.getItem('ingredient_rates') || 'null') || IR_DEFAULTS;
+  // v147: was `saved[k] ?? IR_DEFAULTS[k]` — ?? only catches null/undefined,
+  // so a 0 or "" stored by an older build was shown as a real rate.
+  let raw = {};
+  try { raw = JSON.parse(localStorage.getItem('ingredient_rates') || 'null') || {}; } catch(e) {}
+  const saved = _mergeRateDefaults(raw);
   Object.keys(IR_DEFAULTS).forEach(k => {
     const el = document.getElementById('ir_' + k);
-    if (el) el.value = saved[k] ?? IR_DEFAULTS[k];
+    if (el) el.value = saved[k];
   });
 }
 
@@ -5512,10 +5801,30 @@ function resetIngredientRates() {
 }
 
 // Silent version called on page load — no toast, no save (rates already in localStorage)
+// v147: fill any missing/zero key from IR_DEFAULTS and write the repaired
+// object back, so a partial save from an older build heals itself once.
+function _mergeRateDefaults(r) {
+  const out = Object.assign({}, IR_DEFAULTS);
+  let patched = false;
+  Object.keys(IR_DEFAULTS).forEach(k => {
+    const n = parseFloat(r[k]);
+    if (isFinite(n) && n > 0) out[k] = n; else patched = true;
+  });
+  // v148: khoya ingredient 1 used to be driven by the SMP rate. On upgrade,
+  // inherit the saved SMP rate so nothing changes silently; it can be edited
+  // independently from now on.
+  if (!(parseFloat(r.khoya_ing) > 0) && parseFloat(r.smp) > 0) out.khoya_ing = parseFloat(r.smp);
+  if (patched) {
+    try { localStorage.setItem('ingredient_rates', JSON.stringify(out)); } catch(e) {}
+    console.warn('[v147] ingredient_rates was missing keys — repaired from defaults');
+  }
+  return out;
+}
+
 function autoApplyIngredientRates() {
   const saved = localStorage.getItem('ingredient_rates');
   if (!saved) return; // no saved rates yet — use defaults from HTML
-  const r = JSON.parse(saved);
+  let r; try { r = JSON.parse(saved) || {}; } catch(e) { return; }
   _applyRatesToForms(r, true); // silent - no toast on auto-apply
 }
 
@@ -5526,10 +5835,21 @@ function applyIngredientRatesToProducts() {
 }
 
 function _applyRatesToForms(r, silent) {
+  // v147: r may be a stale object saved by an older build that lacks some
+  // keys. Merge over the built-in defaults so a missing key can never reach
+  // set() as `undefined`.
+  r = _mergeRateDefaults(r || {});
 
   function set(id, val) {
     const el = document.getElementById(id);
-    if (el) el.value = val;
+    if (!el) return;
+    const n = parseFloat(val);
+    if (isFinite(n) && n > 0) { el.value = n; return; }
+    // THE BUG (v146 and earlier): `el.value = undefined` on a number input
+    // silently empties it → rate 0 → ingredient amount 0 → ing_cost 0 → the
+    // COGS sheet received zero ingredient cost. Never blank a rate: keep what
+    // is there, or fall back to the rate written in the HTML.
+    if (!(parseFloat(el.value) > 0) && parseFloat(el.defaultValue) > 0) el.value = el.defaultValue;
   }
   function triggerCalc(qId, rId, aId, prod) {
     // Re-run amount calc if qty is already filled
@@ -5592,15 +5912,29 @@ function _applyRatesToForms(r, silent) {
   set('ml_ing6_rate', r.ml_citric);
 
   // ── CM Khoya ─────────────────────────────────────────────────
-  set('cmk_ing1_rate', r.smp); // SMP rate (was sugar)
+  set('cmk_ing1_rate', r.khoya_ing);   // v148: own key (defaults to the SMP rate)
 
   // ── Std Khoya ────────────────────────────────────────────────
-  set('stk_ing1_rate', r.smp); // SMP rate (was sugar)
+  set('stk_ing1_rate', r.khoya_ing);   // v148
 
   // ── Packing ──────────────────────────────────────────────────
   set('lp_pm_rate',  r.paneer_pm);
+  set('mfp_pm_rate', r.paneer_pm);   // v148: was missing — Med Fat packing ignored Setup
   set('lfp_pm_rate', r.paneer_pm);
+  set('mp_pm_rate',  r.malai_pm);    // v148: was missing — Malai packing ignored Setup
+  set('lc_pm_rate',  r.lc_jar_pm);
+  set('cmk_pm_rate', r.khoya_pm);
+  set('stk_pm_rate', r.khoya_pm);
   set('gh_pouch_rate', r.ghee_pouch);
+  set('gh_pouch_500_rate', r.ghee_pouch_500);  // v148: field existed in Setup but was never applied
+  set('gh_jar_rate', r.ghee_jar);
+  set('gh_tin_rate', r.ghee_tin);
+  set('sl_cup_rate', r.lassi_cup);  set('ml_cup_rate', r.lassi_cup);
+  set('sl_box_rate', r.lassi_box);  set('ml_box_rate', r.lassi_box);
+  set('ch_500ml_rate', r.chaas_500);
+  set('ch_1l_rate', r.chaas_1l);
+  set('ch_500ml_case_rate', r.chaas_case);
+  set('ch_1l_case_rate', r.chaas_case);
 
   // ── Recalculate all ingredient amounts where qty already entered ─
   const pairs = [
@@ -5639,14 +5973,28 @@ function _applyRatesToForms(r, silent) {
   ];
   pairs.forEach(([qId,rId,aId,prod]) => triggerCalc(qId,rId,aId,prod));
 
+  // v147: the hand-maintained `pairs` list above had drifted out of sync with
+  // INGREDIENT_DEFS (lc_ing4 / fc_ing2 were never recalculated). Sweep every
+  // defined ingredient so no amount can be left stale.
+  Object.keys(INGREDIENT_DEFS).forEach(prod => {
+    (INGREDIENT_DEFS[prod]||[]).forEach(d => triggerCalc(d.qty, d.rate, d.amt, null));
+    sumIngredients(prod);
+  });
+
   // Recalculate culture costs (calls existing function which reads qty+rate)
   calcLCCulture();
   calcFCCulture();
 
   // Recalculate packing for paneer products
+  // v148: was ['lp','lfp'] only — MFP and Malai packing cost never refreshed.
   if (typeof calcPacking === 'function') {
-    ['lp','lfp'].forEach(p => calcPacking(p));
+    ['lp','mfp','lfp'].forEach(p => calcPacking(p));
   }
+  if (typeof calcMalaiReworkAndPM === 'function') { try { calcMalaiReworkAndPM(); } catch(e){} }
+  if (typeof calcLCYieldAndPacking === 'function') { try { calcLCYieldAndPacking(); } catch(e){} }
+  if (typeof calcKhoyaPM === 'function') { ['cmk','stk'].forEach(k=>{ try{ calcKhoyaPM(k); }catch(e){} }); }
+  if (typeof calcLassiAll === 'function') { ['sl','ml'].forEach(k=>{ try{ calcLassiAll(k); }catch(e){} }); }
+  if (typeof calcChaachAll === 'function') { try { calcChaachAll(); } catch(e){} }
   // Recalculate ghee packing
   if (typeof calcGheePacking === 'function') calcGheePacking();
 
@@ -7177,6 +7525,9 @@ function onDateChange(iso) {
   }
   // Reload any locally stored data for this date
   loadDateData(iso);
+  // v154: a date with no saved milk entry should start from the CURRENT
+  // standard rates, not the values left on screen from the previous date.
+  try { autoFillStdYields(); } catch(e) {}
   // Re-init stock if stock tab is active
   if (document.getElementById('tab-stock')?.classList.contains('active')) initStockTab();
 }
@@ -7248,6 +7599,7 @@ function loadDateData(iso) {
   if (savedProd) {
     const data = JSON.parse(savedProd);
     STATE.todayProd = data;
+    STATE.formDate = iso;   // v149: remember which date the form is showing
     Object.keys(data).forEach(id => {
       const el = document.getElementById(id);
       if (el && !el.readOnly && id !== 'entry-date') {
@@ -7265,6 +7617,8 @@ function loadDateData(iso) {
         calcIngAmt(d.qty, d.rate, d.amt, prod);
       });
     });
+    enforceIngredientNames();   // v155: no restored day may rename ingredients
+    try { calcMilkBalance(); } catch(e) {}   // v156
     updateProductStatus(); // update status dots after restore
     // Recalculate cream amounts (readonly fields not restored by loop above)
     ['lp','mfp','lfp','mp'].forEach(pid => calcCream(pid));
@@ -7272,11 +7626,14 @@ function loadDateData(iso) {
     console.log('Loaded saved production data for', iso);
   } else {
     STATE.todayProd = {};
+    STATE.formDate = iso;   // v149: form is showing this date, but it has no saved data
     // Clear all product fields
     document.querySelectorAll('#tab-products input:not([readonly]):not([type=hidden]), #tab-products textarea').forEach(el => {
       if (el.id !== 'entry-date' && !el.classList.contains('ing-name-input')) el.value = '';
     });
     // Reset ingredient names to defaults and recompute
+    enforceIngredientNames();   // v155
+    try { calcMilkBalance(); } catch(e) {}   // v156
     Object.keys(INGREDIENT_DEFS).forEach(prod => sumIngredients(prod));
     updateProductStatus();
   }
@@ -7498,6 +7855,15 @@ function startResubmit(dateStr, productName) {
   const hasProd = !!localStorage.getItem('prod_' + dateKey6);
   if (warn) warn.style.display = (!hasMilk && !hasProd) ? '' : 'none';
 
+  // v149 FIX: previously the panel just opened and waited for the user to press
+  // "⬇ Load". If they didn't, doProductUpdate() sent gatherProductData() — i.e.
+  // whatever happened to be on screen (often blank, or another date) — stamped
+  // with the target date. Result: "re-submit does nothing", or worse, the wrong
+  // numbers written to that day. Load the date automatically.
+  STATE.resubmitLoaded = null;
+  STATE._resubFetchTried = null;   // v151: allow one Sheet fetch for this date
+  try { doResubmitLoad(); } catch(e) { console.warn('auto-load for resubmit failed', e); }
+
   showResubmitBanner(display);
 }
 
@@ -7524,7 +7890,29 @@ async function doProductUpdate() {
     return;
   }
 
+  // v149: verify the form actually holds the date we are about to overwrite.
+  const _rp  = STATE.resubmitDate.split('/');
+  const _rIso = _rp[2] + '-' + String(_rp[1]).padStart(2,'0') + '-' + String(_rp[0]).padStart(2,'0');
+  const _formIso = (document.getElementById('entry-date')||{}).value || STATE.formDate || '';
+  if (_formIso && _formIso !== _rIso) {
+    showToast('Form is showing ' + _formIso + ', not ' + STATE.resubmitDate + ' — click ⬇ Load first', 'error');
+    return;
+  }
+
   const data = gatherProductData();
+
+  // v149: refuse to write an empty correction. Sending zero yields used to look
+  // like "nothing happened" while still overwriting the day on the Sheet.
+  const _empty = selected.filter(p => !(parseFloat(data[p.dataField]) > 0));
+  if (_empty.length === selected.length) {
+    showToast('No yield entered for ' + _empty.map(p=>p.label).join(', ') +
+              ' on ' + STATE.resubmitDate + ' — click ⬇ Load to fetch that day, or type the yields in first', 'error');
+    return;
+  }
+  if (_empty.length) {
+    if (!confirm('These have no yield and will be written as zero for ' + STATE.resubmitDate + ':\n\n' +
+                 _empty.map(p=>'• '+p.label).join('\n') + '\n\nContinue?')) return;
+  }
   // Inject milk rates
   const m = STATE.todayMilk || {};
   const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
@@ -7638,25 +8026,77 @@ function doResubmitLoad() {
     } catch(e) { console.warn('doResubmitLoad prod parse error', e); }
   }
 
-  if (!milkRaw && !prodRaw) {
-    // v142: no local copy (e.g. after a version upgrade) — pull this one day from the Sheet
-    showToast('⏳ No local data for ' + STATE.resubmitDate + ' — fetching from Sheet...', 'success');
-    _restoreRange(iso, iso, false).then(res => {
-      if (res && (res.prodOK + res.milkOK) > 0) {
-        doResubmitLoad(); // local copies now exist — reload the form
-      } else {
-        const w = document.getElementById('resubmit-warning');
-        if (w) w.style.display = '';
-        showToast('No data found for ' + STATE.resubmitDate + ' in the Sheet either — enter manually', 'error');
+  // v151 FIX: the condition was `!milkRaw && !prodRaw`. Milk and production are
+  // restored separately, so the very common case — milk present, production
+  // missing — skipped the fetch entirely, left every production field blank,
+  // and still showed a green "Data loaded" toast. Decide on PRODUCTION data.
+  const _needProd = !prodRaw;
+  if (_needProd && STATE._resubFetchTried !== iso) {
+    STATE._resubFetchTried = iso;          // fetch once per date — no retry loop
+    // v152: asking the Sheet for exactly one day returns 0 rows even when the
+    // row plainly exists — the server-side date filter in getReportData drops
+    // it (almost certainly a timezone/format mismatch on the Date cell).
+    // Don't depend on that filter: widen the window and let the client pick
+    // the day out, using our own date parser.
+    (async () => {
+      const _shift = (d, n) => { const x = new Date(d + 'T00:00:00'); x.setDate(x.getDate() + n);
+        return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+      const _monthStart = iso.slice(0,8) + '01';
+      const _monthEnd   = (() => { const x=new Date(iso.slice(0,4), +iso.slice(5,7), 0);
+        return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); })();
+      const attempts = [
+        [iso, iso, 'that exact date'],
+        [_shift(iso,-7), _shift(iso,7), 'a ±7 day window'],
+        [_monthStart, _monthEnd, 'the whole month'],
+      ];
+      let last = null;
+      for (const [f, t, label] of attempts) {
+        _resubStatus('⏳ Fetching ' + label + ' from the Sheet…', '#E65100');
+        try { last = await _restoreRange(f, t, false); }
+        catch (e) {
+          const w = document.getElementById('resubmit-warning'); if (w) w.style.display = '';
+          _resubStatus('✗ Could not reach the Sheet — check connection, then click ⬇ Load again.', '#C62828');
+          showToast('Could not fetch from Sheet — check connection', 'error');
+          return;
+        }
+        if (localStorage.getItem('prod_' + dateKey6)) { doResubmitLoad(); return; }
       }
-    }).catch(() => {
-      const w = document.getElementById('resubmit-warning');
-      if (w) w.style.display = '';
-      showToast('Could not fetch ' + STATE.resubmitDate + ' from Sheet — check connection', 'error');
-    });
-  } else {
+      const w = document.getElementById('resubmit-warning'); if (w) w.style.display = '';
+      const dates = (last && last.prodDates && last.prodDates.length)
+        ? (' Dates the Sheet did return: ' + [...new Set(last.prodDates)].join(', ') + '.') : '';
+      const got = last ? (' Last attempt returned ' + (last.prodRows||0) + ' production row(s)' +
+                          (last.prodBad ? ', ' + last.prodBad + ' with an unreadable date' : '') + '.') : '';
+      const dg = (last && last.diag) ? last.diag : {};
+      const trace = ' [HTTP ' + (dg.http||'?') + ' · ' + (dg.bytes||0) + ' bytes · rows=' + (dg.rowsLen) +
+                    ' · headers=' + (dg.headersLen) + (dg.serverTotal!==null&&dg.serverTotal!==undefined?(' · server totalRows='+dg.serverTotal):'') +
+                    (dg.parseError?(' · JSON error: '+dg.parseError):'') + ']';
+      _resubStatus('✗ The Sheet did not return ' + STATE.resubmitDate + '.' + got + dates + trace +
+                   ' You can still type the figures in and Update — that will write the correct row.', '#C62828');
+      console.log('[v153] restore trace', dg, 'requested:', dg.url);
+      showToast('Sheet did not return ' + STATE.resubmitDate + ' — see the note in the panel', 'error');
+    })();
+  } else if (prodRaw) {
+    STATE.formDate = iso;          // v149: form now genuinely holds this date
+    STATE.resubmitLoaded = iso;
+    try { enforceIngredientNames(); } catch(e) {}   // v155
+    _resubStatus('✓ Loaded ' + STATE.resubmitDate + ' — correct the figures, tick the product(s), then Update.', '#2E7D32');
     showToast('✅ Data loaded for ' + STATE.resubmitDate + ' — correct and click Update Selected Products', 'success');
   }
+}
+
+// v151: a toast is easy to miss — show load status inside the correction panel
+function _resubStatus(msg, colour){
+  let el = document.getElementById('resubmit-load-status');
+  if (!el) {
+    const anchor = document.getElementById('resubmit-panel');
+    if (!anchor) return;
+    el = document.createElement('div');
+    el.id = 'resubmit-load-status';
+    el.style.cssText = "font-family:'Space Mono';font-size:11px;font-weight:700;margin:8px 0;padding:8px 12px;border-radius:8px;background:#fff8e1;border:1.5px solid #ffd54f;";
+    anchor.insertBefore(el, anchor.firstChild);
+  }
+  el.textContent = msg;
+  el.style.color = colour || '#333';
 }
 
 async function resubmitSendToSheet(type, data) {
