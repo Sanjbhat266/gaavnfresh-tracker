@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v157</span>
+    <span>PRODUCTION TRACKER v163</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -207,6 +207,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <button class="tab" id="tab-btn-stock" onclick="showTab('stock',this)">📦 Stock</button>
   <button class="tab" id="tab-btn-inventory" onclick="showTab('inventory',this)">🏪 Inventory</button>
   <button class="tab" id="tab-btn-reports" onclick="showTab('reports',this)">📊 Reports</button>
+  <button class="tab" id="tab-btn-read" onclick="showTab('read',this)">📷 Read Sheet</button>
   <button class="tab" id="tab-btn-setup" onclick="showTab('setup',this)">⚙ Setup</button>
 </div>
 
@@ -1206,6 +1207,14 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="cmk_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="cmk_ing2_name" value="Sugar" placeholder="Ingredient 2 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="cmk_ing2_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('cmk_ing2_qty','cmk_ing2_rate','cmk_ing2_amt','cmk')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_ing2_rate" value="45" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('cmk_ing2_qty','cmk_ing2_rate','cmk_ing2_amt','cmk')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="cmk_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="cmk_ing_total">Rs 0.00</span></strong><input type="hidden" id="cmk_ing_cost" value="0"></div>
 
       <!-- Yield -->
@@ -1252,6 +1261,14 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
           <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="stk_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">kg</span></div></div>
           <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_ing1_rate" value="345" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('stk_ing1_qty','stk_ing1_rate','stk_ing1_amt','stk')"><span class="unit-label">Rs</span></div></div>
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="stk_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
+        </div>
+      </div>
+      <div class="ing-row">
+        <div class="ing-label"><input type="text" class="ing-name-input" id="stk_ing2_name" value="Sugar" placeholder="Ingredient 2 name" title="Click to edit ingredient name"></div>
+        <div class="ing-fields">
+          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="stk_ing2_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('stk_ing2_qty','stk_ing2_rate','stk_ing2_amt','stk')"><span class="unit-label">kg</span></div></div>
+          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_ing2_rate" value="45" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('stk_ing2_qty','stk_ing2_rate','stk_ing2_amt','stk')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="stk_ing2_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
       <div class="ing-total-row"><span>Total Ingredients Cost</span><strong><span id="stk_ing_total">Rs 0.00</span></strong><input type="hidden" id="stk_ing_cost" value="0"></div>
@@ -1994,6 +2011,43 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <!-- ════════════════════════════════════════════════════════════ -->
 <!-- TAB 5 — SETUP -->
 <!-- ════════════════════════════════════════════════════════════ -->
+
+<!-- ════════════════════════════════════════════════════════════ -->
+<!-- TAB — READ SHEET (v159): photograph the plant's handwritten
+     sheet, have it read, then fill the Milk and Products forms.
+     It NEVER submits. You review the normal forms and submit as
+     usual, so nothing new can write bad data to the Sheet.        -->
+<div class="section" id="tab-read">
+
+  <div class="card">
+    <h3>📷 Read the plant's handwritten sheet</h3>
+    <p class="hint">Photograph one sheet, straight on, whole page in frame, good light.
+       The figures are read, shown for your check, and then written into the Milk and
+       Products forms. <b>Nothing is submitted</b> — you review and submit as you always do.</p>
+
+    <div id="rs-setup" style="background:#FFF8E7;border:1.5px solid #C8830A;border-radius:10px;padding:12px;margin:10px 0;">
+      <b style="font-size:13px;">Setup — once on this device</b>
+      <label style="margin-top:8px;">READER SCRIPT /exec URL</label>
+      <input type="text" id="rs-url" placeholder="https://script.google.com/macros/s/…/exec">
+      <label>READER SECRET</label>
+      <input type="password" id="rs-secret" placeholder="the one in Script Properties">
+      <button class="btn" onclick="rsSaveSetup()" style="margin-top:8px;">Save</button>
+      <span id="rs-setup-msg" class="hint"></span>
+    </div>
+
+    <input type="file" id="rs-file" accept="image/*" capture="environment" onchange="rsPick(event)"
+           style="width:100%;padding:14px;border:1.5px dashed #C8830A;border-radius:10px;background:#fff;">
+    <img id="rs-prev" style="max-width:100%;border-radius:10px;margin-top:10px;display:none;">
+    <div style="margin-top:10px;">
+      <button class="btn" id="rs-go" onclick="rsRead()" disabled>Read this sheet</button>
+      <span id="rs-size" class="hint"></span>
+    </div>
+    <div id="rs-status" class="hint" style="margin-top:8px;"></div>
+  </div>
+
+  <div id="rs-out"></div>
+</div>
+
 <div class="section" id="tab-setup">
   <div class="page-title">Setup & Configuration</div>
   <div class="page-sub">Connect Google Sheets — one-time setup, zero server cost</div>
@@ -3563,7 +3617,7 @@ async function generateMilkReconReport(){
   }
 
   const perDay={};
-  const ensure=k=>{ if(!perDay[k]) perDay[k]={cm:0,bm:0,sk:0,ded:0,prod:0,cream:0,hasProd:false,hasMilk:false}; return perDay[k]; };
+  const ensure=k=>{ if(!perDay[k]) perDay[k]={cm:0,bm:0,sk:0,ded:0,prod:0,cream:0,cmSep:0,panCream:0,hasProd:false,hasMilk:false}; return perDay[k]; };
 
   // ── milk in ──
   const mm=hmap(milkJ&&milkJ.headers);
@@ -3574,6 +3628,12 @@ async function generateMilkReconReport(){
     d.bm += num(row,mm,'V1 Morn BM Qty(L)')+num(row,mm,'V1 Eve BM Qty(L)')+num(row,mm,'V2 BM Qty(L)')+num(row,mm,'V3 BM Qty(L)')+num(row,mm,'V4 BM Qty(L)');
     d.sk += num(row,mm,'V3 Skim Qty(L)');
     d.ded+= num(row,mm,'V1 Morning Deduct(L)')+num(row,mm,'V1 Evening Deduct(L)')+num(row,mm,'V2 Deduct(L)')+num(row,mm,'V3 Deduct(L)')+num(row,mm,'V4 Deduct(L)');
+    // v158 FIX: cream SEPARATED is entered on the milk page and stored in the
+    // Milk_Purchase sheet as 'Cream Yield(kg)'. v157 wrongly summed the paneer
+    // cream columns from the Production sheet instead — a different quantity
+    // (cream added INTO batches), which is why editing 13.5 never showed up.
+    d.cream += num(row,mm,'Cream Yield(kg)');
+    d.cmSep += num(row,mm,'Cream CM Separated(L)');
   });
 
   // ── milk used by products ──
@@ -3581,12 +3641,14 @@ async function generateMilkReconReport(){
   const USED=['LP BM(L)','LP SM(L)','MFP BM(L)','MFP SM(L)','LFP BM(L)','LFP SM(L)','MP BM(L)','MP SM(L)',
               'LC BM(L)','LC CM(L)','LC SM(L)','FC BM(L)','FC CM(L)','FC SM(L)',
               'CMK CM(L)','CMK SM(L)','STK BM(L)','STK CM(L)','STK SM(L)'];
-  const CREAM=['LP Cream(kg)','MFP Cream(kg)','LFP Cream(kg)','MP Cream(kg)'];
+  // cream ADDED INTO paneer batches — informational only. It comes out of cream
+  // stock, not out of the liquid-milk pool, so it must not enter this balance.
+  const PAN_CREAM=['LP Cream(kg)','MFP Cream(kg)','LFP Cream(kg)','MP Cream(kg)'];
   (prodJ&&prodJ.rows||[]).forEach(row=>{
     const k=day(row[0]); if(!k) return;
     const d=ensure(k); d.hasProd=true;
     USED.forEach(h=>{ d.prod += num(row,pm,h); });
-    CREAM.forEach(h=>{ d.cream += num(row,pm,h); });
+    PAN_CREAM.forEach(h=>{ d.panCream += num(row,pm,h); });
   });
 
   const keys=Object.keys(perDay).sort();
@@ -3620,18 +3682,19 @@ async function generateMilkReconReport(){
   document.getElementById('rpt-table-wrap').innerHTML=
     '<table style="width:100%;border-collapse:collapse;font-family:Space Mono;font-size:11px;">'+
     '<thead><tr style="background:var(--ink);color:#fff;">'+
-    ['Date','CM in','BM in','Skim in','Spoilt','NET IN','Used in products','Cream (kg)','UNACCOUNTED','%']
+    ['Date','CM in','BM in','Skim in','Spoilt','NET IN','Used in products','Cream sep (kg)','UNACCOUNTED','%']
       .map(h=>'<th style="padding:7px 8px;text-align:'+(h==='Date'?'left':'right')+';font-size:9px;letter-spacing:.5px;">'+h+'</th>').join('')+
     '</tr></thead><tbody>'+rows+'</tbody></table>';
   document.getElementById('rpt-total-wrap').innerHTML=
     '<div style="margin-top:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);font-family:Space Mono;font-size:12px;line-height:1.9;">'+
     '<b>PERIOD TOTAL ('+keys.length+' days)</b><br>'+
     'Milk in '+N(T.cm+T.bm+T.sk)+' L &nbsp;−&nbsp; spoilt '+N(T.ded)+' L &nbsp;=&nbsp; <b>net '+N(T.net)+' L</b><br>'+
-    'Used in products '+N(T.prod)+' L &nbsp;+&nbsp; cream separated '+N(T.cream)+' kg<br>'+
+    'Used in products '+N(T.prod)+' L &nbsp;+&nbsp; cream separated out '+N(T.cream)+' kg<br>'+
     '<span style="font-size:15px;font-weight:800;color:'+(Math.abs(tPct)>=5?'var(--red)':'var(--green)')+';">UNACCOUNTED '+N(T.gap)+' L ('+N(tPct,1)+'% of net)</span>'+
     '</div>'+
     '<div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#FFF8E1;border:1.5px solid #FFD54F;font-size:11.5px;line-height:1.7;">'+
-    '<b>How to read this.</b> “Unaccounted” = net milk in − milk entered against products − cream separated. It bundles together: '+
+    '<b>How to read this.</b> “Unaccounted” = net milk in − milk entered against products − cream separated out of the milk '+
+    '(the “Cream Yield (kg)” figure on the milk page, not the cream added into paneer). It bundles together: '+
     'evaporation and process loss in a manual plant, milk or skim carried over to the next day, and mis-keyed entries. '+
     'A single day can look bad purely because milk was held overnight, so <b>judge the period total, not one day</b> — carry-over cancels out over a month, '+
     'so the total is close to your true physical loss. Investigate the individual days flagged in red (10%+): those are where wastage, '+
@@ -5051,8 +5114,10 @@ const INGREDIENT_DEFS = {
         {qty:'ml_ing4_qty',  rate:'ml_ing4_rate',  amt:'ml_ing4_amt',  name:'ml_ing4_name',  label:'Stabilizer 1'},
         {qty:'ml_ing5_qty',  rate:'ml_ing5_rate',  amt:'ml_ing5_amt',  name:'ml_ing5_name',  label:'Stabilizer 2'},
         {qty:'ml_ing6_qty',  rate:'ml_ing6_rate',  amt:'ml_ing6_amt',  name:'ml_ing6_name',  label:'Citric Acid'}],
-  cmk: [{qty:'cmk_ing1_qty', rate:'cmk_ing1_rate', amt:'cmk_ing1_amt', name:'cmk_ing1_name', label:'Sugar'}],
-  stk: [{qty:'stk_ing1_qty', rate:'stk_ing1_rate', amt:'stk_ing1_amt', name:'stk_ing1_name', label:'Sugar'}],
+  cmk: [{qty:'cmk_ing1_qty', rate:'cmk_ing1_rate', amt:'cmk_ing1_amt', name:'cmk_ing1_name', label:'SMP'},
+        {qty:'cmk_ing2_qty', rate:'cmk_ing2_rate', amt:'cmk_ing2_amt', name:'cmk_ing2_name', label:'Sugar', defaultRate:45}],
+  stk: [{qty:'stk_ing1_qty', rate:'stk_ing1_rate', amt:'stk_ing1_amt', name:'stk_ing1_name', label:'SMP'},
+        {qty:'stk_ing2_qty', rate:'stk_ing2_rate', amt:'stk_ing2_amt', name:'stk_ing2_name', label:'Sugar', defaultRate:45}],
 };
 
 function calcIngAmt(qtyId, rateId, amtId, prod) {
@@ -8902,6 +8967,307 @@ try {
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw-tracker.js').catch(function(){}); });
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   v159 — READ SHEET
+   Photograph the plant's handwritten sheet → Gemini (via the reader
+   Apps Script, which holds the key) → show every figure for checking →
+   write them into the existing Milk and Products form fields.
+
+   DELIBERATELY DOES NOT SUBMIT. It fills the same boxes you fill by
+   hand; you then review and press the normal submit buttons. No new
+   write path means no new way for bad data to reach the Sheet.
+
+   FIELD MAP — confirmed with the owner, not inferred:
+     A.A.  (ml) → ING 2  Citric Acid
+     PS    (kg) → ING 3  GDL
+     CaCl2 (kg) → ING 4  Calcium
+     SMP   (kg) → ING 1  SMP
+     Water      → not tracked here, read but never written
+   ══════════════════════════════════════════════════════════════════ */
+let RS_DATA = null, RS_IMG = null;
+
+function rsSaveSetup(){
+  localStorage.setItem('gf_reader_url', (document.getElementById('rs-url').value||'').trim().split('?')[0].replace(/\/+$/,''));
+  localStorage.setItem('gf_reader_secret', document.getElementById('rs-secret').value||'');
+  document.getElementById('rs-setup-msg').textContent = ' saved on this device';
+}
+(function(){
+  var u=document.getElementById('rs-url'), k=document.getElementById('rs-secret');
+  if(u) u.value = localStorage.getItem('gf_reader_url')||'';
+  if(k) k.value = localStorage.getItem('gf_reader_secret')||'';
+})();
+
+function rsPick(e){
+  var f=e.target.files[0]; if(!f) return;
+  var img=new Image();
+  img.onload=function(){
+    var MAX=1600, w=img.width, h=img.height;
+    if(Math.max(w,h)>MAX){ var sc=MAX/Math.max(w,h); w=Math.round(w*sc); h=Math.round(h*sc); }
+    var c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h);
+    var d=c.toDataURL('image/jpeg',0.88);
+    RS_IMG=d.split(',')[1];
+    document.getElementById('rs-prev').src=d;
+    document.getElementById('rs-prev').style.display='block';
+    document.getElementById('rs-go').disabled=false;
+    document.getElementById('rs-size').textContent=Math.round(RS_IMG.length/1365)+' KB';
+  };
+  img.src=URL.createObjectURL(f);
+}
+
+async function rsRead(){
+  var url=localStorage.getItem('gf_reader_url')||'', sec=localStorage.getItem('gf_reader_secret')||'';
+  if(!url||!sec){ document.getElementById('rs-status').innerHTML='<b style="color:#C62828;">Fill in the setup above first.</b>'; return; }
+  document.getElementById('rs-go').disabled=true;
+  document.getElementById('rs-status').textContent='⏳ reading — 5 to 15 seconds…';
+  document.getElementById('rs-out').innerHTML='';
+  try{
+    // text/plain avoids the CORS preflight that Apps Script does not answer
+    var r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({secret:sec,image:RS_IMG,mime:'image/jpeg'})});
+    var j=await r.json();
+    if(j.error){
+      document.getElementById('rs-status').innerHTML='<b style="color:#C62828;">'+rsEsc(j.error)+'</b>'
+        +(j.detail?'<br><span class="hint">'+rsEsc(String(j.detail))+'</span>':'');
+      return;
+    }
+    RS_DATA=j.data;
+    document.getElementById('rs-status').textContent='read by '+(j.model||'');
+    rsRender(j.data);
+  }catch(e){
+    document.getElementById('rs-status').innerHTML='<b style="color:#C62828;">Could not reach the reader script — '+rsEsc(e.message)+'</b>';
+  }finally{ document.getElementById('rs-go').disabled=false; }
+}
+function rsEsc(x){ return String(x==null?'':x).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];}); }
+function rsNum(v){ var n=parseFloat(v); return isNaN(n)?null:n; }
+
+/* which tracker prefix does a product name on the sheet belong to */
+function rsPrefix(name){
+  var n=String(name||'').toLowerCase();
+  if(n.indexOf('low fat')>=0)            return 'lfp';
+  if(n.indexOf('lite paneer')>=0)        return 'lp';
+  if(n.indexOf('lite curd')>=0)          return 'lc';
+  if(n.indexOf('curd')>=0)               return 'lc';
+  if(n.indexOf('khawa')>=0 || n.indexOf('khoya')>=0) return 'cmk';
+  if(n.indexOf('paneer')>=0)             return 'mfp';   // plain "Paneer" = Med Fat
+  return null;
+}
+var RS_LABEL = {mfp:'Med Fat Paneer', lfp:'Low Fat Paneer', lp:'Lite Paneer',
+                lc:'Lite Curd', cmk:'CM Khoya'};
+
+/* build the list of [field id, value, human label] this sheet would write */
+function rsPlan(d){
+  var plan=[], warn=[];
+
+  (d.milk_received||[]).forEach(function(m){
+    var col=String(m.collection||'V1').toUpperCase();
+    var src=String(m.source||'').toUpperCase().indexOf('BM')>=0 ? 'bm' : 'cm';
+    var base = col==='V1' ? 'v1m_'+src : (col==='V2' ? 'v2_'+src : (col==='V3' ? 'v3_'+src : null));
+    if(!base){ warn.push('collection "'+col+'" has no matching form section'); return; }
+    if(col==='V3' && src==='cm'){ warn.push('V3 has no cow-milk boxes in the tracker — skipped'); return; }
+    if(m.qty_litres!=null) plan.push([base+'_qty', rsNum(m.qty_litres), col+' '+src.toUpperCase()+' quantity (L)']);
+    if(m.fat!=null)        plan.push([base+'_fat', rsNum(m.fat),        col+' '+src.toUpperCase()+' fat']);
+    if(m.snf!=null)        plan.push([base+'_snf', rsNum(m.snf),        col+' '+src.toUpperCase()+' SNF']);
+    if(m.spoiled) warn.push((m.supplier||src.toUpperCase())+' milk marked SPOILED — the tracker has no spoilage box, note it manually');
+  });
+
+  var sep=d.separation||{};
+  if(sep.milk_separated_litres!=null) plan.push(['cream_milk_l',  rsNum(sep.milk_separated_litres), 'Milk separated (L)']);
+  if(sep.cream_out_kg!=null)          plan.push(['cream_yield_kg',rsNum(sep.cream_out_kg),          'Cream yield (kg)']);
+
+  /* ladi weights give the kg produced — that is the tracker's Yield */
+  var yieldByPrefix={};
+  (d.ladi_weights||[]).forEach(function(L){
+    var p=rsPrefix(L.product)||'mfp';
+    var ws=(L.weights_kg||[]).map(rsNum).filter(function(x){return x!=null;});
+    var sum=ws.reduce(function(a,b){return a+b;},0);
+    if(sum>0) yieldByPrefix[p]=(yieldByPrefix[p]||0)+sum;
+    if(L.written_total!=null && Math.abs(sum-L.written_total)>0.05)
+      warn.push((L.product||'ladi')+': the sheet totals '+L.written_total+' but the weights add to '+sum.toFixed(3));
+  });
+
+  (d.products||[]).forEach(function(p){
+    var pre=rsPrefix(p.name);
+    if(!pre){ warn.push('"'+(p.name||'?')+'" does not match any product in the tracker — skipped'); return; }
+    if(p.made_today===false) return;
+    var i=p.inputs||{}, o=p.output||{}, L=RS_LABEL[pre];
+
+    if(pre==='lc'){                              /* lite curd has its own ingredient names */
+      if(i.cm_litres!=null)  plan.push([pre+'_cm', rsNum(i.cm_litres), L+' — CM (L)']);
+      if(i.bm_litres!=null)  plan.push([pre+'_bm', rsNum(i.bm_litres), L+' — BM (L)']);
+      if(i.sm_litres!=null)  plan.push([pre+'_sm', rsNum(i.sm_litres), L+' — SM (L)']);
+      if(i.smp_kg!=null)     plan.push([pre+'_ing3_qty', rsNum(i.smp_kg),  L+' — SMP (kg)']);
+      if(i.cacl2_kg!=null)   plan.push([pre+'_ing4_qty', rsNum(i.cacl2_kg),L+' — Calcium Chloride (kg)']);
+      if(i.binder_gm!=null)  warn.push(L+': binder '+i.binder_gm+' gm read, but there is no binder box — the tracker has "Starter Culture" (ING 2) and a separate Culture Qty. Enter it yourself.');
+      /* jars go in the JARS box, not Yield — Yield here is kg */
+      if(o.jars!=null)       plan.push([pre+'_jars', rsNum(o.jars), L+' — jars out']);
+      return;
+    }
+    if(pre==='cmk'){                             /* CM Khoya has only CM, SM and one ingredient */
+      if(i.cm_litres!=null)  plan.push([pre+'_cm', rsNum(i.cm_litres), L+' — CM (L)']);
+      if(i.sm_litres!=null)  plan.push([pre+'_sm', rsNum(i.sm_litres), L+' — SM (L)']);
+      if(i.smp_kg!=null)     plan.push([pre+'_ing1_qty', rsNum(i.smp_kg), L+' — ING 1 SMP (kg)']);
+      if(i.bm_litres!=null)  warn.push(L+': BM '+i.bm_litres+' L read, but CM Khoya has no buffalo-milk box in the tracker — record it manually');
+      if(i.sugar_kg!=null)   warn.push(L+': sugar '+i.sugar_kg+' kg read, but there is no sugar box — record it manually');
+      if(o.kg!=null)         plan.push([pre+'_yield', rsNum(o.kg), L+' — yield (kg)']);
+      return;
+    }
+    /* paneer products: BM, SM, cream, four ingredients. There is NO cm box. */
+    if(i.bm_litres!=null)  plan.push([pre+'_bm',    rsNum(i.bm_litres),  L+' — BM (L)']);
+    if(i.sm_litres!=null)  plan.push([pre+'_sm',    rsNum(i.sm_litres),  L+' — SM (L)']);
+    if(i.cm_litres!=null)  warn.push(L+': CM '+i.cm_litres+' L read, but this product has no cow-milk box in the tracker — record it manually');
+    if(i.cream_kg!=null)   plan.push([pre+'_cream', rsNum(i.cream_kg),   L+' — cream (kg)']);
+    if(i.smp_kg!=null)     plan.push([pre+'_ing1_qty', rsNum(i.smp_kg),   L+' — ING 1 SMP (kg)']);
+    if(i.aa_ml!=null)      plan.push([pre+'_ing2_qty', rsNum(i.aa_ml),    L+' — ING 2 Citric Acid (from A.A. '+i.aa_ml+' ml)']);
+    if(i.ps_kg!=null)      plan.push([pre+'_ing3_qty', rsNum(i.ps_kg),    L+' — ING 3 GDL (from PS, kg)']);
+    if(i.cacl2_kg!=null)   plan.push([pre+'_ing4_qty', rsNum(i.cacl2_kg), L+' — ING 4 Calcium (kg)']);
+    if(i.water_litres!=null) warn.push(L+': water '+i.water_litres+' L read — the tracker does not record water, so it is ignored');
+    if(yieldByPrefix[pre])   plan.push([pre+'_yield', +yieldByPrefix[pre].toFixed(3), L+' — YIELD (kg, from the ladi weights)']);
+    else if(o.ladi_count!=null) warn.push(L+': '+o.ladi_count+' ladis counted, but no weights on this photo — read the ladi weight sheet too, or type the kg yourself');
+  });
+
+  return {plan:plan, warn:warn};
+}
+
+function rsRender(d){
+  var R=rsPlan(d), h='';
+  var low=(d.low_confidence_fields||[]).length, wr=(d.warnings||[]);
+
+  if(wr.length || R.warn.length){
+    h+='<div class="card" style="border-color:#C8830A;background:#FFF8E7;"><b>⚠ Read this first</b><ul style="margin:8px 0 0 18px;line-height:1.7;">'
+      + wr.map(function(w){return '<li>'+rsEsc(w)+'</li>';}).join('')
+      + R.warn.map(function(w){return '<li>'+rsEsc(w)+'</li>';}).join('')
+      + '</ul></div>';
+  }
+  var sheetDate = (d.date && /^\d{4}-\d{2}-\d{2}$/.test(d.date)) ? d.date : '';
+  var formDate  = (document.getElementById('entry-date')||{}).value || '';
+  h+='<div class="card"><h3>Date on this sheet</h3>';
+  if(sheetDate){
+    h+='<p class="hint">The entry date will be set to this before anything is filled, so the day’s '
+     + 'production lands on the right date. Correct it here if the reader misread it.</p>'
+     + '<input type="date" id="rs-date" value="'+sheetDate+'" '
+     + 'style="padding:8px;border:1.5px solid #E8DFC9;border-radius:8px;font-size:15px;">'
+     + (sheetDate!==formDate
+        ? '<div style="background:#FFF8E7;border:1.5px solid #C8830A;border-radius:8px;padding:10px;margin-top:8px;">'
+          +'<b>The form is currently on '+formDate+', this sheet is '+sheetDate+'.</b><br>'
+          +'Filling will switch the form to '+sheetDate+' first. Anything already typed for '+formDate
+          +' is left on that date, not carried over.</div>'
+        : '<div class="hint" style="margin-top:6px;">Matches the date already in the form.</div>');
+  } else {
+    h+='<div style="background:#FDECEA;border:1.5px solid #C62828;border-radius:8px;padding:10px;">'
+     + '<b>No date could be read from this sheet.</b> Set it yourself before filling, or the figures '
+     + 'will be recorded against ' + (formDate||'today') + '.</div>'
+     + '<input type="date" id="rs-date" value="'+formDate+'" '
+     + 'style="padding:8px;border:1.5px solid #E8DFC9;border-radius:8px;font-size:15px;margin-top:8px;">';
+  }
+  h+='</div>';
+
+  h+='<div class="card"><h3>What will be filled in</h3>';
+  h+='<p class="hint">'+R.plan.length+' boxes across the Milk and Products tabs. '
+   + (low?('The reader flagged '+low+' field(s) it was unsure of — check those against the paper. '):'')
+   + 'Edit anything here before filling.</p>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+  R.plan.forEach(function(row,ix){
+    h+='<tr><td style="padding:5px 6px;border-bottom:1px solid #E8DFC9;">'+rsEsc(row[2])+'</td>'
+     + '<td style="padding:3px 6px;border-bottom:1px solid #E8DFC9;width:110px;">'
+     + '<input type="number" step="0.001" id="rsv'+ix+'" value="'+(row[1]==null?'':row[1])+'" '
+     + 'style="width:100%;padding:6px;border:1.5px solid #E8DFC9;border-radius:6px;"></td></tr>';
+  });
+  h+='</table>';
+  h+='<button class="btn" style="margin-top:12px;" onclick="rsFill()">✏ Fill the forms</button>';
+  h+='<button class="btn secondary" style="margin-top:12px;" onclick="rsShowRaw()">Show raw reply</button>';
+  h+='<div id="rs-fill-msg" class="hint" style="margin-top:8px;"></div>';
+  h+='<pre id="rs-raw" style="display:none;background:#12100C;color:#D8E8D0;padding:12px;border-radius:8px;'
+   + 'font-size:11px;max-height:280px;overflow:auto;white-space:pre-wrap;margin-top:10px;"></pre>';
+  h+='</div>';
+  document.getElementById('rs-out').innerHTML=h;
+  window.RS_PLAN=R.plan;
+}
+function rsShowRaw(){
+  var p=document.getElementById('rs-raw');
+  p.style.display = p.style.display==='none' ? 'block' : 'none';
+  p.textContent = JSON.stringify(RS_DATA,null,1);
+}
+
+/* write into the real form fields, then fire the events the tracker
+   listens on so its own calculations run exactly as if you had typed */
+async function rsFill(){
+  var plan=window.RS_PLAN||[], done=0, missing=[];
+
+  /* ── the date must be set FIRST ─────────────────────────────────────
+     onDateChange() calls loadDateData(), which reloads that date's saved
+     values and resets the ingredient rate defaults, and it also queues
+     autoApplyIngredientRates() on a 100ms timer. Fill before that and the
+     tracker wipes everything a fraction of a second later. So: set the
+     date, let its machinery finish, and only then write the figures. */
+  var want=(document.getElementById('rs-date')||{}).value||'';
+  var dp=document.getElementById('entry-date');
+  if(want && dp && dp.value!==want){
+    var msg0=document.getElementById('rs-fill-msg');
+    if(msg0) msg0.innerHTML='<span class="hint">switching the form to '+want+'…</span>';
+    dp.value=want;
+    try{ if(typeof onDateChange==='function') onDateChange(want); }catch(e){}
+    await new Promise(function(r){ setTimeout(r, 400); });   // past the 100ms rate reapply
+    if(dp.value!==want){
+      var m0=document.getElementById('rs-fill-msg');
+      if(m0) m0.innerHTML='<b style="color:#C62828;">Could not set the date to '+want
+        +' — the tracker refused it (future dates are blocked). Nothing was filled.</b>';
+      return;
+    }
+  }
+
+  plan.forEach(function(row,ix){
+    var el=document.getElementById(row[0]);
+    var box=document.getElementById('rsv'+ix);
+    if(!el){ missing.push(row[0]); return; }
+    var v = box ? box.value : row[1];
+    if(v===''||v==null) return;
+    el.value=v;
+    try{ el.dispatchEvent(new Event('input',{bubbles:true})); }catch(e){}
+    try{ el.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){}
+    done++;
+  });
+  /* ── prove the COGS chain actually fired ──────────────────────────
+     gatherProductData() reads the COMPUTED ing_cost, not qty × rate.
+     So if a rate is blank the cost silently comes out as zero — which is
+     exactly how the ingredient cost went to 0 in the COGS sheet for weeks
+     before v147. Check it here, loudly, rather than discovering it later. */
+  var zeroRate=[], notCalc=[];
+  plan.forEach(function(row){
+    var m2=String(row[0]).match(/^([a-z]+)_ing(\d)_qty$/);
+    if(!m2) return;
+    var pre=m2[1], n=m2[2];
+    var q=document.getElementById(pre+'_ing'+n+'_qty');
+    var r=document.getElementById(pre+'_ing'+n+'_rate');
+    var a=document.getElementById(pre+'_ing'+n+'_amt');
+    if(!q||!r||!a) return;
+    var qv=parseFloat(q.value)||0, rv=parseFloat(r.value)||0, av=parseFloat(a.value)||0;
+    var nm=(document.getElementById(pre+'_ing'+n+'_name')||{}).value || (pre+' ING '+n);
+    if(qv>0 && rv<=0) zeroRate.push(nm+' ('+RS_LABEL[pre]+')');
+    else if(qv>0 && rv>0 && av<=0) notCalc.push(nm+' ('+RS_LABEL[pre]+')');
+  });
+
+  var m=document.getElementById('rs-fill-msg');
+  var onDate=(document.getElementById('entry-date')||{}).value||'?';
+  var h='<b style="color:#2E7D32;">✓ '+done+' box(es) filled, dated '+onDate+'.</b> '
+      + 'Now go to the <b>🥛 Milk</b> and <b>🧀 Products</b> tabs, check everything against the paper, and submit as usual.';
+  if(missing.length)
+    h+='<br><span style="color:#C62828;">'+missing.length+' field(s) not found in this build: '+missing.join(', ')+'</span>';
+  if(zeroRate.length)
+    h+='<div style="background:#FDECEA;border:1.5px solid #C62828;border-radius:8px;padding:10px;margin-top:10px;">'
+     + '<b>⚠ These ingredients have a quantity but NO RATE, so they will cost ZERO in the COGS sheet:</b><br>'
+     + zeroRate.join('<br>')
+     + '<br><br>Set the rates in <b>⚙ Setup → ingredient rates</b> before submitting, or the ingredient cost for the day will be understated.</div>';
+  if(notCalc.length)
+    h+='<div style="background:#FFF3CD;border:1.5px solid #C8830A;border-radius:8px;padding:10px;margin-top:10px;">'
+     + '<b>⚠ Quantity and rate are both set but the amount did not calculate for:</b><br>'+notCalc.join('<br>')
+     + '<br><br>Click into one of those quantity boxes and press a key — that forces the recalculation. Tell Claude if it keeps happening.</div>';
+  if(!zeroRate.length && !notCalc.length && done)
+    h+='<div style="color:#2E7D32;margin-top:8px;">Ingredient costs recalculated — every filled ingredient has a rate and an amount.</div>';
+  m.innerHTML=h;
+}
+
 </script>
 </body>
 </html><
