@@ -56,7 +56,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 <!-- PIN GATE -->
 <div class="overlay" id="pin-gate">
   <h1>🐄 Gaavn Physical Stock</h1>
-  <p>Plant daily stock entry · v4</p>
+  <p>Plant daily stock entry · v5</p>
   <div class="err" id="pin-err"></div>
   <div class="pinbox">
     <input type="password" inputmode="numeric" maxlength="1" id="p0">
@@ -118,7 +118,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────
-var DEFAULT_URL='https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec';
+var DEFAULT_URL='https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec';
 var DEFAULT_PIN='2580';
 // Products (physical count) — matches the production tracker's Stock_Register
 var PRODUCTS=[
@@ -140,6 +140,8 @@ var PRODUCTS=[
  {id:'shk',name:'Shrikhand',unit:'kg'},
  {id:'amk',name:'Amrakhand',unit:'kg'}
 ];
+var _OLD_URLS=['https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec'];
+(function(){ try{ var u=(localStorage.getItem('ps_url')||'').trim(); if(u && _OLD_URLS.indexOf(u)>=0){ localStorage.removeItem('ps_url'); } }catch(e){} })();
 function gsUrl(){ return (localStorage.getItem('ps_url')||DEFAULT_URL).trim(); }
 function pin(){ return localStorage.getItem('ps_pin')||DEFAULT_PIN; }
 function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(function(){t.classList.remove('show');},2600); }
