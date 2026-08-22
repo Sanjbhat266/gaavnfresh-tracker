@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v163</span>
+    <span>PRODUCTION TRACKER v164</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -1987,6 +1987,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button class="rpt-btn" onclick="generateCreamReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(46,125,50,0.06);border-color:rgba(46,125,50,0.35);">
       🫙 Cream Reconciliation<br><small>Produced − Ghee − Sold = inventory as of any date · sold auto-fetched from Sales App</small>
     </button>
+    <button class="rpt-btn" onclick="generateCreamFatReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(230,126,34,0.07);border-color:rgba(230,126,34,0.4);">
+      🧈 Cream Fat % (actual)<br><small>Daily cream fat from real separation data · plus live make-vs-buy skim verdict</small>
+    </button>
     <button class="rpt-btn" onclick="runDiagnostic()" ontouchstart=""
       style="grid-column:1/-1;background:rgba(26,82,118,0.06);border-color:rgba(26,82,118,0.3);">
       🔍 Check Sheet Dates<br><small>Shows all dates found in Milk_Purchase sheet — use to diagnose missing data</small>
@@ -3756,6 +3759,79 @@ async function generateCreamReport(){
 }
 (function(){ try{ var el=document.getElementById("sales-gs-url"); if(el) el.value=getSalesUrl(); }catch(e){} })();
 
+
+// ── v164: CREAM FAT % from actual separation data (+ make-vs-buy skim) ──
+async function generateCreamFatReport(){
+  const from=document.getElementById('rpt-from').value||'';
+  const to=document.getElementById('rpt-to').value||new Date().toISOString().slice(0,10);
+  if(!from){ showToast('Pick a From date first','error'); return; }
+  const out=document.getElementById('rpt-output'); out.style.display='block';
+  document.getElementById('rpt-title').textContent='🧈 Cream Fat % — from actual separation';
+  document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);font-size:12px;">⏳ Reading milk &amp; cream data…</div>';
+  document.getElementById('rpt-total-wrap').innerHTML='';
+  try{ out.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  const url=STATE.gsUrl;
+  if(!url){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Set the Sheet URL in Setup first.</div>'; return; }
+  function hmap(hh){ const m={}; (hh||[]).forEach((x,i)=>m[String(x).trim()]=i); return m; }
+  const num=(row,m,k)=>{ const i=m[k]; return i===undefined?0:(parseFloat(row[i])||0); };
+  const day=d=>_restoreDateKey(String(d||'').trim(),'DMY');
+  let J=null;
+  try{ const r=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+from+'&to='+to,{cache:'no-store'}); J=await r.json(); }
+  catch(e){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Could not reach the Sheet.</div>'; return; }
+  const m=hmap(J&&J.headers), DENS=1.03, days=[];
+  (J&&J.rows||[]).forEach(row=>{
+    const k=day(row[0]); if(!k) return;
+    const q=num(row,m,'V1 Morn CM Qty(L)')+num(row,m,'V1 Eve CM Qty(L)')+num(row,m,'V2 CM Qty(L)')+num(row,m,'V4 CM Qty(L)');
+    const fw=num(row,m,'V1 Morn CM Qty(L)')*num(row,m,'V1 Morn CM Fat%')+num(row,m,'V1 Eve CM Qty(L)')*num(row,m,'V1 Eve CM Fat%')+num(row,m,'V2 CM Qty(L)')*num(row,m,'V2 CM Fat%')+num(row,m,'V4 CM Qty(L)')*num(row,m,'V4 CM Fat%');
+    let cmFat=q>0?fw/q:0; if(!cmFat) cmFat=num(row,m,'V1 Morn CM Fat%')||0;
+    const sep=num(row,m,'Cream CM Separated(L)'), cream=num(row,m,'Cream Yield(kg)');
+    if(sep<=0||cream<=0||cmFat<=0) return;
+    days.push({date:k,sep:sep,fat:cmFat,cream:cream,creamFat:(sep*DENS*cmFat/100)/cream*100});
+  });
+  days.sort((a,b)=>toReportDateInt(a.date)-toReportDateInt(b.date));
+  if(!days.length){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);">No days with both CM separated and cream yield (and CM fat) in this range.</div>'; return; }
+  STATE._creamFat=days;
+  let rows='';
+  days.forEach(d=>{ rows+='<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 8px;">'+d.date+'</td>'+
+    '<td style="padding:6px 6px;text-align:right;">'+d.sep.toFixed(0)+'</td>'+
+    '<td style="padding:6px 6px;text-align:right;">'+d.fat.toFixed(1)+'</td>'+
+    '<td style="padding:6px 6px;text-align:right;">'+d.cream.toFixed(2)+'</td>'+
+    '<td style="padding:6px 6px;text-align:right;font-weight:800;color:#1a3a2a;">'+d.creamFat.toFixed(1)+'%</td></tr>'; });
+  document.getElementById('rpt-table-wrap').innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1a3a2a;color:#fff;"><th style="padding:8px;text-align:left;">Date</th><th style="padding:8px 6px;text-align:right;">CM sep (L)</th><th style="padding:8px 6px;text-align:right;">CM fat%</th><th style="padding:8px 6px;text-align:right;">Cream (kg)</th><th style="padding:8px 6px;text-align:right;">Cream fat%</th></tr></thead><tbody>'+rows+'</tbody></table>';
+  let tSep=0,tCream=0,tFatW=0; days.forEach(d=>{tSep+=d.sep;tCream+=d.cream;tFatW+=d.sep*d.fat;});
+  const avgFat=tSep>0?tFatW/tSep:0, avgCreamFat=tCream>0?(tSep*DENS*avgFat/100)/tCream*100:0;
+  document.getElementById('rpt-total-wrap').innerHTML=
+    '<div style="font-size:13px;line-height:1.7;">'+
+    '<b>Average cream fat this period: <span style="color:#1a3a2a;font-size:17px;">'+avgCreamFat.toFixed(1)+'%</span></b> '+
+    '<span style="color:var(--muted);">('+tCream.toFixed(1)+' kg cream from '+tSep.toFixed(0)+' L @ '+avgFat.toFixed(1)+'% fat)</span>'+
+    '<div style="margin-top:10px;padding:10px;background:#f4f1e8;border-radius:8px;font-size:12px;">'+
+    '<b>Make vs buy skim milk</b> &nbsp;(uses your actual cream yield)<br>'+
+    'Cow milk ₹<input id="cf-cm" type="number" value="43" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/L &nbsp; '+
+    'Cream ₹<input id="cf-cream" type="number" value="340" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/kg &nbsp; '+
+    'Buy SM ₹<input id="cf-sm" type="number" value="26" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/L'+
+    '<div id="cf-verdict" style="margin-top:8px;font-weight:700;font-size:13px;"></div></div>'+
+    '<div style="margin-top:6px;font-size:10px;color:var(--muted);">Cream fat% = (CM separated × 1.03 × CM fat%) ÷ cream kg. Days without both separation and cream yield are skipped. Ghee yield not needed — this is a direct fat mass-balance.</div></div>';
+  creamFatVerdict();
+}
+function creamFatVerdict(){
+  const days=(STATE&&STATE._creamFat)||[]; if(!days.length) return;
+  let tSep=0,tCream=0; days.forEach(d=>{tSep+=d.sep;tCream+=d.cream;});
+  if(tSep<=0){ return; }
+  const DENS=1.03;
+  const cmP=parseFloat((document.getElementById('cf-cm')||{}).value)||43;
+  const creamP=parseFloat((document.getElementById('cf-cream')||{}).value)||340;
+  const smP=parseFloat((document.getElementById('cf-sm')||{}).value)||26;
+  const creamKgPerL=tCream/tSep;
+  const creamValPerL=creamKgPerL*creamP;
+  const skimFrac=(DENS-creamKgPerL)/DENS;
+  const netSkim=(cmP-creamValPerL)/skimFrac + 0.75;   // +~₹0.75/L separation running cost
+  const save=smP-netSkim;
+  const el=document.getElementById('cf-verdict'); if(!el) return;
+  el.innerHTML='Your skim ≈ ₹'+netSkim.toFixed(1)+'/L if separated, vs ₹'+smP.toFixed(0)+'/L to buy → '+
+    (save>0?'<span style="color:#2e7d32;">SEPARATE — save ₹'+save.toFixed(1)+'/L</span>'
+           :'<span style="color:#C0392B;">BUY — cheaper by ₹'+Math.abs(save).toFixed(1)+'/L</span>')+
+    ' <span style="color:var(--muted);font-weight:400;">— only if all the cream sells</span>';
+}
 async function generateReport(type) {
   const from = document.getElementById('rpt-from').value;
   const to   = document.getElementById('rpt-to').value;
