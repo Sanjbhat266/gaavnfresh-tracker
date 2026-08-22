@@ -1,4 +1,4 @@
-var CACHE = 'gaavn-stock-v3';
+var CACHE = 'gaavn-stock-v4';
 self.addEventListener('install', function(e){ self.skipWaiting(); });
 self.addEventListener('activate', function(e){
   e.waitUntil(caches.keys().then(function(keys){ return Promise.all(keys.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);})); }));
