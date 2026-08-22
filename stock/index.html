@@ -56,7 +56,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 <!-- PIN GATE -->
 <div class="overlay" id="pin-gate">
   <h1>🐄 Gaavn Physical Stock</h1>
-  <p>Plant daily stock entry · v2</p>
+  <p>Plant daily stock entry · v3</p>
   <div class="err" id="pin-err"></div>
   <div class="pinbox">
     <input type="password" inputmode="numeric" maxlength="1" id="p0">
@@ -122,22 +122,23 @@ var DEFAULT_URL='https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_g
 var DEFAULT_PIN='2580';
 // Products (physical count) — matches the production tracker's Stock_Register
 var PRODUCTS=[
- {id:'cream',name:'Cream',unit:'kg'},
- {id:'lp',name:'Lite Paneer',unit:'kg'},
  {id:'mfp',name:'Med Fat Paneer',unit:'kg'},
  {id:'lfp',name:'Low Fat Paneer',unit:'kg'},
  {id:'mp',name:'Malai Paneer',unit:'pcs'},
+ {id:'gh_p5',name:'Ghee Pouches 500ml',unit:'nos'},
  {id:'gh_p',name:'Ghee Pouches 1L',unit:'nos'},
  {id:'gh_j',name:'Ghee Jars 500ml',unit:'nos'},
  {id:'gh_t',name:'Ghee Tins 5L',unit:'nos'},
  {id:'fc',name:'Fresh Curd',unit:'kg'},
- {id:'lc',name:'Lite Curd',unit:'kg'},
+ {id:'lc',name:'Lite Curd',unit:'jars'},
  {id:'ch_500',name:'Chaach 500ml',unit:'bottles'},
  {id:'ch_1l',name:'Chaach 1L',unit:'bottles'},
  {id:'sl',name:'Sweet Lassi',unit:'cups'},
  {id:'ml',name:'Mango Lassi',unit:'cups'},
  {id:'cmk',name:'CM Khoya',unit:'kg'},
- {id:'stk',name:'Std Khoya',unit:'kg'}
+ {id:'stk',name:'Std Khoya',unit:'kg'},
+ {id:'shk',name:'Shrikhand',unit:'kg'},
+ {id:'amk',name:'Amrakhand',unit:'kg'}
 ];
 function gsUrl(){ return (localStorage.getItem('ps_url')||DEFAULT_URL).trim(); }
 function pin(){ return localStorage.getItem('ps_pin')||DEFAULT_PIN; }
