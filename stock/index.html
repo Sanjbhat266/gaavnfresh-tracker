@@ -56,7 +56,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 <!-- PIN GATE -->
 <div class="overlay" id="pin-gate">
   <h1>🐄 Gaavn Physical Stock</h1>
-  <p>Plant daily stock entry · v3</p>
+  <p>Plant daily stock entry · v4</p>
   <div class="err" id="pin-err"></div>
   <div class="pinbox">
     <input type="password" inputmode="numeric" maxlength="1" id="p0">
@@ -182,7 +182,7 @@ function renderProducts(){
 }
 
 // ── SUBMIT ────────────────────────────────────────────────────────────
-var _pending=null;
+var _pending=null, _sending=false;
 function submitStock(){
   var date=document.getElementById('entry-date').value;
   if(!date){ toast('Pick a date'); return; }
@@ -206,7 +206,8 @@ function submitStock(){
 }
 function editPreview(){ document.getElementById('modal-preview').classList.remove('open'); }
 async function confirmSubmit(){
-  if(!_pending) return;
+  if(!_pending || _sending) return;
+  _sending=true;
   var data=_pending, date=data.date;
   document.getElementById('modal-preview').classList.remove('open');
   // save locally (so it is not lost if offline)
@@ -218,19 +219,21 @@ async function confirmSubmit(){
     else if(res===null){ toast('⚠ Sent, but could NOT confirm — check internet, then check Stock_Register'); }
     else { toast('✗ NOT saved to the sheet — please retry (kept your entries)'); }
   }catch(e){ toast('Saved on phone — needs internet to reach the sheet'); }
-  _pending=null;
+  _pending=null; _sending=false;
 }
 
 // ── SHEET SYNC (same mechanism as the production tracker) ─────────────
 function stripPayload(d){ var o={}; Object.keys(d).forEach(function(k){ var v=d[k]; if(v!==''&&v!=null&&!(parseFloat(v)===0)) o[k]=v; }); o.date=d.date; return o; }
 function xhrGet(url){
+  // ONE request only. The old version retried on a client-side reject, but the
+  // first request had already reached the server -> two writes ("sends twice").
+  // We rely on verifyStock() to confirm success instead of blind retries.
   return new Promise(function(resolve){
-    if(typeof fetch!=='undefined'){
-      fetch(url,{method:'GET',mode:'no-cors',cache:'no-store'}).then(resolve).catch(function(){
-        try{ var x=new XMLHttpRequest(); x.open('GET',url,true); x.timeout=8000; x.onloadend=resolve; x.ontimeout=resolve; x.onerror=resolve; x.send(); }
-        catch(e){ var img=new Image(); img.onload=img.onerror=resolve; img.src=url+'&_t='+Date.now(); setTimeout(resolve,5000); }
-      });
-    } else { var img=new Image(); img.onload=img.onerror=resolve; img.src=url+'&_t='+Date.now(); setTimeout(resolve,5000); }
+    try{
+      fetch(url,{method:'GET',mode:'no-cors',cache:'no-store',redirect:'follow'})
+        .then(function(){resolve(true);})
+        .catch(function(){resolve(false);});
+    }catch(e){ resolve(false); }
   });
 }
 async function sendStock(data){
