@@ -56,7 +56,7 @@ header .gear{background:none;border:none;color:#fff;font-size:20px;cursor:pointe
 <!-- PIN GATE -->
 <div class="overlay" id="pin-gate">
   <h1>🐄 Gaavn Physical Stock</h1>
-  <p>Plant daily stock entry · v5</p>
+  <p>Plant daily stock entry · v6</p>
   <div class="err" id="pin-err"></div>
   <div class="pinbox">
     <input type="password" inputmode="numeric" maxlength="1" id="p0">
@@ -225,7 +225,7 @@ async function confirmSubmit(){
 }
 
 // ── SHEET SYNC (same mechanism as the production tracker) ─────────────
-function stripPayload(d){ var o={}; Object.keys(d).forEach(function(k){ var v=d[k]; if(v!==''&&v!=null&&!(parseFloat(v)===0)) o[k]=v; }); o.date=d.date; return o; }
+function stripPayload(d){ var o={}; Object.keys(d).forEach(function(k){ var v=d[k]; if(v!==''&&v!=null) o[k]=v; }); o.date=d.date; return o; }  // keep typed 0s so a genuine 'zero in stock' count is recorded & re-anchors
 function xhrGet(url){
   // ONE request only. The old version retried on a client-side reject, but the
   // first request had already reached the server -> two writes ("sends twice").
