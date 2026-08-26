@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v164</span>
+    <span>PRODUCTION TRACKER v169</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -394,6 +394,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="page-sub">Select a product, enter data, save — then submit all at end</div>
   <div id="milk-balance-panel" style="display:none;margin:0 0 14px;padding:10px 14px;border-radius:10px;font-family:'Space Mono';font-size:11px;line-height:1.7;"></div>
 
+  <style>/* Lite Paneer retired -> merged into Low Fat Paneer */ #pbtn-lp,#prod-card-lp,#stk-row-lp{display:none !important;}</style>
   <!-- Product selector grid -->
   <div id="product-selector" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;max-width:700px;">
     <button class="prod-btn" id="pbtn-lp"      onclick="selectProduct('lp')"  ontouchstart="">🧀 Lite Paneer</button>
@@ -2117,7 +2118,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg" style="margin-top:14px">
         <div class="field">
           <label>Google Apps Script Web App URL</label>
-          <input class="config-input" type="url" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec">
+          <input class="config-input" type="url" id="gs_url" placeholder="https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec">
         </div>
       </div>
       <button class="btn-submit" onclick="saveConfig()" style="margin-top:12px;">Save Configuration</button>
@@ -2602,14 +2603,16 @@ let RATE_TABLES = (function() {
 // ── STATE ────────────────────────────────────────────────────────
 // Ensure URL is in localStorage for future loads
 (function(){
+  var NEW='https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec';
+  var OLD='https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec';
   var stored = localStorage.getItem('gs_url');
-  if (!stored || stored === '' || stored === 'YOUR_SCRIPT_ID') {
-    localStorage.setItem('gs_url', 'https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec');
+  if (!stored || stored === '' || stored === 'YOUR_SCRIPT_ID' || stored === OLD) {
+    localStorage.setItem('gs_url', NEW);
   }
 })();
 
 const STATE = {
-  gsUrl: localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycbxLAgadrNd4sFdKsVaRsv_gmUGOaq2i4sr_OpFgWQ0ryTOstIDzbk7kEVQ_KmCR5afb/exec',
+  gsUrl: localStorage.getItem('gs_url') || 'https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec',
   stdRates: JSON.parse(localStorage.getItem('std_rates') || '{}'),
   todayMilk: JSON.parse(localStorage.getItem('today_milk') || '{}'),
   todayProd:  JSON.parse(localStorage.getItem('today_prod')  || '{}'),
@@ -2786,7 +2789,16 @@ function saveProdAndBack() {
   selectProduct(null);
 }
 
+function gfDateYearOK(){
+  var ed=(document.getElementById('entry-date')||{}).value||'';
+  var cy=new Date().getFullYear();
+  if(ed && parseInt(ed.slice(0,4),10)!==cy){
+    return confirm('\u26A0 The entry date is '+ed+' (year '+ed.slice(0,4)+'), NOT '+cy+'.\n\nThis will save into a '+ed.slice(0,4)+' sheet. Is that really what you want?\n\nClick Cancel to fix the date first.');
+  }
+  return true;
+}
 function saveProductCard(pid) {
+  if(!gfDateYearOK()) return;
   const data = gatherProductData();
   const dateKey = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   localStorage.setItem('prod_' + dateKey, JSON.stringify(data));
@@ -3791,26 +3803,35 @@ async function generateCreamFatReport(){
   days.sort((a,b)=>toReportDateInt(a.date)-toReportDateInt(b.date));
   if(!days.length){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);">No days with both CM separated and cream yield (and CM fat) in this range.</div>'; return; }
   STATE._creamFat=days;
-  let rows='';
-  days.forEach(d=>{ rows+='<tr style="border-bottom:1px solid var(--border);"><td style="padding:6px 8px;">'+d.date+'</td>'+
+  let rows='', okN=0, badN=0;
+  days.forEach(d=>{
+    // plausible cream fat is ~35-60%. >65 = suspect (under-weighed cream / over-stated separated L). >100 = impossible.
+    d.bad = d.creamFat>65 || d.creamFat<25;
+    if(d.bad) badN++; else okN++;
+    const col = d.creamFat>100 ? '#C0392B' : (d.bad ? '#E67E22' : '#2e7d32');
+    const mark = d.creamFat>100 ? ' \u26D4' : (d.bad ? ' \u26A0' : '');
+    rows+='<tr style="border-bottom:1px solid var(--border);'+(d.bad?'background:#fff6ef;':'')+'"><td style="padding:6px 8px;">'+d.date+'</td>'+
     '<td style="padding:6px 6px;text-align:right;">'+d.sep.toFixed(0)+'</td>'+
     '<td style="padding:6px 6px;text-align:right;">'+d.fat.toFixed(1)+'</td>'+
     '<td style="padding:6px 6px;text-align:right;">'+d.cream.toFixed(2)+'</td>'+
-    '<td style="padding:6px 6px;text-align:right;font-weight:800;color:#1a3a2a;">'+d.creamFat.toFixed(1)+'%</td></tr>'; });
+    '<td style="padding:6px 6px;text-align:right;font-weight:800;color:'+col+';">'+d.creamFat.toFixed(1)+'%'+mark+'</td></tr>'; });
   document.getElementById('rpt-table-wrap').innerHTML='<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#1a3a2a;color:#fff;"><th style="padding:8px;text-align:left;">Date</th><th style="padding:8px 6px;text-align:right;">CM sep (L)</th><th style="padding:8px 6px;text-align:right;">CM fat%</th><th style="padding:8px 6px;text-align:right;">Cream (kg)</th><th style="padding:8px 6px;text-align:right;">Cream fat%</th></tr></thead><tbody>'+rows+'</tbody></table>';
-  let tSep=0,tCream=0,tFatW=0; days.forEach(d=>{tSep+=d.sep;tCream+=d.cream;tFatW+=d.sep*d.fat;});
+  // average + make-vs-buy use ONLY the plausible (35-60%) days so bad entries don't skew it
+  const good=days.filter(d=>!d.bad);
+  let tSep=0,tCream=0,tFatW=0; good.forEach(d=>{tSep+=d.sep;tCream+=d.cream;tFatW+=d.sep*d.fat;});
   const avgFat=tSep>0?tFatW/tSep:0, avgCreamFat=tCream>0?(tSep*DENS*avgFat/100)/tCream*100:0;
+  STATE._creamFat=good;   // verdict uses clean days only
   document.getElementById('rpt-total-wrap').innerHTML=
     '<div style="font-size:13px;line-height:1.7;">'+
-    '<b>Average cream fat this period: <span style="color:#1a3a2a;font-size:17px;">'+avgCreamFat.toFixed(1)+'%</span></b> '+
-    '<span style="color:var(--muted);">('+tCream.toFixed(1)+' kg cream from '+tSep.toFixed(0)+' L @ '+avgFat.toFixed(1)+'% fat)</span>'+
+    '<b>Average cream fat (clean days only): <span style="color:#1a3a2a;font-size:17px;">'+avgCreamFat.toFixed(1)+'%</span></b> '+
+    '<span style="color:var(--muted);">('+okN+' clean days · <span style="color:#E67E22;">'+badN+' flagged &amp; excluded</span>)</span>'+
     '<div style="margin-top:10px;padding:10px;background:#f4f1e8;border-radius:8px;font-size:12px;">'+
     '<b>Make vs buy skim milk</b> &nbsp;(uses your actual cream yield)<br>'+
     'Cow milk ₹<input id="cf-cm" type="number" value="43" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/L &nbsp; '+
     'Cream ₹<input id="cf-cream" type="number" value="340" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/kg &nbsp; '+
     'Buy SM ₹<input id="cf-sm" type="number" value="26" style="width:56px;padding:2px 4px;" oninput="creamFatVerdict()">/L'+
     '<div id="cf-verdict" style="margin-top:8px;font-weight:700;font-size:13px;"></div></div>'+
-    '<div style="margin-top:6px;font-size:10px;color:var(--muted);">Cream fat% = (CM separated × 1.03 × CM fat%) ÷ cream kg. Days without both separation and cream yield are skipped. Ghee yield not needed — this is a direct fat mass-balance.</div></div>';
+    '<div style="margin-top:6px;font-size:10px;color:var(--muted);">Cream fat% = (CM separated × 1.03 × CM fat%) ÷ cream kg. \u26A0 = cream fat >65% or <25% (likely cream under-weighed or separated-litres over-entered). \u26D4 = >100%, physically impossible. Flagged days are highlighted and EXCLUDED from the average and the make-vs-buy. Realistic cream fat is 40-50% — use flagged days to fix logging. Ghee yield not needed — this is a direct fat mass-balance.</div></div>';
   creamFatVerdict();
 }
 function creamFatVerdict(){
@@ -4709,6 +4730,7 @@ function gv(id) { const el = document.getElementById(id); return el ? (el.value 
 function gn(id) { return parseFloat(gv(id)) || 0; }
 
 async function saveMilk() {
+  if(!gfDateYearOK()) return;
   console.log('[PT] saveMilk() called, STATE.gsUrl=', STATE.gsUrl ? STATE.gsUrl.slice(0,40) : 'EMPTY');
   const data = gatherMilkData();
   STATE.todayMilk = data;
@@ -5102,6 +5124,7 @@ function getPrevDateStr(dateStr) {
 }
 
 function saveStock() {
+  if(!gfDateYearOK()) return;
   const dateStr = document.getElementById('entry-date')?.value || new Date().toISOString().slice(0,10);
   const key = getStockKey(dateStr);
   const data = {};
@@ -7771,11 +7794,14 @@ function onDateChange(iso) {
   if (!iso) return;
   if (iso === todayISO) {
     banner.style.display = 'none';
+    banner.style.background = '';
   } else {
     const dt = new Date(iso + 'T00:00:00');
     const label = dt.toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+    const wrongYear = dt.getFullYear() !== new Date().getFullYear();
     banner.style.display = 'block';
-    banner.innerHTML = '📅 Entering backdated data for: <b>' + label + '</b> &nbsp;|&nbsp; <a href="#" onclick="resetToToday()" style="color:#fff;text-decoration:underline;">Switch to Today</a>';
+    banner.style.background = wrongYear ? '#B00020' : '';
+    banner.innerHTML = (wrongYear ? '\u26A0 WRONG YEAR — you are entering data for ' : '📅 Entering backdated data for: ') + '<b>' + label + '</b> &nbsp;|&nbsp; <a href="#" onclick="resetToToday()" style="color:#fff;text-decoration:underline;">Switch to Today</a>';
   }
   // Reload any locally stored data for this date
   loadDateData(iso);
@@ -9122,7 +9148,7 @@ function rsNum(v){ var n=parseFloat(v); return isNaN(n)?null:n; }
 function rsPrefix(name){
   var n=String(name||'').toLowerCase();
   if(n.indexOf('low fat')>=0)            return 'lfp';
-  if(n.indexOf('lite paneer')>=0)        return 'lp';
+  if(n.indexOf('lite paneer')>=0)        return 'lfp';   // Lite Paneer retired -> Low Fat
   if(n.indexOf('lite curd')>=0)          return 'lc';
   if(n.indexOf('curd')>=0)               return 'lc';
   if(n.indexOf('khawa')>=0 || n.indexOf('khoya')>=0) return 'cmk';
@@ -9216,7 +9242,20 @@ function rsRender(d){
       + R.warn.map(function(w){return '<li>'+rsEsc(w)+'</li>';}).join('')
       + '</ul></div>';
   }
-  var sheetDate = (d.date && /^\d{4}-\d{2}-\d{2}$/.test(d.date)) ? d.date : '';
+  var _rawDate = (d.date && /^\d{4}-\d{2}-\d{2}$/.test(d.date)) ? d.date : '';
+  var _yrFix = null;
+  var sheetDate = _rawDate;
+  if(_rawDate){
+    var _cy = new Date().getFullYear();
+    var _pp = _rawDate.split('-');
+    if(parseInt(_pp[0],10) !== _cy){
+      var _cand = _cy + '-' + _pp[1] + '-' + _pp[2];
+      var _todayISO = new Date().toISOString().slice(0,10);
+      if(_cand > _todayISO){ _cand = (_cy-1) + '-' + _pp[1] + '-' + _pp[2]; }
+      _yrFix = { from: _pp[0] };
+      sheetDate = _cand;
+    }
+  }
   var formDate  = (document.getElementById('entry-date')||{}).value || '';
   h+='<div class="card"><h3>Date on this sheet</h3>';
   if(sheetDate){
@@ -9224,6 +9263,7 @@ function rsRender(d){
      + 'production lands on the right date. Correct it here if the reader misread it.</p>'
      + '<input type="date" id="rs-date" value="'+sheetDate+'" '
      + 'style="padding:8px;border:1.5px solid #E8DFC9;border-radius:8px;font-size:15px;">'
+     + (_yrFix ? '<div style="background:#FDECEA;border:1.5px solid #C62828;border-radius:8px;padding:10px;margin-top:8px;"><b>\u26A0 The reader read the year as '+_yrFix.from+' — auto-corrected to '+sheetDate.slice(0,4)+'.</b><br>Handwritten 2-digit years are often misread by the AI. Please confirm the date above is right before you fill.</div>' : '')
      + (sheetDate!==formDate
         ? '<div style="background:#FFF8E7;border:1.5px solid #C8830A;border-radius:8px;padding:10px;margin-top:8px;">'
           +'<b>The form is currently on '+formDate+', this sheet is '+sheetDate+'.</b><br>'
