@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v169</span>
+    <span>PRODUCTION TRACKER v170</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -4772,7 +4772,21 @@ function calculateAndShowSummary() {
   const bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57);
   const wCM = cm > 0 ? cmC/cm : 41;
   const wBM = bm > 0 ? bmC/bm : 57;
-  const wSK = m.v3_sk_rate || 24.5;
+  const wSK = (m.v3_sk_rate>0 ? m.v3_sk_rate : (parseFloat(localStorage.getItem('gf_last_sk'))||0)) || 24.5;
+  if(m.v3_sk_rate>0){ try{ localStorage.setItem('gf_last_sk', m.v3_sk_rate); }catch(e){} }  // remember real skim rate for no-purchase days
+
+  // ── DERIVED CREAM COST (auto): value cream at its production cost, not a fixed rate.
+  //    cream cost/kg = (cow-milk separated x wCM  -  skim it yields x wSK) / cream kg
+  //    Guarded: if separation data is missing or the result is out of a sane band, keep 300.
+  var _cmSep = ic('cream_milk_l'), _creamKg = ic('cream_yield_kg');
+  var creamRate = 300;
+  if(_creamKg > 0 && _cmSep > 0){
+    var _skimL = _cmSep - _creamKg;                       // ~litres of skim produced
+    var _d = (_cmSep*wCM - _skimL*wSK) / _creamKg;
+    if(_d >= 100 && _d <= 600) creamRate = Math.round(_d*100)/100;
+  }
+  // reflect into the cream-rate fields so the SAVED payload (and COGS_Daily) uses the same value
+  ['lp','mfp','lfp','mp','gh'].forEach(function(p){ var el=document.getElementById(p+'_cream_rate'); if(el) el.value=creamRate; });
 
   const rows = [];
 
@@ -4791,15 +4805,15 @@ function calculateAndShowSummary() {
   const ic = id => parseFloat(document.getElementById(id)?.value) || 0;
 
   // ── Lite Paneer
-  if(ic('lp_yield')>0){const mlk=(ic('lp_bm')+ic('lp_sm'));addRow('Lite Paneer',ic('lp_yield'),ic('lp_bm')*wBM+ic('lp_sm')*wSK+ic('lp_cream')*(ic('lp_cream_rate')||300),ic('lp_ing_cost'),ic('lp_pm_cost'),ic('lp_gas'),ic('lp_yield')*(ic('lp_rate')||230),mlk>0?(ic('lp_yield')/mlk*100):0,ic('lp_std')||16.0);}
+  if(ic('lp_yield')>0){const mlk=(ic('lp_bm')+ic('lp_sm'));addRow('Lite Paneer',ic('lp_yield'),ic('lp_bm')*wBM+ic('lp_sm')*wSK+ic('lp_cream')*creamRate,ic('lp_ing_cost'),ic('lp_pm_cost'),ic('lp_gas'),ic('lp_yield')*(ic('lp_rate')||230),mlk>0?(ic('lp_yield')/mlk*100):0,ic('lp_std')||16.0);}
   // ── Med Fat Paneer
-  if(ic('mfp_yield')>0){const mlk=(ic('mfp_bm')+ic('mfp_sm'));addRow('Med Fat Paneer',ic('mfp_yield'),ic('mfp_bm')*wBM+ic('mfp_sm')*wSK+ic('mfp_cream')*(ic('mfp_cream_rate')||300),ic('mfp_ing_cost'),ic('mfp_pm_cost'),ic('mfp_gas'),ic('mfp_yield')*(ic('mfp_rate')||240),mlk>0?(ic('mfp_yield')/mlk*100):0,ic('mfp_std')||16.5);}
+  if(ic('mfp_yield')>0){const mlk=(ic('mfp_bm')+ic('mfp_sm'));addRow('Med Fat Paneer',ic('mfp_yield'),ic('mfp_bm')*wBM+ic('mfp_sm')*wSK+ic('mfp_cream')*creamRate,ic('mfp_ing_cost'),ic('mfp_pm_cost'),ic('mfp_gas'),ic('mfp_yield')*(ic('mfp_rate')||240),mlk>0?(ic('mfp_yield')/mlk*100):0,ic('mfp_std')||16.5);}
   // ── Low Fat Paneer
-  if(ic('lfp_yield')>0){const mlk=(ic('lfp_bm')+ic('lfp_sm'));addRow('Low Fat Paneer',ic('lfp_yield'),ic('lfp_bm')*wBM+ic('lfp_sm')*wSK+ic('lfp_cream')*(ic('lfp_cream_rate')||300),ic('lfp_ing_cost'),ic('lfp_pm_cost'),ic('lfp_gas'),ic('lfp_yield')*(ic('lfp_rate')||230),mlk>0?(ic('lfp_yield')/mlk*100):0,ic('lfp_std_yield_pct')||19.0);}
+  if(ic('lfp_yield')>0){const mlk=(ic('lfp_bm')+ic('lfp_sm'));addRow('Low Fat Paneer',ic('lfp_yield'),ic('lfp_bm')*wBM+ic('lfp_sm')*wSK+ic('lfp_cream')*creamRate,ic('lfp_ing_cost'),ic('lfp_pm_cost'),ic('lfp_gas'),ic('lfp_yield')*(ic('lfp_rate')||230),mlk>0?(ic('lfp_yield')/mlk*100):0,ic('lfp_std_yield_pct')||19.0);}
   // ── Malai Paneer
-  if(ic('mp_yield')>0){const mlk=(ic('mp_bm')+ic('mp_sm'));addRow('Malai Paneer',ic('mp_yield'),ic('mp_bm')*wBM+ic('mp_sm')*wSK+ic('mp_cream')*(ic('mp_cream_rate')||300),ic('mp_ing_cost'),ic('mp_pm_cost'),ic('mp_gas'),ic('mp_packs')*(ic('mp_rate')||350),mlk>0?(ic('mp_yield')/mlk*100):0,22);}
+  if(ic('mp_yield')>0){const mlk=(ic('mp_bm')+ic('mp_sm'));addRow('Malai Paneer',ic('mp_yield'),ic('mp_bm')*wBM+ic('mp_sm')*wSK+ic('mp_cream')*creamRate,ic('mp_ing_cost'),ic('mp_pm_cost'),ic('mp_gas'),ic('mp_packs')*(ic('mp_rate')||350),mlk>0?(ic('mp_yield')/mlk*100):0,22);}
   // ── Ghee
-  if(ic('gh_yield_kg')>0){const cIn=ic('gh_cream_in');const ghRev=ic('gh_pouches')*(ic('gh_pouch_rate')||780)+ic('gh_pouches_500')*(ic('gh_pouch_500_rate')||390)+ic('gh_jars')*(ic('gh_jar_rate')||17)*500/1000*780+ic('gh_tins')*3900;addRow('Ghee',ic('gh_yield_kg'),cIn*(ic('gh_cream_rate')||300),0,ic('gh_pm_cost'),ic('gh_gas'),ghRev,cIn>0?(ic('gh_yield_kg')/cIn*100):0,51.7);}
+  if(ic('gh_yield_kg')>0){const cIn=ic('gh_cream_in');const ghRev=ic('gh_pouches')*(ic('gh_pouch_rate')||780)+ic('gh_pouches_500')*(ic('gh_pouch_500_rate')||390)+ic('gh_jars')*(ic('gh_jar_rate')||17)*500/1000*780+ic('gh_tins')*3900;addRow('Ghee',ic('gh_yield_kg'),cIn*creamRate,0,ic('gh_pm_cost'),ic('gh_gas'),ghRev,cIn>0?(ic('gh_yield_kg')/cIn*100):0,51.7);}
   // ── Lite Curd — FIX: require milk input > 0
   if(ic('lc_yield')>0 && (ic('lc_bm')+ic('lc_cm')+ic('lc_sm'))>0){const mlk=(ic('lc_bm')+ic('lc_cm')+ic('lc_sm'));addRow('Lite Curd',ic('lc_yield'),ic('lc_bm')*wBM+ic('lc_cm')*wCM+ic('lc_sm')*wSK,ic('lc_ing_cost'),ic('lc_pm_cost'),ic('lc_gas'),ic('lc_jars')*(ic('lc_jar_rate')||300)+ic('lc_bulk_kg')*60,mlk>0?(ic('lc_yield')/mlk*100):0,100);}
   // ── Fresh Curd
