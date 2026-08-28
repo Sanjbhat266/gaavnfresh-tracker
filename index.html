@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v171</span>
+    <span>PRODUCTION TRACKER v173</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -380,6 +380,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;">
         ℹ Cream yield is entered manually after weighing. Theoretical = CM qty × Std%. Variance shows actual vs theoretical.
       </div>
+      <div id="cream_derived_badge" style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-top:10px;padding:9px 12px;border:1.5px solid #ffe082;border-radius:8px;background:#fff8e1;color:#8a6d00;">
+        ● Cream cost will auto-derive once CM Separated + Cream Yield (and milk rates) are entered — using ₹300/kg until then
+      </div>
     </div>
   </div>
 
@@ -427,7 +430,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="lp_bm" placeholder="0" step="0.1" min="0" oninput="calcLPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="lp_sm" placeholder="0" step="0.1" min="0" oninput="calcLPCream()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Added Cream (kg)</label><div class="unit"><input type="number" id="lp_cream" placeholder="0" step="0.01" min="0" oninput="calcLPCream()"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Cream Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_cream_rate" value="300" step="1" min="0" oninput="calcLPCream()"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Cream Rate (Rs/kg) <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="lp_cream_rate" value="300" step="1" min="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="lp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="lp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
@@ -507,7 +510,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="mfp_bm" placeholder="0" step="0.1" min="0" oninput="calcCream('mfp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="mfp_sm" placeholder="0" step="0.1" min="0" oninput="calcCream('mfp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Added Cream (kg)</label><div class="unit"><input type="number" id="mfp_cream" placeholder="0" step="0.01" min="0" oninput="calcCream('mfp')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Cream Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_cream_rate" value="300" step="1" min="0" oninput="calcCream('mfp')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Cream Rate (Rs/kg) <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="mfp_cream_rate" value="300" step="1" min="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="mfp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="mfp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
@@ -587,7 +590,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="lfp_bm" placeholder="0" step="0.1" min="0" oninput="calcCream('lfp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="lfp_sm" placeholder="0" step="0.1" min="0" oninput="calcCream('lfp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Added Cream (kg)</label><div class="unit"><input type="number" id="lfp_cream" placeholder="0" step="0.01" min="0" oninput="calcCream('lfp')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Cream Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_cream_rate" value="300" step="1" min="0" oninput="calcCream('lfp')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Cream Rate (Rs/kg) <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="lfp_cream_rate" value="300" step="1" min="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="lfp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="lfp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
@@ -667,7 +670,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>BM Used (L)</label><div class="unit"><input type="number" id="mp_bm" placeholder="0" step="0.1" min="0" oninput="calcCream('mp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>SM Used (L)</label><div class="unit"><input type="number" id="mp_sm" placeholder="0" step="0.1" min="0" oninput="calcCream('mp')"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Added Cream (kg)</label><div class="unit"><input type="number" id="mp_cream" placeholder="0" step="0.01" min="0" oninput="calcCream('mp')"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Cream Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_cream_rate" value="300" step="1" min="0" oninput="calcCream('mp')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Cream Rate (Rs/kg) <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="mp_cream_rate" value="300" step="1" min="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream Amount (Rs)</label><div class="unit"><input type="number" id="mp_cream_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Cream %</label><div class="unit"><input type="number" id="mp_cream_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
@@ -753,7 +756,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg fg-2" style="margin-top:8px">
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="gh_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Yield Variance %</label><div class="unit"><input type="number" id="gh_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
-        <div class="field"><label>Cream Transfer Rate (Rs/kg)</label><div class="unit"><input type="number" id="gh_cream_rate" value="300" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Cream Transfer Rate (Rs/kg) <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="gh_cream_rate" value="300" step="1" min="0" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
       <!-- Packing — qty editable, rate editable, cost auto -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
@@ -2771,6 +2774,7 @@ function selectProduct(pid) {
     var saveBar = document.getElementById('prod-save-bar');
     if (saveBar) saveBar.style.display = 'block';
     activeProduct = pid;
+    try { gfApplyCreamRate(); } catch(e){}   // v172: show today's derived cream rate the moment a product opens
   } else {
     // Show selector grid
     if (selector) selector.style.display = 'grid';
@@ -4421,6 +4425,54 @@ function calcCreamSep() {
   set('cream_actual_pct', actPct, 2);
   set('cream_var_kg',    varKg,   2);
   set('cream_var_pct',   varPct,  1);
+  try { gfApplyCreamRate(); } catch(e){}   // v172: recompute the day's derived cream cost the moment separation data changes
+}
+
+// ── v172: DERIVED CREAM COST — one shared source of truth ──────────────────
+// cream cost/kg = (CM separated x weighted CM rate  -  skim it yields x skim rate) / cream kg
+// Guarded to a sane band (₹100–600); falls back to ₹300 when data is incomplete.
+function gfDerivedCreamRate(wCM, wSK){
+  var q = id => parseFloat(document.getElementById(id)?.value) || 0;
+  var cmSep = q('cream_milk_l'), creamKg = q('cream_yield_kg');
+  var rate = 300;
+  if(creamKg > 0 && cmSep > 0){
+    var d = (cmSep*wCM - (cmSep-creamKg)*wSK) / creamKg;
+    if(d >= 100 && d <= 600) rate = Math.round(d*100)/100;
+  }
+  return rate;
+}
+// Weighted milk rates from whatever is currently typed in the Milk form (live, pre-save).
+function gfMilkRatesNow(){
+  var q = id => parseFloat(document.getElementById(id)?.value) || 0;
+  var cm  = q('v1m_cm_qty')+q('v1e_cm_qty')+q('v2_cm_qty');
+  var cmC = q('v1m_cm_qty')*q('v1m_cm_rate')+q('v1e_cm_qty')*q('v1e_cm_rate')
+          + q('v2_cm_qty')*(q('v2_cm_rate')||41)+q('v4_cm_qty')*(q('v4_cm_rate')||41);
+  var wCM = cm > 0 ? cmC/cm : 41;
+  var sk  = q('v3_sk_rate');
+  var wSK = sk > 0 ? sk : (parseFloat(localStorage.getItem('gf_last_sk'))||24.5);
+  return { wCM: wCM, wSK: wSK };
+}
+// Compute the day's cream rate and push it into every product's Cream Rate field + the badge.
+function gfApplyCreamRate(){
+  var q = id => parseFloat(document.getElementById(id)?.value) || 0;
+  var r = gfMilkRatesNow();
+  var rate = gfDerivedCreamRate(r.wCM, r.wSK);
+  ['lp','mfp','lfp','mp','gh'].forEach(function(p){
+    var el = document.getElementById(p+'_cream_rate'); if(el) el.value = rate;
+  });
+  ['lp','mfp','lfp','mp'].forEach(function(p){ try{ calcCream(p); }catch(e){} });   // refresh cream amounts
+  var b = document.getElementById('cream_derived_badge');
+  if(b){
+    var ready = (q('cream_milk_l') > 0 && q('cream_yield_kg') > 0);
+    if(ready){
+      b.textContent = '● Derived cream cost today: ₹' + rate + '/kg — auto-applied to all paneer & ghee';
+      b.style.color = '#1b5e20'; b.style.background = '#e8f5e9'; b.style.borderColor = '#a5d6a7';
+    } else {
+      b.textContent = '● Cream cost will auto-derive once CM Separated + Cream Yield (and milk rates) are entered — using ₹300/kg until then';
+      b.style.color = '#8a6d00'; b.style.background = '#fff8e1'; b.style.borderColor = '#ffe082';
+    }
+  }
+  return rate;
 }
 
 // calcLPCream defined below as calcCream('lp') wrapper
@@ -4734,6 +4786,7 @@ async function saveMilk() {
   console.log('[PT] saveMilk() called, STATE.gsUrl=', STATE.gsUrl ? STATE.gsUrl.slice(0,40) : 'EMPTY');
   const data = gatherMilkData();
   STATE.todayMilk = data;
+  try { gfApplyCreamRate(); } catch(e){}   // v172: lock in the day's derived cream rate on milk save
   const dateKey = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   localStorage.setItem('milk_' + dateKey, JSON.stringify(data));
   localStorage.setItem('today_milk', JSON.stringify(data));
@@ -4779,13 +4832,7 @@ function calculateAndShowSummary() {
   // ── DERIVED CREAM COST (auto): value cream at its production cost, not a fixed rate.
   //    cream cost/kg = (cow-milk separated x wCM  -  skim it yields x wSK) / cream kg
   //    Guarded: if separation data is missing or the result is out of a sane band, keep 300.
-  var _cmSep = ic('cream_milk_l'), _creamKg = ic('cream_yield_kg');
-  var creamRate = 300;
-  if(_creamKg > 0 && _cmSep > 0){
-    var _skimL = _cmSep - _creamKg;                       // ~litres of skim produced
-    var _d = (_cmSep*wCM - _skimL*wSK) / _creamKg;
-    if(_d >= 100 && _d <= 600) creamRate = Math.round(_d*100)/100;
-  }
+  var creamRate = gfDerivedCreamRate(wCM, wSK);          // v172: shared derivation — COGS & forms always match
   // reflect into the cream-rate fields so the SAVED payload (and COGS_Daily) uses the same value
   ['lp','mfp','lfp','mp','gh'].forEach(function(p){ var el=document.getElementById(p+'_cream_rate'); if(el) el.value=creamRate; });
 
@@ -4891,8 +4938,14 @@ function calculateAndShowSummary() {
   </tr></tbody></table></div></div>`;
 
   document.getElementById('summary-content').innerHTML = html;
-  document.getElementById('summary-title').textContent  = 'COGS & Margins — ' + (STATE.selectedDate || new Date().toLocaleDateString('en-IN'));
-  document.getElementById('summary-sub').textContent    = rows.length + ' product(s) produced today';
+  // v173: label the COGS with the ACTUAL entry date (STATE.selectedDate was never set,
+  // so this always said "today" even when another date's data was loaded in the form).
+  var _ed = (document.getElementById('entry-date')||{}).value || '';
+  var _edDisp = _ed ? (_ed.slice(8,10)+'/'+_ed.slice(5,7)+'/'+_ed.slice(0,4)) : new Date().toLocaleDateString('en-IN');
+  var _todayISO = new Date().toISOString().slice(0,10);
+  var _note = (_ed && _ed !== _todayISO) ? '  ⚠ entry date — NOT today' : '';
+  document.getElementById('summary-title').textContent  = 'COGS & Margins — ' + _edDisp + _note;
+  document.getElementById('summary-sub').textContent    = rows.length + ' product(s) for ' + _edDisp + ' · Cream costed at ₹' + creamRate + '/kg (derived from CM)';
 }
 
 
@@ -7822,6 +7875,7 @@ function onDateChange(iso) {
   // v154: a date with no saved milk entry should start from the CURRENT
   // standard rates, not the values left on screen from the previous date.
   try { autoFillStdYields(); } catch(e) {}
+  try { gfApplyCreamRate(); } catch(e) {}   // v172: recompute derived cream rate for the loaded date
   // Re-init stock if stock tab is active
   if (document.getElementById('tab-stock')?.classList.contains('active')) initStockTab();
 }
