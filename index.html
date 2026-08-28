@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v170</span>
+    <span>PRODUCTION TRACKER v171</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -4759,6 +4759,7 @@ async function saveMilk() {
 }
 
 function calculateAndShowSummary() {
+  const ic = id => parseFloat(document.getElementById(id)?.value) || 0;   // v171: declared at top so the cream-cost block below can use it (fixes COGS blank)
   const m = STATE.todayMilk || {};
   const p = STATE.todayProd || {};
   const fixed = (parseFloat(document.getElementById('cost_labour')?.value)||110.25)
@@ -4802,7 +4803,6 @@ function calculateAndShowSummary() {
     const varColor = varP !== null ? (varP >= 0 ? '#27ae60' : (varP < -2 ? '#c0392b' : '#e67e22')) : '';
     rows.push({prod, yld, milkCost, ingCost, pmCost, gasFuel, totalCOGS, cpk, rev, gm, gmP, varP, varColor});
   }
-  const ic = id => parseFloat(document.getElementById(id)?.value) || 0;
 
   // ── Lite Paneer
   if(ic('lp_yield')>0){const mlk=(ic('lp_bm')+ic('lp_sm'));addRow('Lite Paneer',ic('lp_yield'),ic('lp_bm')*wBM+ic('lp_sm')*wSK+ic('lp_cream')*creamRate,ic('lp_ing_cost'),ic('lp_pm_cost'),ic('lp_gas'),ic('lp_yield')*(ic('lp_rate')||230),mlk>0?(ic('lp_yield')/mlk*100):0,ic('lp_std')||16.0);}
