@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v173</span>
+    <span>PRODUCTION TRACKER v178</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -712,16 +712,25 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <!-- Yield -->
       <div class="divider" style="margin-top:10px"><span>Yield &amp; Quality</span></div>
       <div class="fg fg-4" style="margin-top:8px">
-        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="mp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('mp'); calcPacking('mp')"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Yield (kg)</label><div class="unit"><input type="number" id="mp_yield" placeholder="0" step="0.1" min="0" oninput="calcVariance('mp'); calcMalaiPacks()"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Std Yield %</label><div class="unit"><input type="number" id="mp_std" value="19.0" step="0.1" min="0"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Actual Yield %</label><div class="unit"><input type="number" id="mp_actual_yld_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Variance %</label><div class="unit"><input type="number" id="mp_var" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
       </div>
+      <!-- v174: Packs & Rework. These two ids are read by gatherProductData and
+           drive Malai revenue, the production report and the stock screen — but
+           the boxes were never on the form, so mp_packs was always 0 and every
+           Malai batch logged zero packs and zero revenue. Packs auto-fills from
+           the yield (200 g a pack) and stays editable. -->
+      <div class="fg fg-4" style="margin-top:8px">
+        <div class="field"><label>Packs @200g <span style="color:var(--green);font-size:9px;">AUTO</span></label><div class="unit"><input type="number" id="mp_packs" placeholder="0" step="1" min="0" oninput="calcMalaiReworkAndPM()"><span class="unit-label">pcs</span></div></div>
+        <div class="field"><label>Rework (kg)</label><div class="unit"><input type="number" id="mp_rework" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
+      </div>
       <!-- Packing -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
       <div class="fg fg-4" style="margin-top:8px">
-        <div class="field"><label>Packing Qty (kg)</label><div class="unit"><input type="number" id="mp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Packing Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_pm_rate" value="1.6" step="0.01" min="0" oninput="calcPacking('mp')"><span class="unit-label">Rs</span></div></div>
+        <div class="field"><label>Packing Qty (pcs)</label><div class="unit"><input type="number" id="mp_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">pcs</span></div></div>
+        <div class="field"><label>Packing Rate (Rs/pack)</label><div class="unit"><input type="number" id="mp_pm_rate" value="1.5" step="0.01" min="0" oninput="calcMalaiReworkAndPM()"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Packing Cost (Rs)</label><div class="unit"><input type="number" id="mp_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
       <!-- Gas & Rate -->
@@ -1496,6 +1505,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <div class="section" id="tab-inventory">
   <div class="page-title">🏪 Inventory Management</div>
   <div class="page-sub">Track ingredients &amp; packing materials · auto-deduct on production · reorder alerts at 70%</div>
+  <div id="mat-sync-bar" style="font-family:'Space Mono',monospace;font-size:10px;border-radius:8px;padding:8px 12px;margin:8px 0 12px;border:1.5px solid #cfd8dc;background:#f7f9fa;color:#546e7a;">
+    &#9729; checking the sheet&hellip;
+  </div>
 
   <!-- ALERT BANNER -->
   <div id="inv-alert-banner" style="display:none;background:#C0392B;color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:14px;">
@@ -1508,6 +1520,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button onclick="showAddPurchase()" style="background:#1a3a2a;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;">+ ADD PURCHASE</button>
     <button onclick="deductTodayProduction()" style="background:#888;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;" title="Auto-runs when you save production. Use this only to manually re-run.">⚙ MANUAL RE-DEDUCT</button>
     <div style="font-family:'Space Mono';font-size:9px;color:#888;padding:4px 0;">&#10003; Auto-deducts on Save Products</div>
+    <button onclick="matReseed()" style="background:#1565C0;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;" title="Send the 37-item catalogue to the Materials sheet. Safe to press more than once — existing rows are never overwritten.">&#8635; RE-SEED ITEMS</button>
+    <button onclick="matSyncFromSheet(false)" style="background:#00695C;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;" title="Push any purchases held only in this browser up to the sheet, then rebuild stock from the sheet.">&#9729; SYNC WITH SHEET</button>
+    <button onclick="rebuildInvFromPurchases()" style="background:#1565C0;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;font-weight:700;cursor:pointer;letter-spacing:1px;" title="Recompute Opening / Purchased / Current from the purchase log below. Safe — does not touch consumption.">&#8635; REBUILD FROM PURCHASE LOG</button>
     <button onclick="resetInventoryStock()" style="background:#f5f5f5;color:#555;border:1.5px solid #ccc;padding:10px 16px;border-radius:8px;font-family:'Space Mono';font-size:10px;cursor:pointer;letter-spacing:1px;">↺ RESET ALL STOCK</button>
   </div>
 
@@ -2693,7 +2708,7 @@ function autoFillStdYields(force) {
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
   if(id==='products')  { setTimeout(function(){ try{ calcMilkBalance(); }catch(e){} }, 50); }   // v156
-  if(id==='inventory') { setTimeout(renderInventory, 50); }
+  if(id==='inventory') { setTimeout(renderInventory, 50); setTimeout(function(){ matSyncFromSheet(true); }, 120); }
   if(id==='setup') { setTimeout(initBMThresholds, 50); }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -8485,6 +8500,7 @@ function showToast(msg, type='success') {
 //  INVENTORY MANAGEMENT SYSTEM
 // ══════════════════════════════════════════════════════════════════
 
+const LS_INV_COUNTS   = 'gf_inv_counts';    // {itemId:{date,qty}} latest physical count
 const LS_INV_STOCK    = 'gf_inv_stock';     // {itemId: {opening, purchased, consumed, current}}
 const LS_INV_PURCHASES= 'gf_inv_purchases'; // [{id,date,itemId,qty,unit,rate,amt,supplier,notes}]
 const INV_ALERT_PCT   = 0.70; // Alert when 70% consumed
@@ -8589,6 +8605,15 @@ function loadInvStock() {
 function saveInvStock(stock) {
   localStorage.setItem(LS_INV_STOCK, JSON.stringify(stock));
 }
+// v178: the latest physical count per item — the one figure that comes from
+// someone walking into the store and looking. Everything else is derived from
+// it, which is what stops a running balance drifting away from reality.
+function loadInvCounts() {
+  try { return JSON.parse(localStorage.getItem(LS_INV_COUNTS) || '{}') || {}; }
+  catch(e) { return {}; }
+}
+function saveInvCounts(c) { localStorage.setItem(LS_INV_COUNTS, JSON.stringify(c)); }
+
 function loadInvPurchases() {
   return JSON.parse(localStorage.getItem(LS_INV_PURCHASES)||'[]');
 }
@@ -8607,6 +8632,7 @@ function renderInventory() {
   // Guard: elements may not exist if called too early
   if(!document.getElementById('inv-ing-tbody')) return;
   const stock = loadInvStock();
+  const _cnt  = loadInvCounts();
   const alertItems = [];
 
   function buildRow(item) {
@@ -8620,16 +8646,23 @@ function renderInventory() {
     const pctConsumed = totalIn > 0 ? (s.consumed||0)/totalIn : 0;
     // Only alert if stock has been entered (not zero-setup items)
     const hasStock = (s.opening||0)>0 || (s.purchased||0)>0 || (s.produced||0)>0;
-    const isAlert  = hasStock && (pctConsumed >= INV_ALERT_PCT);
-    const isWarn   = hasStock && pctConsumed >= 0.5 && !isAlert;
-    const statusBg = isAlert ? '#C0392B' : isWarn ? '#E67E22' : '#27AE60';
-    const statusTxt= isAlert ? '🔴 REORDER' : isWarn ? '🟡 LOW' : '🟢 OK';
-    if(isAlert) alertItems.push({name:item.name, current, unit:item.unit, pct:Math.round(pctConsumed*100)});
-    const barPct = Math.min(100, pctConsumed*100);
-    const barColor = isAlert?'#C0392B':isWarn?'#E67E22':'#27AE60';
+    /* v175: a row with consumption but nothing ever taken in used to show a
+       green "OK" badge, which read as "inventory fine" when in fact no stock
+       had ever been entered. Say what is actually true. */
+    const neverSet = !hasStock;
+    const isOut    = !neverSet && current <= 0;
+    const isAlert  = hasStock && (pctConsumed >= INV_ALERT_PCT) && !isOut;
+    const isWarn   = hasStock && pctConsumed >= 0.5 && !isAlert && !isOut;
+    const statusBg = neverSet ? '#7f8c8d' : isOut ? '#8E1B10' : isAlert ? '#C0392B' : isWarn ? '#E67E22' : '#27AE60';
+    const statusTxt= neverSet ? ((s.consumed||0)>0 ? '⚪ NO STOCK SET' : '⚪ NOT SET')
+                   : isOut ? '🔴 OUT' : isAlert ? '🔴 REORDER' : isWarn ? '🟡 LOW' : '🟢 OK';
+    if(isAlert||isOut) alertItems.push({name:item.name, current, unit:item.unit, pct:Math.round(pctConsumed*100)});
+    const barPct = neverSet ? 0 : Math.min(100, pctConsumed*100);
+    const barColor = neverSet?'#bdc3c7':isOut?'#8E1B10':isAlert?'#C0392B':isWarn?'#E67E22':'#27AE60';
     return '<tr style="border-bottom:1px solid #f0f0f0;">'
       +'<td style="padding:8px 12px;font-weight:700;">'
         +item.name
+        +(_cnt[item.id] ? '<div style="font-size:9px;font-weight:400;color:#1565C0;margin-top:2px;">counted '+_cnt[item.id].qty+' '+item.unit+' on '+_cnt[item.id].date+'</div>' : '')
         +'<div style="margin-top:4px;background:#f0f0f0;border-radius:4px;height:4px;"><div style="width:'+barPct+'%;background:'+barColor+';height:4px;border-radius:4px;transition:width 0.3s;"></div></div>'
       +'</td>'
       +'<td style="padding:8px 10px;text-align:center;color:#888;">'+item.unit+'</td>'
@@ -8643,8 +8676,12 @@ function renderInventory() {
           ? '<div style="display:flex;flex-direction:column;gap:3px;">'
               +'<button data-iid="'+item.id+'" onclick="quickAddStock(this.dataset.iid)" style="background:#1a3a2a;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-family:monospace;font-size:10px;cursor:pointer;">+ Stock</button>'
               +'<button onclick="recordCreamSale()" style="background:#C0392B;color:#fff;border:none;padding:5px 10px;border-radius:5px;font-family:monospace;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">🧴 Sold</button>'
+              +'<button data-iid="'+item.id+'" onclick="countStockItem(this.dataset.iid)" title="Enter what is physically in the cold store. Becomes the new starting point." style="background:#1565C0;color:#fff;border:none;padding:4px 10px;border-radius:5px;font-family:monospace;font-size:10px;cursor:pointer;">Count</button>'
             +'</div>'
-          : '<button data-iid="'+item.id+'" onclick="quickAddStock(this.dataset.iid)" style="background:#1a3a2a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-family:monospace;font-size:9px;cursor:pointer;">+ Add</button>'
+          : '<div style="display:flex;flex-direction:column;gap:3px;">'
+              +'<button data-iid="'+item.id+'" onclick="quickAddStock(this.dataset.iid)" style="background:#1a3a2a;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-family:monospace;font-size:9px;cursor:pointer;">+ Add</button>'
+              +'<button data-iid="'+item.id+'" onclick="countStockItem(this.dataset.iid)" title="Enter what is physically in the store. Becomes the new starting point." style="background:#1565C0;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-family:monospace;font-size:9px;cursor:pointer;">Count</button>'
+            +'</div>'
         )
       +'</td>'
     +'</tr>';
@@ -8826,6 +8863,7 @@ function saveInvPurchase() {
     purchases.push({id:'PUR'+Date.now().toString().slice(-8),date,itemId,qty,unit,rate,amt,supplier,notes,addedAt:Date.now()});
   }
   saveInvPurchases(purchases);
+  try { matPushOne(purchases[purchases.length-1].id); } catch(e){}   // v176: write through to the sheet
 
   // Apply new stock impact
   const isCream = (ALL_INV_ITEMS.find(x=>x.id===itemId)||{}).isCream;
@@ -8858,6 +8896,7 @@ function deleteInvPurchase(purchId) {
     saveInvStock(stock);
   }
   saveInvPurchases(purchases.filter(x=>x.id!==purchId));
+  try { if(STATE.gsUrl) matPost('MATERIAL_PURCHASE_DELETE', {id:purchId}); } catch(e){}  // v176
   renderInventory();
 }
 
@@ -8886,6 +8925,7 @@ function recordCreamSale() {
     addedAt: Date.now(), isSale: true
   });
   saveInvPurchases(purchases);
+  try { matPushOne(purchases[purchases.length-1].id); } catch(e){}   // v176: write through to the sheet
   // Deduct from stock consumed
   const stock = loadInvStock();
   if (!stock['cream']) stock['cream'] = {opening:0,purchased:0,consumed:0,current:0,produced:0};
@@ -8915,6 +8955,7 @@ function quickAddStock(itemId) {
   const isCreamItem = item.isCream;
   purchases.push({id:'PUR'+Date.now().toString().slice(-8),date:dateStr,itemId,qty,unit:item.unit,rate:0,amt:0,supplier:isCreamItem?'Opening Stock':'Quick Add',notes:'',addedAt:Date.now()});
   saveInvPurchases(purchases);
+  try { matPushOne(purchases[purchases.length-1].id); } catch(e){}   // v176: write through to the sheet
   const stock = loadInvStock();
   if(!stock[itemId]) stock[itemId]={opening:0,purchased:0,consumed:0,current:0,produced:0};
   if(isCreamItem) {
@@ -9108,6 +9149,385 @@ function checkInvAlerts() {
   return alerts;
 }
 
+// ── v175: REBUILD OPENING / PURCHASED / CURRENT FROM THE PURCHASE LOG ──
+// Stock used to be a running balance: every purchase and every deduction
+// nudged it. That means one lost or cleared record leaves the balance wrong
+// forever, with no way back. This recomputes the purchase side from the log
+// and derives Current, so the screen can always be made to agree with the
+// records. Consumption and cream produced are left alone — they come from
+// saved production, not from purchases.
+function rebuildInvFromPurchases(quiet) {
+  const purchases = loadInvPurchases();
+  const stock     = loadInvStock();
+
+  const counts = loadInvCounts();
+  ALL_INV_ITEMS.forEach(function(it){
+    if(!stock[it.id]) stock[it.id] = {opening:0,purchased:0,consumed:0,current:0,produced:0};
+    // v178: where a physical count exists it BECOMES the opening figure, and
+    // only what came in after the count date counts as purchased. Purchases
+    // made before the count are already sitting in the drum that was counted —
+    // adding them again would double the stock.
+    stock[it.id].opening   = counts[it.id] ? (parseFloat(counts[it.id].qty)||0) : 0;
+    stock[it.id].purchased = 0;
+  });
+
+  let applied = 0, sales = 0, unknown = [], preCount = 0;
+  purchases.forEach(function(p){
+    const it = ALL_INV_ITEMS.find(function(x){ return x.id === p.itemId; });
+    if(!it){ if(unknown.indexOf(p.itemId)<0) unknown.push(p.itemId); return; }
+    const q = parseFloat(p.qty)||0;
+    if(q <= 0){ sales++; return; }   // cream sales are logged negative and already sit in Consumed
+    const c = counts[it.id];
+    if(c && String(p.date||'') <= String(c.date||'')){ preCount++; return; }
+    if(it.isCream) stock[it.id].opening   += q;
+    else           stock[it.id].purchased += q;
+    applied++;
+  });
+
+  ALL_INV_ITEMS.forEach(function(it){
+    const s = stock[it.id];
+    const r3 = function(x){ return Math.round(x*1000)/1000; };
+    s.opening   = r3(s.opening||0);
+    s.purchased = r3(s.purchased||0);
+    s.current   = r3(Math.max(0, (s.opening||0)+(s.purchased||0)+(s.produced||0)-(s.consumed||0)));
+  });
+
+  saveInvStock(stock);
+  renderInventory();
+  checkInvAlerts();
+
+  const withStock = ALL_INV_ITEMS.filter(function(it){
+    const s = stock[it.id]||{}; return (s.opening||0)>0 || (s.purchased||0)>0;
+  }).length;
+  const consumedOnly = ALL_INV_ITEMS.filter(function(it){
+    const s = stock[it.id]||{};
+    return (s.consumed||0)>0 && !((s.opening||0)>0||(s.purchased||0)>0||(s.produced||0)>0);
+  }).map(function(it){ return it.name; });
+
+  let msg = 'Rebuild done.\n\n'
+    + 'Purchase log entries : ' + purchases.length + '\n'
+    + 'Applied to stock     : ' + applied + (sales ? '  (+'+sales+' sale/negative rows skipped)' : '') + '\n'
+    + (preCount ? 'Dated before a count, already inside it : ' + preCount + '\n' : '')
+    + 'Items now holding qty: ' + withStock + ' of ' + ALL_INV_ITEMS.length + '\n';
+  if(unknown.length) msg += 'Unknown item ids     : ' + unknown.join(', ') + '\n';
+  if(!purchases.length)
+    msg += '\nThe purchase log is EMPTY — there is nothing to rebuild from. This browser has no record of any purchase, so opening stock has to be entered again with + ADD PURCHASE (or + Add on each row).';
+  else if(consumedOnly.length)
+    msg += '\nStill showing consumption with no stock ever entered:\n  ' + consumedOnly.join(', ')
+         + '\n\nThose items have no purchase on record — enter their opening stock.';
+  if(!quiet) alert(msg);
+  return {entries:purchases.length, applied:applied, withStock:withStock};
+}
+
+// ════════════════════════════════════════════════════════════════════
+//  v176 — MATERIALS & PURCHASES: THE SHEET IS THE RECORD
+//  Purchases used to exist only in this browser's localStorage, which is why
+//  clearing site data wiped the inventory with no way back. Now every purchase
+//  is written to the Material_Purchases sheet, and this screen is rebuilt FROM
+//  that sheet. localStorage is a cache from here on, not the record.
+//  Consumption still comes from saved production, which is already in the
+//  sheet, so it can always be recomputed.
+// ════════════════════════════════════════════════════════════════════
+
+// Which Setup → ingredient-rate box each purchasable item feeds. Several
+// packing items share one rate key (the three paneer films are one rate), so
+// the cost that lands there is the blend across them.
+const MAT_RATE_KEY = {
+  smp:'smp', citric:'citric', gdl:'gdl', calcium:'calcium', lc_ing1:'lc_ing1',
+  culture_5dcu:'culture_5dcu', culture_2dcu:'culture_2dcu',
+  ch_ing1:'ch_ing1', ch_ing2:'ch_ing2',
+  sl_sugar:'sl_sugar', sl_flavour:'sl_flavour', sl_stab:'sl_stab',
+  ml_pulp:'ml_pulp', ml_flavour:'ml_flavour', ml_stab1:'ml_stab1',
+  ml_stab2:'ml_stab2', ml_citric:'ml_citric', gas:'gas',
+  pm_lp:'paneer_pm', pm_mfp:'paneer_pm', pm_lfp:'paneer_pm', pm_mp:'malai_pm',
+  pm_cmk:'khoya_pm', pm_stk:'khoya_pm',
+  pm_gh_pouch_1l:'ghee_pouch', pm_gh_pouch_500:'ghee_pouch_500',
+  pm_gh_jar:'ghee_jar', pm_gh_tin:'ghee_tin', pm_lc_jar:'lc_jar_pm',
+  pm_ch_500ml:'chaas_500', pm_ch_1l:'chaas_1l',
+  pm_sl_cup:'lassi_cup', pm_sl_box:'lassi_box',
+  pm_ml_cup:'lassi_cup', pm_ml_box:'lassi_box'
+  // cream is deliberately absent — it is separated here, never bought.
+};
+
+// How the invoice usually states each item, so the expense app can offer
+// "1 bag" instead of "25 kg". Editable later; only ever a starting point.
+const MAT_PACK_HINT = {
+  smp:{unit:'bag', per:25}, sl_sugar:{unit:'bag', per:50},
+  gas:{unit:'cylinder', per:19}, ml_pulp:{unit:'tin', per:3.1}
+};
+
+const MAT_SEED_VERSION = 'v176.1';
+
+function matCatalog() {
+  return ALL_INV_ITEMS.map(function(it) {
+    const hint = MAT_PACK_HINT[it.id] || {};
+    return {
+      id: it.id, name: it.name, unit: it.unit,
+      group: it.isPacking ? 'PACKING' : (it.isCream ? 'PRODUCED' : 'INGREDIENT'),
+      category: it.isPacking ? 'PACKING MATERIALS' : 'RAW MATERIAL',
+      purchaseUnit: hint.unit || it.unit,
+      perPack: hint.per || 1,
+      rateKey: MAT_RATE_KEY[it.id] || '',
+      alertQty: it.alertQty || 0
+    };
+  });
+}
+
+function matSetSyncBar(html, kind) {
+  const bar = document.getElementById('mat-sync-bar');
+  if (!bar) return;
+  const skin = {
+    ok:   {bd:'#a5d6a7', bg:'#F1F8E9', fg:'#2E7D32'},
+    warn: {bd:'#ffe082', bg:'#FFF8E7', fg:'#8a6d1f'},
+    err:  {bd:'#ef9a9a', bg:'#FDECEA', fg:'#C62828'},
+    busy: {bd:'#cfd8dc', bg:'#f7f9fa', fg:'#546e7a'}
+  }[kind || 'busy'];
+  bar.style.borderColor = skin.bd;
+  bar.style.background  = skin.bg;
+  bar.style.color       = skin.fg;
+  bar.innerHTML = html;
+}
+
+function matPost(type, data) {
+  const url = STATE.gsUrl;
+  if (!url) return Promise.reject(new Error('no sheet url'));
+  const body = encodeURIComponent(JSON.stringify({type: type, data: data}));
+  const full = url + '?payload=' + body;
+  // v177: sendChunked is not a safe fallback here — it slices the raw json at
+  // 5,000 chars and each slice is url-encoded afterwards, so a "chunk" can
+  // still exceed the URL limit. Callers in this module keep their payloads
+  // small (see matSeedMaster's batching) and this stays a last resort with a
+  // loud warning rather than a silent failure.
+  if (full.length > 7800) {
+    console.warn('[v177] materials payload is ' + full.length + ' chars — too long for one GET. Send it in smaller batches.');
+    if (typeof sendChunked === 'function') return sendChunked(url, type, data);
+  }
+  return xhrGet(full);
+}
+
+// Seed the master. Existing rows are never overwritten by the sheet side, so a
+// pack size you have corrected survives every later seed.
+//
+// v177: this used to send all 37 items in one GET. Encoded, that is ~13 KB of
+// URL, which tripped the app's sendChunked fallback — and that splits the RAW
+// json into 5,000-char slices which are THEN url-encoded back up to ~10 KB
+// each, so every chunk was over the limit too and the seed silently never
+// arrived. Small batches keep each request around 2 KB and need no chunking.
+// The flag is only set once the sheet confirms the items are actually there,
+// so a failed seed retries on the next sync instead of being marked done.
+async function matSeedMaster(force) {
+  if (!force && localStorage.getItem('gf_mat_seeded') === MAT_SEED_VERSION) return 0;
+  const cat = matCatalog();
+  const BATCH = 6;
+  for (let i = 0; i < cat.length; i += BATCH) {
+    await matPost('MATERIALS_SEED', {items: cat.slice(i, i + BATCH)});
+  }
+  // Confirm from the sheet before believing it worked.
+  let n = 0;
+  try {
+    const r = await fetch(STATE.gsUrl + '?action=getMaterials', {cache: 'no-store'});
+    const j = await r.json();
+    n = ((j && j.materials) || []).length;
+  } catch (e) { n = 0; }
+  if (n > 0) localStorage.setItem('gf_mat_seeded', MAT_SEED_VERSION);
+  return n;
+}
+
+// Manual re-seed, for when the item list is empty and you want it back without
+// clearing browser storage by hand.
+async function matReseed() {
+  if (!STATE.gsUrl) { matSetSyncBar('&#9888; No Google Sheet URL set \u2014 add it in <b>&#9881; Setup</b>.', 'warn'); return; }
+  matSetSyncBar('&#9729; sending the item list to the sheet\u2026', 'busy');
+  try {
+    const n = await matSeedMaster(true);
+    if (n > 0) {
+      matSetSyncBar('&#10003; <b>' + n + ' items</b> are now in the Materials sheet. The Expense app will see them after you press &ldquo;Refresh item list&rdquo; there.', 'ok');
+      showToast(n + ' materials seeded to the sheet', 'success');
+    } else {
+      matSetSyncBar('&#9888; The items were sent but the sheet still reports none. Check the deployment is on a <b>New version</b>, then try again.', 'err');
+    }
+  } catch (e) {
+    matSetSyncBar('&#9888; Could not reach the sheet \u2014 ' + e.message, 'err');
+  }
+}
+
+// ── THE SYNC ───────────────────────────────────────────────────────────
+// Order matters. Push first, pull second. If a purchase exists only in this
+// browser (entered before the sheet existed, or entered while offline) it goes
+// up BEFORE we overwrite the local log with the sheet's copy — otherwise the
+// pull would destroy the very record we were trying to save.
+async function matSyncFromSheet(quiet) {
+  const url = STATE.gsUrl;
+  if (!url) {
+    matSetSyncBar('&#9888; No Google Sheet URL set — inventory is only in this browser. Add it in <b>&#9881; Setup</b>.', 'warn');
+    return;
+  }
+  matSetSyncBar('&#9729; syncing with the sheet&hellip;', 'busy');
+  try {
+    await matSeedMaster();
+
+    // what the sheet holds now
+    let r = await fetch(url + '?action=getMaterialPurchases', {cache: 'no-store'});
+    let j = await r.json();
+    let cloud = (j && j.purchases) || [];
+    const cloudIds = {};
+    cloud.forEach(function(p) { cloudIds[String(p.id)] = true; });
+
+    // anything held only here goes up first
+    const local = loadInvPurchases();
+    const localOnly = local.filter(function(p) { return p.id && !cloudIds[String(p.id)]; });
+    let pushed = 0;
+    if (localOnly.length) {
+      matSetSyncBar('&#9729; sending ' + localOnly.length + ' purchase(s) held only in this browser&hellip;', 'busy');
+      await matPost('MATERIAL_PURCHASE', {purchases: localOnly.map(matToSheetRow)});
+      pushed = localOnly.length;
+      r = await fetch(url + '?action=getMaterialPurchases', {cache: 'no-store'});
+      j = await r.json();
+      cloud = (j && j.purchases) || cloud.concat(localOnly);
+    }
+
+    // the sheet is now the record — mirror it locally and rebuild
+    saveInvPurchases(cloud.map(matFromSheetRow));
+    const res = rebuildInvFromPurchases(true);
+
+    // physical counts come down BEFORE the rebuild, so the rebuild anchors to them
+    try {
+      const rc = await fetch(url + '?action=getStockCounts', {cache: 'no-store'});
+      const jc = await rc.json();
+      if (jc && jc.latest) saveInvCounts(jc.latest);
+    } catch(e) { console.warn('[v178] stock counts fetch failed', e); }
+
+    // and pick up the master + the cost each item should carry
+    try {
+      const rm = await fetch(url + '?action=getMaterials', {cache: 'no-store'});
+      const jm = await rm.json();
+      if (jm && jm.materials) {
+        localStorage.setItem('gf_mat_master', JSON.stringify(jm.materials));
+        localStorage.setItem('gf_mat_purchased', JSON.stringify(jm.purchased || {}));
+      }
+    } catch(e) { console.warn('[v176] materials master fetch failed', e); }
+
+    localStorage.setItem('gf_mat_synced_at', new Date().toISOString());
+    const t = new Date().toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'});
+    // v177: an empty item master is the one failure that looks like success —
+    // the sync is green, but the Expense app has nothing to pick from. Say so.
+    let masterN = 0;
+    try { masterN = JSON.parse(localStorage.getItem('gf_mat_master') || '[]').length; } catch (e) {}
+    if (masterN === 0) {
+      matSetSyncBar('&#9888; Sheet reached, but the <b>Materials</b> sheet is empty \u2014 the Expense app will have no items to pick. '
+        + 'Press <b>&#8635; RE-SEED ITEMS</b> above.', 'warn');
+    } else {
+      matSetSyncBar('&#10003; In sync with the sheet at <b>' + t + '</b> &middot; '
+        + masterN + ' items in the master &middot; '
+        + cloud.length + ' purchase(s) on record'
+        + (pushed ? ' &middot; <b>' + pushed + ' pushed up from this browser</b>' : '')
+        + (res && res.withStock !== undefined ? ' &middot; ' + res.withStock + ' item(s) holding stock' : ''), 'ok');
+    }
+    if (!quiet) {
+      showToast('Inventory synced — ' + cloud.length + ' purchase(s) from the sheet', 'success');
+    }
+  } catch(err) {
+    console.warn('[v176] inventory sync failed', err);
+    matSetSyncBar('&#9888; Could not reach the sheet — showing this browser\'s last known figures. '
+      + 'Nothing has been lost; press <b>&#9729; SYNC WITH SHEET</b> when the connection is back.', 'err');
+    if (!quiet) showToast('Sync failed — check the connection', 'error');
+  }
+}
+
+// localStorage purchase row  →  sheet row
+function matToSheetRow(p) {
+  const it = ALL_INV_ITEMS.find(function(x) { return x.id === p.itemId; }) || {};
+  const qty = parseFloat(p.qty) || 0;
+  const rate = parseFloat(p.rate) || 0;
+  return {
+    id: p.id, date: p.date, itemId: p.itemId, itemName: it.name || p.itemId,
+    qty: qty, unit: p.unit || it.unit || '',
+    rate: rate, amount: parseFloat(p.amt) || (qty * rate),
+    supplier: p.supplier || '', notes: p.notes || '',
+    source: p.isSale ? 'cream-sale' : 'tracker'
+  };
+}
+
+// sheet row  →  localStorage purchase row (the shape the rest of the UI expects)
+function matFromSheetRow(p) {
+  return {
+    id: p.id, date: p.date, itemId: p.itemId,
+    qty: parseFloat(p.qty) || 0, unit: p.unit || '',
+    rate: parseFloat(p.rate) || 0, amt: parseFloat(p.amount) || 0,
+    supplier: p.supplier || '', notes: p.notes || '',
+    isSale: (parseFloat(p.qty) || 0) < 0,
+    addedAt: Date.now()
+  };
+}
+
+// Every purchase made in this screen now writes through to the sheet as well.
+// Fire and forget: if the connection is down the row stays in localStorage and
+// the next sync pushes it up, which is exactly what localOnly above is for.
+function matPushOne(purchaseId) {
+  try {
+    if (!STATE.gsUrl) return;
+    const p = loadInvPurchases().find(function(x) { return x.id === purchaseId; });
+    if (!p) return;
+    matPost('MATERIAL_PURCHASE', {purchases: [matToSheetRow(p)]})
+      .then(function() { console.log('[v176] purchase ' + purchaseId + ' written to the sheet'); })
+      .catch(function(e) { console.warn('[v176] purchase held locally, will go up on next sync', e); });
+  } catch(e) { console.warn(e); }
+}
+
+// ── v178: RECORD A PHYSICAL COUNT ─────────────────────────────────────
+// The go-live move, and the fix for any figure that has drifted. You count what
+// is physically there; that becomes the anchor. The historical consumed and
+// produced counters are cleared at the same time, because they belong to the
+// period BEFORE the count and would otherwise be subtracted from a figure that
+// already reflects them — which is how entering a real 40 kg of SMP would
+// otherwise show up as zero.
+function countStockItem(itemId) {
+  const item = ALL_INV_ITEMS.find(function(x){ return x.id === itemId; });
+  if(!item) return;
+  const stock = loadInvStock();
+  const s = stock[itemId] || {opening:0,purchased:0,consumed:0,current:0,produced:0};
+  const sysQty = Math.max(0, parseFloat(s.current)||0);
+
+  const qtyStr = prompt(
+    'PHYSICAL COUNT \u2014 ' + item.name + '\n\n'
+    + 'The system currently thinks there is ' + sysQty.toFixed(2) + ' ' + item.unit + '.\n\n'
+    + 'Enter what is ACTUALLY in the store (' + item.unit + '):');
+  if(qtyStr === null || qtyStr === '') return;
+  const qty = parseFloat(qtyStr);
+  if(!isFinite(qty) || qty < 0){ alert('Enter a number, 0 or more.'); return; }
+
+  const dateStr = document.getElementById('entry-date')?.value ||
+    (function(){ const t=new Date(); return t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0'); })();
+
+  const diff = qty - sysQty;
+  if(Math.abs(diff) > 0.005){
+    const dir = diff < 0 ? 'LESS' : 'MORE';
+    if(!confirm('That is ' + Math.abs(diff).toFixed(2) + ' ' + item.unit + ' ' + dir
+      + ' than the system shows.\n\nThe count wins \u2014 ' + qty.toFixed(2) + ' ' + item.unit
+      + ' becomes the new starting point, and the difference is recorded as a correction.\n\nGo ahead?')) return;
+  }
+
+  stock[itemId] = {opening: qty, purchased: 0, consumed: 0, produced: 0, current: qty};
+  saveInvStock(stock);
+
+  const counts = loadInvCounts();
+  counts[itemId] = {date: dateStr, qty: qty, unit: item.unit};
+  saveInvCounts(counts);
+
+  if(STATE.gsUrl){
+    matPost('STOCK_COUNT', {counts:[{
+      id:'CNT'+Date.now().toString().slice(-10), date:dateStr,
+      itemId:itemId, itemName:item.name, qty:qty, unit:item.unit,
+      systemQty:sysQty, note:'counted in the tracker'
+    }]}).catch(function(e){ console.warn('[v178] count held locally', e); });
+  }
+
+  renderInventory();
+  checkInvAlerts();
+  showToast(item.name + ' set to ' + qty.toFixed(2) + ' ' + item.unit
+    + (Math.abs(diff)>0.005 ? '  (was ' + sysQty.toFixed(2) + ')' : ''), 'success');
+}
+
 // ── RESET ─────────────────────────────────────────────────────────
 function resetInventoryStock() {
   if(!confirm('Reset ALL inventory stock to zero? Cannot be undone. Use only for fresh physical stock count.')) return;
@@ -9149,7 +9569,7 @@ if ('serviceWorker' in navigator) {
    write path means no new way for bad data to reach the Sheet.
 
    FIELD MAP — confirmed with the owner, not inferred:
-     A.A.  (ml) → ING 2  Citric Acid
+     A.A.  (ml) → ING 2  Citric Acid   (converted ml → L: 250 ml = 0.250)
      PS    (kg) → ING 3  GDL
      CaCl2 (kg) → ING 4  Calcium
      SMP   (kg) → ING 1  SMP
@@ -9214,17 +9634,28 @@ function rsNum(v){ var n=parseFloat(v); return isNaN(n)?null:n; }
 
 /* which tracker prefix does a product name on the sheet belong to */
 function rsPrefix(name){
-  var n=String(name||'').toLowerCase();
-  if(n.indexOf('low fat')>=0)            return 'lfp';
-  if(n.indexOf('lite paneer')>=0)        return 'lfp';   // Lite Paneer retired -> Low Fat
-  if(n.indexOf('lite curd')>=0)          return 'lc';
-  if(n.indexOf('curd')>=0)               return 'lc';
-  if(n.indexOf('khawa')>=0 || n.indexOf('khoya')>=0) return 'cmk';
-  if(n.indexOf('paneer')>=0)             return 'mfp';   // plain "Paneer" = Med Fat
+  /* v174: the old version tested for "paneer" before it tested for "malai",
+     so EVERY Malai Paneer batch landed in the Med Fat boxes. Order now runs
+     most-specific first, and Malai has its own prefix ('mp'). */
+  var n=String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  if(!n) return null;
+  var has=function(t){ return n.indexOf(t)>=0; };
+  var abbr=function(t){ return new RegExp('\\b'+t+'\\b').test(n); };
+
+  /* curd / khoya first — they never carry the word "paneer" */
+  if(has('lite curd')||has('curd')||has('dahi')||has('yog')) return 'lc';
+  if(has('khawa')||has('khoya')||has('khova')||has('mawa')||abbr('cmk')) return 'cmk';
+
+  /* paneer family, most specific first */
+  if(has('malai')||has('malaai')||has('full fat')||has('full cream')||abbr('mp')) return 'mp';
+  if(has('low fat')||has('lowfat')||has('lite paneer')||has('light paneer')||abbr('lfp')) return 'lfp';
+  if(has('med fat')||has('medfat')||has('medium fat')||has('med paneer')||abbr('mfp')) return 'mfp';
+
+  if(has('paneer'))                      return 'mfp';   // plain "Paneer" = Med Fat
   return null;
 }
 var RS_LABEL = {mfp:'Med Fat Paneer', lfp:'Low Fat Paneer', lp:'Lite Paneer',
-                lc:'Lite Curd', cmk:'CM Khoya'};
+                mp:'Malai Paneer', lc:'Lite Curd', cmk:'CM Khoya'};
 
 /* build the list of [field id, value, human label] this sheet would write */
 function rsPlan(d){
@@ -9289,7 +9720,19 @@ function rsPlan(d){
     if(i.cm_litres!=null)  warn.push(L+': CM '+i.cm_litres+' L read, but this product has no cow-milk box in the tracker — record it manually');
     if(i.cream_kg!=null)   plan.push([pre+'_cream', rsNum(i.cream_kg),   L+' — cream (kg)']);
     if(i.smp_kg!=null)     plan.push([pre+'_ing1_qty', rsNum(i.smp_kg),   L+' — ING 1 SMP (kg)']);
-    if(i.aa_ml!=null)      plan.push([pre+'_ing2_qty', rsNum(i.aa_ml),    L+' — ING 2 Citric Acid (from A.A. '+i.aa_ml+' ml)']);
+    if(i.aa_ml!=null){
+      /* v174: A.A. is written on the paper in ML, but the tracker's ING 2 box
+         is in LITRES (rate is Rs/L). 250 ml must go in as 0.250, not 250.
+         A value under 5 is already litres (the reader sometimes hands back
+         0.120 instead of 120), so it is passed through untouched. */
+      var _aa = rsNum(i.aa_ml);
+      if(_aa!=null && _aa>0){
+        var _isMl = _aa >= 5;
+        var _aaL  = _isMl ? +(_aa/1000).toFixed(4) : _aa;
+        plan.push([pre+'_ing2_qty', _aaL, L+' — ING 2 Citric Acid (A.A. '
+          + (_isMl ? _aa+' ml → '+_aaL+' L' : _aa+' L as read') + ')']);
+      }
+    }
     if(i.ps_kg!=null)      plan.push([pre+'_ing3_qty', rsNum(i.ps_kg),    L+' — ING 3 GDL (from PS, kg)']);
     if(i.cacl2_kg!=null)   plan.push([pre+'_ing4_qty', rsNum(i.cacl2_kg), L+' — ING 4 Calcium (kg)']);
     if(i.water_litres!=null) warn.push(L+': water '+i.water_litres+' L read — the tracker does not record water, so it is ignored');
