@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v185</span>
+    <span>PRODUCTION TRACKER v186</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -2834,7 +2834,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const savedComm = localStorage.getItem('v1_commission');
   if (savedComm) {
     V1_COMMISSION = parseFloat(savedComm);
-    document.getElementById('v1_commission').value = V1_COMMISSION;
+    /* v186 FIX — the "v1_commission" box was removed from Setup in v180
+       (commission now lives under Vendor Rates). This line still wrote to it,
+       so once "Save rates" had been pressed (which stores v1_commission) EVERY
+       page load threw here and the rest of start-up never ran: no date, no
+       rate wiring (Vendor 4 never auto-filled), no vendor-rate repaint, no
+       cream rate, no ingredient rates applied to the product forms. */
+    const _v1c = document.getElementById('v1_commission');
+    if (_v1c) _v1c.value = V1_COMMISSION;
   }
   // Show rate chart version if updated
   const savedTables = localStorage.getItem('rate_tables');
@@ -5948,8 +5955,13 @@ function gatherMilkData() {
     v2_cm_rate:gn('v2_cm_rate')||41, v2_bm_rate:gn('v2_bm_rate')||57, v2_notes:gv('v2_notes'),
     v3_bm_qty:gn('v3_bm_qty'), v3_bm_fat:gn('v3_bm_fat'), v3_bm_snf:gn('v3_bm_snf'), v3_bm_rate:gn('v3_bm_rate'),
     v3_sk_qty:gn('v3_sk_qty'), v3_sk_snf:gn('v3_sk_snf'),
-    v4_cm_qty:gn('v4_cm_qty'), v4_cm_fat:gn('v4_cm_fat'), v4_cm_snf:gn('v4_cm_snf'), v4_cm_rate:gn('v4_cm_rate'),
-    v4_bm_qty:gn('v4_bm_qty'), v4_bm_fat:gn('v4_bm_fat'), v4_bm_snf:gn('v4_bm_snf'), v4_bm_rate:gn('v4_bm_rate'),
+    v4_cm_qty:gn('v4_cm_qty'), v4_cm_fat:gn('v4_cm_fat'), v4_cm_snf:gn('v4_cm_snf'),
+    v4_bm_qty:gn('v4_bm_qty'), v4_bm_fat:gn('v4_bm_fat'), v4_bm_snf:gn('v4_bm_snf'),
+    /* v186: an empty V4 rate box used to save 0, and every COGS path then
+       fell back to a flat Rs 41 / Rs 57. Price it from the V4 chart +
+       commission for that day instead — exactly as Vendor 1 already does. */
+    v4_cm_rate: gn('v4_cm_rate') || computeRateIfEmpty('cm','v4_cm_fat','v4_cm_snf'),
+    v4_bm_rate: gn('v4_bm_rate') || computeRateIfEmpty('bm','v4_bm_fat','v4_bm_snf'),
     v4_notes:gv('v4_notes'),
     v4_deduct:(gn('v4_cm_deduct')||0)+(gn('v4_bm_deduct')||0),   // v184
     v3_sk_rate:gn('v3_sk_rate'), v3_notes:gv('v3_notes'),
@@ -8665,7 +8677,14 @@ function wireRateLookups() {
     var fatEl=document.getElementById(f[1]), snfEl=document.getElementById(f[2]),
         rEl=document.getElementById(f[3]);
     if(!rEl) return;
-    function trigger(){ autoFillRate(f[0], f[1], f[2], f[3]); }
+    /* v186: for a CHART vendor, changing fat or SNF re-prices the rate — the
+       same thing Vendor 1's boxes have always done. Before, Vendor 4 only
+       filled an EMPTY box, so a day reopened with an older rate never picked
+       up the new chart + commission. Fixed-rate vendors are unchanged. */
+    function trigger(){
+      var st = vrFor(_vrVendorOf(f[3]), vrDate());
+      autoFillRate(f[0], f[1], f[2], f[3], !!(st && st.mode === 'chart'));
+    }
     [fatEl, snfEl].forEach(function(e){ if(e){ e.addEventListener('input',trigger); e.addEventListener('change',trigger); } });
     rEl.addEventListener('input', function(){
       var fat=fatEl?parseFloat(fatEl.value):NaN;
@@ -10649,7 +10668,8 @@ function rsPlan(d){
   (d.milk_received||[]).forEach(function(m){
     var col=String(m.collection||'V1').toUpperCase();
     var src=String(m.source||'').toUpperCase().indexOf('BM')>=0 ? 'bm' : 'cm';
-    var base = col==='V1' ? 'v1m_'+src : (col==='V2' ? 'v2_'+src : (col==='V3' ? 'v3_'+src : null));
+    var base = col==='V1' ? 'v1m_'+src : (col==='V2' ? 'v2_'+src : (col==='V3' ? 'v3_'+src
+             : (col==='V4' ? 'v4_'+src : null)));   // v186: V4 was skipped
     if(!base){ warn.push('collection "'+col+'" has no matching form section'); return; }
     if(col==='V3' && src==='cm'){ warn.push('V3 has no cow-milk boxes in the tracker — skipped'); return; }
     if(m.qty_litres!=null) plan.push([base+'_qty', rsNum(m.qty_litres), col+' '+src.toUpperCase()+' quantity (L)']);
