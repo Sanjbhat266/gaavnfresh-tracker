@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v178</span>
+    <span>PRODUCTION TRACKER v185</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -242,7 +242,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments / Quality Notes</label><textarea id="v1m_notes" placeholder="e.g. Milk slightly sour, adulteration check done, farmer name..."></textarea></div>
-        <div class="field"><label>Deduct Qty (L) <small style="color:var(--red);">spoilt/rejected</small></label><div class="unit"><input type="number" id="v1m_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1m_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -269,7 +269,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments / Quality Notes</label><textarea id="v1e_notes" placeholder="Evening collection quality notes..."></textarea></div>
-        <div class="field"><label>Deduct Qty (L) <small style="color:var(--red);">spoilt/rejected</small></label><div class="unit"><input type="number" id="v1e_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1e_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -294,7 +294,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v2_notes" placeholder="Vendor 2 notes..."></textarea></div>
-        <div class="field"><label>Deduct Qty (L) <small style="color:var(--red);">spoilt/rejected</small></label><div class="unit"><input type="number" id="v2_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v2_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -318,7 +318,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v3_notes" placeholder="Skim milk source / quality notes..."></textarea></div>
-        <div class="field"><label>Deduct Qty (L) <small style="color:var(--red);">spoilt/rejected</small></label><div class="unit"><input type="number" id="v3_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Skim spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_sk_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v3_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -346,7 +346,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>Notes</label><input type="text" id="v4_notes" placeholder="Vendor 4 notes..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;"></div>
       </div>
       <div class="fg fg-2" style="margin-top:8px;">
-        <div class="field"><label>Deduct Qty (L) <small>spoilt/rejected</small></label><div class="unit"><input type="number" id="v4_deduct" placeholder="0" step="0.1" min="0" value="0"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v4_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
       </div>
     </div>
   </div>
@@ -355,6 +355,20 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="calc-result" id="milk-totals">
     <div class="divider"><span>Today's Milk Pool</span></div>
     <div class="result-grid" id="milk-result-grid"></div>
+  </div>
+
+  <div id="vr-date-banner" style="margin-bottom:14px;"></div>
+
+  <!-- v180: COST PER KG OF FAT -->
+  <div class="card">
+    <div class="card-head"><div><h3>Cost of Fat</h3>
+      <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;">
+        What each source costs per kg of butterfat — the number behind cream and ghee</div></div>
+      <div class="badge badge-prod">AUTO</div></div>
+    <div class="card-body"><div id="vr-fat-panel"></div>
+      <div id="vr-fat-empty" style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);">
+        Enter milk quantities, fat and rates above and this fills in.</div>
+    </div>
   </div>
 
   <!-- CREAM SEPARATION -->
@@ -369,6 +383,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg fg-4">
         <div class="field"><label>CM Separated (L)</label><div class="unit"><input type="number" id="cream_milk_l" placeholder="0" step="0.1" min="0" oninput="calcCreamSep()"><span class="unit-label">L</span></div></div>
         <div class="field"><label>Cream Yield (kg) <span style="color:var(--green);font-size:9px;">MANUAL</span></label><div class="unit"><input type="number" id="cream_yield_kg" placeholder="0" step="0.01" min="0" oninput="calcCreamSep()"><span class="unit-label">kg</span></div></div>
+        <div class="field"><label>Cream Fat % <span style="color:var(--green);font-size:9px;">MEASURED</span></label><div class="unit"><input type="number" id="cream_fat_pct" value="59.5" step="0.1" min="20" max="85" oninput="calcCreamSep();gfApplyCreamRate();"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Std Yield % <small>(5.7%)</small></label><div class="unit"><input type="number" id="cream_std_pct" value="5.7" step="0.1" min="0" oninput="calcCreamSep()"><span class="unit-label">%</span></div></div>
         <div class="field"><label>Theoretical (kg)</label><div class="unit"><input type="number" id="cream_theor_kg" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
       </div>
@@ -380,6 +395,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-top:8px;">
         ℹ Cream yield is entered manually after weighing. Theoretical = CM qty × Std%. Variance shows actual vs theoretical.
       </div>
+      <div id="cream_fat_balance" style="font-family:'Space Mono',monospace;font-size:11px;line-height:1.75;margin-top:10px;padding:9px 12px;border:1.5px solid #E5DCCF;border-radius:8px;background:#fff;"></div>
       <div id="cream_derived_badge" style="font-family:'Space Mono',monospace;font-size:11px;font-weight:700;margin-top:10px;padding:9px 12px;border:1.5px solid #ffe082;border-radius:8px;background:#fff8e1;color:#8a6d00;">
         ● Cream cost will auto-derive once CM Separated + Cream Yield (and milk rates) are entered — using ₹300/kg until then
       </div>
@@ -2009,6 +2025,9 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button class="rpt-btn" onclick="generateCreamFatReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(230,126,34,0.07);border-color:rgba(230,126,34,0.4);">
       🧈 Cream Fat % (actual)<br><small>Daily cream fat from real separation data · plus live make-vs-buy skim verdict</small>
     </button>
+    <button class="rpt-btn" onclick="generateFatCostReport()" ontouchstart="" style="grid-column:1/-1;background:rgba(155,89,182,0.07);border-color:rgba(155,89,182,0.45);">
+      🧮 Cream, Fat &amp; SNF Cost<br><small>Daily cost of cream per kg, and what a kg of fat and a kg of SNF cost you</small>
+    </button>
     <button class="rpt-btn" onclick="runDiagnostic()" ontouchstart=""
       style="grid-column:1/-1;background:rgba(26,82,118,0.06);border-color:rgba(26,82,118,0.3);">
       🔍 Check Sheet Dates<br><small>Shows all dates found in Milk_Purchase sheet — use to diagnose missing data</small>
@@ -2096,6 +2115,43 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <button onclick="saveBMThresholds()" style="background:var(--ink);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">SAVE THRESHOLDS</button>
       <span id="bm-thresh-status" style="display:none;margin-left:10px;font-family:'Space Mono';font-size:11px;color:var(--green);">✓ Saved</span>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:18px 0 14px;">
+      <div style="font-family:'Space Mono';font-size:11px;font-weight:700;margin-bottom:6px;">SEPARATION LOSS</div>
+      <div style="font-family:'Space Mono';font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7;">
+        Cream cost is worked out as milk cost less the value of the skim that comes back.
+        Until v182 the skim was taken as <b>milk separated − cream</b>, i.e. nothing lost —
+        which credits back skim that never existed and so <b>under-states cream</b>.
+        This is the share of the separated milk that does not come back as skim:
+        evaporation, line hold-up and separator sludge.
+        <b>Spoilt milk is not included</b> — that is already deducted as "Deduct Qty" on the
+        milk page, and counting it here as well would overstate cream.
+        Check it against the Milk Reconciliation report's period total, not a single day.
+      </div>
+      <div class="field" style="max-width:260px;margin-bottom:10px;">
+        <label>Loss on separation (default 2%)</label>
+        <div class="unit"><input type="number" id="sep_loss_pct" value="2" step="0.1" min="0" max="15"><span class="unit-label">%</span></div>
+      </div>
+      <button onclick="saveSepLoss()" style="background:var(--ink);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">SAVE LOSS %</button>
+      <span id="sep-loss-status" style="display:none;margin-left:10px;font-family:'Space Mono';font-size:11px;color:var(--green);">✓ Saved</span>
+
+      <hr style="border:0;border-top:1px solid var(--border);margin:18px 0 14px;">
+      <div style="font-family:'Space Mono';font-size:11px;font-weight:700;margin-bottom:6px;">WHAT SKIM IS WORTH</div>
+      <div style="font-family:'Space Mono';font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.7;">
+        Used on days you did <b>not</b> buy skim. Days you did are always priced at that day's
+        actual rate — history is never rewritten. Until v183 this was hard-coded at Rs 24.50 in
+        eleven places.<br><br>
+        It pulls <b>two ways</b>, so keep it current: skim is a <b>credit</b> against cream and ghee
+        (too low makes them look dearer), and an <b>input cost</b> for paneer, curd and khoya
+        (too low makes them look cheaper). A stale figure here is how the wrong products come
+        to look profitable.
+      </div>
+      <div class="field" style="max-width:260px;margin-bottom:10px;">
+        <label>Skim value (Rs/L) — market rate</label>
+        <div class="unit"><input type="number" id="skim_value_rate" value="26" step="0.5" min="1" max="200"><span class="unit-label">Rs/L</span></div>
+      </div>
+      <button onclick="saveSkimValue()" style="background:var(--ink);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;">SAVE SKIM VALUE</button>
+      <span id="skim-value-status" style="display:none;margin-left:10px;font-family:'Space Mono';font-size:11px;color:var(--green);">✓ Saved</span>
     </div>
   </div>
 
@@ -2167,47 +2223,67 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     </div>
   </div>
 
-  <!-- VENDOR 1 COMMISSION & RATE CHART UPLOAD -->
+  <!-- v180: VENDOR RATES -->
   <div class="card">
-    <div class="card-head"><h3>Vendor 1 — Commission & Rate Chart</h3><div class="badge badge-prod">AUTO-RATE</div></div>
+    <div class="card-head"><h3>Vendor Rates</h3><div class="badge badge-prod">VALID FROM</div></div>
     <div class="card-body">
-      <div style="background:var(--lgreen);border:1px solid rgba(45,122,69,0.3);border-radius:8px;padding:12px 14px;margin-bottom:14px;font-family:'Space Mono';font-size:11px;color:var(--green);">
-        ✓ Rate chart embedded (Panvadi Dec 2024). When you enter Fat% and SNF% for Vendor 1, the rate auto-fills from the chart + commission below.
-      </div>
-      <div class="fg fg-2" style="margin-bottom:14px">
-        <div class="field">
-          <label>Commission per litre (Rs/L)</label>
-          <input class="config-input" type="number" id="v1_commission" value="2" step="0.5" min="0"
-            placeholder="2">
-        </div>
-        <div class="field">
-          <label>Rate chart version</label>
-          <input class="config-input" type="text" id="rate_chart_version" readonly
-            style="opacity:0.7;" value="Panvadi Dec 2024">
-        </div>
-      </div>
-      <button class="btn-submit" onclick="saveCommission()" style="margin-bottom:14px;">Save Commission</button>
-      <div style="background:var(--lred);border:1px solid rgba(192,57,43,0.3);border-radius:8px;padding:12px 14px;margin-bottom:8px;font-family:'Space Mono';font-size:10px;color:var(--red);">
-        ⚠ If your Google Sheet's Milk_Purchase tab has old columns (no Rate/Amount columns), the Apps Script will automatically rename the old tab to "Milk_Purchase_OLD" and create a fresh one on the next save. Your old data is preserved — just renamed.
+      <div style="background:var(--lgreen);border:1px solid rgba(45,122,69,0.3);border-radius:8px;padding:12px 14px;margin-bottom:16px;font-family:'Space Mono';font-size:11px;color:var(--green);line-height:1.8;">
+        Each vendor has its own rates and its own <b>valid from</b> date.
+        Save a change from a date and every day from that date onwards uses it. Days before it keep the rates they were entered on.
       </div>
 
-      <div class="divider"><span>Update Rate Charts</span></div>
-      <div style="font-family:'Space Mono';font-size:10px;color:var(--muted);margin-bottom:12px;line-height:1.8;">
-        When Panvadi sends you new rate charts, upload them here. The app will read the Excel files and update the lookup table automatically. Supports the same format as the original Panvadi rate chart Excel files.
-      </div>
+      <div class="divider"><span>Vendor 1 — rate chart</span></div>
+      <div id="vr_v1_state" style="font-family:'Space Mono';font-size:10.5px;color:var(--muted);line-height:1.7;margin-bottom:10px;"></div>
       <div class="fg fg-2">
-        <div class="field">
-          <label>Upload New CM Rate Chart (.xlsx)</label>
-          <input type="file" id="cm_upload" accept=".xlsx" onchange="uploadRateChart('cm', this)"
-            style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;color:var(--ink);width:100%;">
-        </div>
-        <div class="field">
-          <label>Upload New BM Rate Chart (.xlsx)</label>
-          <input type="file" id="bm_upload" accept=".xlsx" onchange="uploadRateChart('bm', this)"
-            style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;color:var(--ink);width:100%;">
-        </div>
+        <div class="field"><label>Valid from</label><input class="config-input" type="date" id="vr_v1_from"></div>
+        <div class="field"><label>Commission over chart (Rs/L)</label><input class="config-input" type="number" id="vr_v1_comm" step="0.1"></div>
       </div>
-      <div id="upload-status" class="alert" style="margin-top:10px;"></div>
+      <div class="fg fg-2" style="margin-top:10px;">
+        <div class="field"><label>CM rate chart (.xlsx)</label>
+          <input type="file" id="vr_v1_cm_file" accept=".xlsx" onchange="vrUploadChart('v1','cm',this)" style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;width:100%;"></div>
+        <div class="field"><label>BM rate chart (.xlsx)</label>
+          <input type="file" id="vr_v1_bm_file" accept=".xlsx" onchange="vrUploadChart('v1','bm',this)" style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;width:100%;"></div>
+      </div>
+
+      <div class="divider" style="margin-top:18px;"><span>Vendor 2 — fixed rates</span></div>
+      <div id="vr_v2_state" style="font-family:'Space Mono';font-size:10.5px;color:var(--muted);line-height:1.7;margin-bottom:10px;"></div>
+      <div class="fg fg-3">
+        <div class="field"><label>Valid from</label><input class="config-input" type="date" id="vr_v2_from"></div>
+        <div class="field"><label>CM rate (Rs/L)</label><input class="config-input" type="number" id="vr_v2_cm" step="0.1"></div>
+        <div class="field"><label>BM rate (Rs/L)</label><input class="config-input" type="number" id="vr_v2_bm" step="0.1"></div>
+      </div>
+
+      <div class="divider" style="margin-top:18px;"><span>Vendor 3 — fixed rates</span></div>
+      <div id="vr_v3_state" style="font-family:'Space Mono';font-size:10.5px;color:var(--muted);line-height:1.7;margin-bottom:10px;"></div>
+      <div class="fg fg-3">
+        <div class="field"><label>Valid from</label><input class="config-input" type="date" id="vr_v3_from"></div>
+        <div class="field"><label>BM rate (Rs/L)</label><input class="config-input" type="number" id="vr_v3_bm" step="0.1"></div>
+        <div class="field"><label>Skim rate (Rs/L)</label><input class="config-input" type="number" id="vr_v3_sk" step="0.1"></div>
+      </div>
+
+      <div class="divider" style="margin-top:18px;"><span>Vendor 4 — rate chart</span></div>
+      <div id="vr_v4_state" style="font-family:'Space Mono';font-size:10.5px;color:var(--muted);line-height:1.7;margin-bottom:10px;"></div>
+      <div class="fg fg-2">
+        <div class="field"><label>Valid from</label><input class="config-input" type="date" id="vr_v4_from"></div>
+        <div class="field"><label>Commission over chart (Rs/L)</label><input class="config-input" type="number" id="vr_v4_comm" step="0.1"></div>
+      </div>
+      <div class="fg fg-2" style="margin-top:10px;">
+        <div class="field"><label>CM rate chart (.xlsx)</label>
+          <input type="file" id="vr_v4_cm_file" accept=".xlsx" onchange="vrUploadChart('v4','cm',this)" style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;width:100%;"></div>
+        <div class="field"><label>BM rate chart (.xlsx)</label>
+          <input type="file" id="vr_v4_bm_file" accept=".xlsx" onchange="vrUploadChart('v4','bm',this)" style="background:var(--cream);border:1.5px solid var(--border);border-radius:7px;padding:8px;font-size:12px;width:100%;"></div>
+      </div>
+
+      <div id="vr-pending" style="font-family:'Space Mono';font-size:11px;color:var(--green);margin-top:16px;line-height:1.7;"></div>
+      <div class="fg fg-2" style="margin-top:12px;">
+        <button class="btn-submit" onclick="vrSaveAll()">Save rates</button>
+        <button class="btn-submit" onclick="vrPullRates(true)" style="background:var(--blue);">Get rates from Sheet</button>
+      </div>
+      <div id="vr-status" class="alert" style="margin-top:10px;"></div>
+      <div style="background:var(--lred);border:1px solid rgba(192,57,43,0.3);border-radius:8px;padding:12px 14px;margin-top:14px;font-family:'Space Mono';font-size:10px;color:var(--red);">
+        If your Google Sheet's Milk_Purchase tab has old columns (no Rate/Amount columns), the Apps Script renames it to "Milk_Purchase_OLD" and creates a fresh one on the next save. Your old data is preserved — just renamed.
+      </div>
+
       <div style="margin-top:10px;font-family:'Space Mono';font-size:9px;color:var(--muted);">
         ⓘ After uploading, verify a known rate (e.g. CM fat=3.5%, SNF=8.5%) in the milk entry form.
       </div>
@@ -2219,9 +2295,11 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <div class="card-head"><h3>Standard Rates & Targets</h3></div>
     <div class="card-body">
       <div class="fg fg-3" style="margin-bottom:12px">
-        <div class="field"><label>CM Rate (Rs/L)</label><input type="number" id="std_cm_rate" value="41" step="0.1" class="config-input"></div>
-        <div class="field"><label>BM Rate (Rs/L)</label><input type="number" id="std_bm_rate" value="57" step="0.1" class="config-input"></div>
-        <div class="field"><label>Skim Milk Rate (Rs/L)</label><input type="number" id="std_sm_rate" value="24.5" step="0.1" class="config-input"></div>
+        <div class="field" style="grid-column:1 / -1;">
+          <div style="background:var(--lblue);border:1px solid rgba(26,82,118,0.3);border-radius:8px;padding:10px 12px;font-family:'Space Mono';font-size:10.5px;color:var(--blue);line-height:1.7;">
+            Milk rates (CM, BM, Skim) have moved to <b>Vendor Rates</b> above, where each vendor has its own rate and its own valid-from date. They used to be duplicated here, and this copy quietly overwrote the vendor's.
+          </div>
+        </div>
       </div>
       <div class="fg fg-3" style="margin-bottom:12px">
         <div class="field"><label>LFP Std Yield %</label><input type="number" id="std_lfp_yield" value="17.3" step="0.1" class="config-input"></div>
@@ -2618,6 +2696,118 @@ let RATE_TABLES = (function() {
   return JSON.parse(JSON.stringify(RATE_TABLES_DEFAULT));
 })();
 
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v180 — VENDOR RATES.  One place, one rule.
+   ---------------------------------------------------------------------------
+   Each vendor has its own rate setting, and each setting has a VALID FROM date.
+     Vendor 1  — rate chart for CM and BM, plus a commission per litre
+     Vendor 2  — fixed rates you type: CM and BM
+     Vendor 3  — fixed rates you type: BM and Skim
+     Vendor 4  — rate chart for CM and BM, plus a commission
+   A day is priced by the setting valid on that day. Save a new setting from a
+   date and every day from that date on uses it; nothing before it moves. There
+   is no library and nothing to delete — older settings simply stay behind their
+   own dates, which is what keeps a rate you have already paid from changing.
+   ═══════════════════════════════════════════════════════════════════════════ */
+var VR_KEY = 'gf_vendor_rates_v180';
+
+function _vrSeed(){
+  var base = (typeof RATE_TABLES === 'object' && RATE_TABLES && RATE_TABLES.cm)
+             ? RATE_TABLES : RATE_TABLES_DEFAULT;
+  var oldComm = parseFloat(localStorage.getItem('v1_commission'));
+  return {
+    v1: [{ from:'2000-01-01', mode:'chart', comm: isNaN(oldComm)?2:oldComm,
+           cm: JSON.parse(JSON.stringify(base.cm||{})), bm: JSON.parse(JSON.stringify(base.bm||{})),
+           note:'chart this app shipped with' }],
+    v2: [{ from:'2000-01-01', mode:'fixed', cmRate:41, bmRate:57 }],
+    v3: [{ from:'2000-01-01', mode:'fixed', bmRate:57, skRate:24.5 }],
+    v4: [{ from:'2000-01-01', mode:'chart', comm:0, cm:{}, bm:{}, note:'' }]
+  };
+}
+var VENDOR_RATES = (function(){
+  try{
+    var raw = localStorage.getItem(VR_KEY);
+    if(raw){ var v = JSON.parse(raw);
+      if(v && v.v1 && v.v2 && v.v3 && v.v4) return v; }
+  }catch(e){}
+  return _vrSeed();
+})();
+function vrSave(){
+  ['v1','v2','v3','v4'].forEach(function(k){
+    VENDOR_RATES[k].sort(function(a,b){ return String(a.from) < String(b.from) ? -1 : 1; });
+  });
+  try{ localStorage.setItem(VR_KEY, JSON.stringify(VENDOR_RATES)); }catch(e){}
+  try{ localStorage.setItem('v1_commission', String(vrFor('v1').comm||0)); }catch(e){}
+  V1_COMMISSION = vrFor('v1').comm || 0;
+}
+// The date the milk form is on — a setting is chosen for THAT day.
+function vrDate(){
+  var el = document.getElementById('entry-date');
+  var v = el && el.value ? String(el.value).slice(0,10) : '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+// The setting valid on a given day = the latest one whose "valid from" <= that day.
+function vrFor(vendor, iso){
+  iso = iso || vrDate();
+  var list = VENDOR_RATES[vendor] || [];
+  var pick = list[0] || {};
+  list.forEach(function(x){ if(String(x.from||'') <= iso) pick = x; });
+  return pick;
+}
+// Is there a NEWER setting than the one pricing this day? (so the app can say so)
+function vrNewerThan(iso){
+  var out = [];
+  ['v1','v2','v3','v4'].forEach(function(k){
+    (VENDOR_RATES[k]||[]).forEach(function(x){ if(String(x.from||'') > iso) out.push({v:k, from:x.from}); });
+  });
+  return out;
+}
+function vrChartLookup(tbl, fat, snf){
+  if(!tbl) return null;
+  var fk=(Math.round(fat*10)/10).toFixed(1), sk=(Math.round(snf*10)/10).toFixed(1);
+  if(tbl[fk] && tbl[fk][sk] !== undefined) return tbl[fk][sk];
+  var sn=parseFloat(sk);
+  for(var i=0;i<4;i++){ var d=[0.1,-0.1,0.2,-0.2][i];
+    var t=(Math.round((sn+d)*10)/10).toFixed(1);
+    if(tbl[fk] && tbl[fk][t] !== undefined) return tbl[fk][t]; }
+  var fn=parseFloat(fk);
+  for(var k=0;k<2;k++){ var df=[0.1,-0.1][k];
+    var tf=(Math.round((fn+df)*10)/10).toFixed(1);
+    if(tbl[tf] && tbl[tf][sk] !== undefined) return tbl[tf][sk]; }
+  return null;
+}
+/* What should this vendor be paid for this milk on this day, and why.
+   Returns null only when a chart vendor has no rate for that fat/SNF. */
+function vrQuote(vendor, type, fat, snf, iso){
+  iso = iso || vrDate();
+  var s = vrFor(vendor, iso);
+  if(!s) return null;
+  if(s.mode === 'fixed'){
+    var r = (type === 'cm') ? s.cmRate : (type === 'sk' ? s.skRate : s.bmRate);
+    if(!(r > 0)) return null;
+    return { rate:+r, base:+r, comm:0, why:'fixed rate valid from ' + s.from, from:s.from,
+             isSkim: (type === 'sk'),
+             /* v182: was r/(fat/100) — the whole litre charged to fat. */
+             fatCostPerKg: 0, fatSnf: null };
+  }
+  if(!(fat > 0) || !(snf > 0)) return null;
+  var base = vrChartLookup(s[type], fat, snf);
+  if(base === null || base === undefined) return null;
+  var comm = parseFloat(s.comm) || 0;
+  var rate = Math.round((base + comm)*100)/100;
+  return { rate:rate, base:base, comm:comm, from:s.from,
+           why:'chart valid from ' + s.from + ': base ₹' + base.toFixed(2) +
+               (comm ? ' + commission ₹' + comm.toFixed(2) : ''),
+           /* v182: split between fat and SNF using the chart's own slopes,
+              instead of charging the entire litre to fat. */
+           fatCostPerKg: 0,
+           fatSnf: gfSplitLitre(rate, fat, snf, gfFatSnfSlopes(vendor, type, iso)) };
+}
+
 // ── STATE ────────────────────────────────────────────────────────
 // Ensure URL is in localStorage for future loads
 (function(){
@@ -2662,6 +2852,11 @@ document.addEventListener('DOMContentLoaded', () => {
   setAppsScriptCode();
   autoFillStdYields();
   wireRateLookups();
+  // v179: paint the chart library, the premium inputs and every rate note,
+  // then quietly ask the Sheet whether another device has uploaded a newer chart.
+  try{ vrRenderSetup(); }catch(e){ console.warn('vendor rates render', e); }
+  setTimeout(function(){ try{ vrRefreshAll(false); }catch(e){} }, 300);
+  setTimeout(function(){ try{ vrPullRates(false); }catch(e){} }, 1500);
   loadIngredientRates();   // populate Setup → Ingredient Rates from localStorage
   // Auto-apply saved ingredient rates to all product forms on startup
   // so users don't have to press "Apply Rates to All Products" every day
@@ -2677,7 +2872,8 @@ function loadConfig() {
                 std_lfp_yield:'lfp_yield',std_ghee_yield:'ghee_yield',std_cmk_yield:'cmk_yield',
                 std_labour:'labour',std_elec:'elec',std_transport:'transport'};
   for (const [elId, key] of Object.entries(map)) {
-    if (sr[key]) document.getElementById(elId).value = sr[key];
+    const _el = document.getElementById(elId);      // v181: rate boxes removed
+    if (_el && sr[key]) _el.value = sr[key];
   }
 }
 
@@ -2697,19 +2893,30 @@ function autoFillStdYields(force) {
     if (!el || !(parseFloat(val) > 0)) return;
     if (_applyStd) el.value = val;
   }
-  _setRate('v2_cm_rate', sr.cm_rate);
-  _setRate('v2_bm_rate', sr.bm_rate);
-  if (sr.sm_rate) document.getElementById('v3_sk_rate').value = sr.sm_rate;
+  /* v181 FIX — MILK RATES NOW COME FROM ONE PLACE ONLY.
+     These three lines used to push the Standard Rates figures into the vendor
+     rate boxes, and the Skim line did it unconditionally — ignoring even the
+     "this day is already saved" guard. So Vendor 3's Skim rate showed 24.5
+     from Standard Rates no matter what you had saved under Vendor Rates, and
+     that wrong rate is what the cream cost was built on.
+     Vendor Rates owns these boxes now; Standard Rates keeps the yields and the
+     per-batch costs, which are its own business.
+       _setRate('v2_cm_rate', sr.cm_rate);        <- removed
+       _setRate('v2_bm_rate', sr.bm_rate);        <- removed
+       v3_sk_rate = sr.sm_rate                    <- removed
+     Vendor rates are re-applied at the end of this function instead. */
   if (sr.labour)    document.getElementById('cost_labour').value    = sr.labour;
   if (sr.elec)      document.getElementById('cost_elec').value      = sr.elec;
   if (sr.transport) document.getElementById('cost_transport').value = sr.transport;
+  // v181: vendor rates have the last word on every milk rate box
+  try{ vrRefreshAll(_applyStd); }catch(e){}
 }
 
 // ── TABS ─────────────────────────────────────────────────────────
 function showTab(id, el) {
   if(id==='products')  { setTimeout(function(){ try{ calcMilkBalance(); }catch(e){} }, 50); }   // v156
   if(id==='inventory') { setTimeout(renderInventory, 50); setTimeout(function(){ matSyncFromSheet(true); }, 120); }
-  if(id==='setup') { setTimeout(initBMThresholds, 50); }
+  if(id==='setup') { setTimeout(initBMThresholds, 50); try{ _vrClearStatus(); }catch(e){} }
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   var sec = document.getElementById('tab-'+id);
@@ -3085,6 +3292,10 @@ function initBMThresholds() {
   const snfEl = document.getElementById('bm_min_snf');
   if(fatEl) fatEl.value = t.minFat;
   if(snfEl) snfEl.value = t.minSNF;
+  var slEl=document.getElementById('sep_loss_pct');          // v182
+  if(slEl) slEl.value = gfSepLossPct();
+  var svEl=document.getElementById('skim_value_rate');       // v183
+  if(svEl) svEl.value = gfSkimValue();
 }
 
 function getDateRange() {
@@ -3179,6 +3390,24 @@ function parseMilkSheetRows(headers, rows) {
     d.v1e_deduct  = parseFloat(get(row,'V1 Evening Deduct(L)'))||0;
     d.v2_deduct   = parseFloat(get(row,'V2 Deduct(L)'))||0;
     d.v3_deduct   = parseFloat(get(row,'V3 Deduct(L)'))||0;
+    /* v184: the split, when the row has it. Rows written before v184 have the
+       total only — those are marked _dedUnsplit so reports can say so rather
+       than silently showing a zero against cow or buffalo. */
+    d.v1m_cm_deduct = parseFloat(get(row,'V1 Morn CM Deduct(L)'))||0;
+    d.v1m_bm_deduct = parseFloat(get(row,'V1 Morn BM Deduct(L)'))||0;
+    d.v1e_cm_deduct = parseFloat(get(row,'V1 Eve CM Deduct(L)'))||0;
+    d.v1e_bm_deduct = parseFloat(get(row,'V1 Eve BM Deduct(L)'))||0;
+    d.v2_cm_deduct  = parseFloat(get(row,'V2 CM Deduct(L)'))||0;
+    d.v2_bm_deduct  = parseFloat(get(row,'V2 BM Deduct(L)'))||0;
+    d.v3_bm_deduct  = parseFloat(get(row,'V3 BM Deduct(L)'))||0;
+    d.v3_sk_deduct  = parseFloat(get(row,'V3 Skim Deduct(L)'))||0;
+    d.v4_cm_deduct  = parseFloat(get(row,'V4 CM Deduct(L)'))||0;
+    d.v4_bm_deduct  = parseFloat(get(row,'V4 BM Deduct(L)'))||0;
+    ['v1m','v1e','v2','v3','v4'].forEach(function(k){
+      var parts=(k==='v3') ? (d.v3_bm_deduct+d.v3_sk_deduct)
+                           : ((d[k+'_cm_deduct']||0)+(d[k+'_bm_deduct']||0));
+      d[k+'_dedUnsplit'] = (d[k+'_deduct']>0 && parts<=0);
+    });
     return d;
   }).filter(d => d._date);
 }
@@ -3418,13 +3647,24 @@ function buildMilkQualityReport(dates, title, wrap, tot, sheetData){
   const mrows=parseMilkSheetRows(sheetData.headers, sheetData.rows);
   const vend=[['v1m','Vendor 1 (Morn)'],['v1e','Vendor 1 (Eve)'],['v2','Vendor 2'],['v3','Vendor 3'],['v4','Vendor 4']];
   const out=[]; let totalSpoilt=0; const issueDates={};
+  let T_CM=0, T_BM=0, T_SK=0, T_UN=0;                       // v184
   mrows.forEach(m=>{
     vend.forEach(function(v){
       const k=v[0], label=v[1];
       const ded=parseFloat(m[k+'_deduct'])||0;
       const note=String(m[k+'_notes']||'').trim();
+      /* v184: which milk spoilt. Vendor 3 supplies buffalo and skim, so its two
+         parts are labelled accordingly. Rows from before the split say so
+         rather than showing a misleading zero. */
+      const aQ = parseFloat(m[k==='v3'?'v3_bm_deduct':k+'_cm_deduct'])||0;
+      const bQ = parseFloat(m[k==='v3'?'v3_sk_deduct':k+'_bm_deduct'])||0;
+      const unsplit = ded>0 && (aQ+bQ)<=0;
       if(ded>0 || note){
-        out.push({date:m._date, vendor:label, deduct:ded, note:note});
+        out.push({date:m._date, vendor:label, deduct:ded, note:note,
+                  a:aQ, b:bQ, unsplit:unsplit, isV3:(k==='v3')});
+        if(aQ>0){ if(k==='v3') T_BM+=aQ; else T_CM+=aQ; }
+        if(bQ>0){ if(k==='v3') T_SK+=bQ; else T_BM+=bQ; }
+        if(unsplit) T_UN+=ded;
         if(ded>0) totalSpoilt+=ded;
         issueDates[m._date]=1;
       }
@@ -3432,10 +3672,18 @@ function buildMilkQualityReport(dates, title, wrap, tot, sheetData){
   });
   if(!out.length){ wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--green);font-family:Space Mono;font-size:12px;">✓ No spoilage or quality notes recorded in this range.</div>'; tot.innerHTML=''; return; }
   out.sort(function(a,b){return toReportDateInt(a.date)-toReportDateInt(b.date);});
-  let html='<table class="rpt-table"><thead><tr><th>Date</th><th>Vendor</th><th>Spoilt / Rejected (L)</th><th>Quality Note</th></tr></thead><tbody>';
+  let html='<table class="rpt-table"><thead><tr><th>Date</th><th>Vendor</th>'
+    +'<th>Cow (L)</th><th>Buffalo (L)</th><th>Skim (L)</th>'
+    +'<th>Total (L)</th><th>Quality Note</th></tr></thead><tbody>';
   out.forEach(function(r){
     const dColor=r.deduct>0?'var(--red)':'var(--muted)';
+    const cow = r.isV3 ? '—' : (r.a>0?N(r.a,1):'—');
+    const buf = r.isV3 ? (r.a>0?N(r.a,1):'—') : (r.b>0?N(r.b,1):'—');
+    const skm = r.isV3 ? (r.b>0?N(r.b,1):'—') : '—';
     html+='<tr><td>'+fmtDate(r.date)+'</td><td>'+r.vendor+'</td>'+
+      (r.unsplit
+        ? '<td colspan="3" style="color:#E65100;font-style:italic;">type not recorded (before v184)</td>'
+        : '<td>'+cow+'</td><td>'+buf+'</td><td>'+skm+'</td>')+
       '<td style="color:'+dColor+';font-weight:700">'+(r.deduct>0?N(r.deduct,1):'—')+'</td>'+
       '<td>'+(r.note?r.note:'—')+'</td></tr>';
   });
@@ -3443,6 +3691,10 @@ function buildMilkQualityReport(dates, title, wrap, tot, sheetData){
   wrap.innerHTML=html;
   const nDates=Object.keys(issueDates).length;
   tot.innerHTML='<div style="font-family:Space Mono,monospace;font-size:12px;font-weight:700;color:var(--red)">Spoilt / rejected total: '+N(totalSpoilt,1)+' L across '+nDates+' day(s)</div>'+
+    '<div style="font-family:Space Mono,monospace;font-size:11.5px;margin-top:6px;line-height:1.8;">'+
+      'Cow <b>'+N(T_CM,1)+' L</b> &nbsp;·&nbsp; Buffalo <b>'+N(T_BM,1)+' L</b> &nbsp;·&nbsp; Skim <b>'+N(T_SK,1)+' L</b>'+
+      (T_UN>0?(' &nbsp;·&nbsp; <span style="color:#E65100;">type not recorded <b>'+N(T_UN,1)+' L</b></span>'):'')+
+    '</div>'+
     '<div style="font-family:Space Mono,monospace;font-size:10px;color:var(--muted);margin-top:4px;">Track these dates against weather to spot spoilage-prone periods for future planning.</div>';
 }
 
@@ -3618,6 +3870,150 @@ async function fetchCreamSalesByDate(fromISO,toISO){
   }
   return map;
 }
+
+// ══ v182: CREAM, FAT & SNF COST ════════════════════════════════════════
+// Three questions in one report, for every day in the range:
+//   what did a kilo of cream cost to make, what did a kilo of butterfat cost
+//   to buy, and what did a kilo of SNF cost to buy.
+// Read-only. It changes no stored data and no cost formula.
+async function generateFatCostReport(){
+  const from=document.getElementById('rpt-from').value || '';
+  const to  =document.getElementById('rpt-to').value   || new Date().toISOString().slice(0,10);
+  if(!from){ showToast('Pick a From date first','error'); return; }
+  const out=document.getElementById('rpt-output'); out.style.display='block';
+  document.getElementById('rpt-title').textContent='🧮 Cream, Fat & SNF Cost';
+  document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:24px;text-align:center;font-family:Space Mono;font-size:12px;color:var(--muted);">⏳ Reading milk purchases…</div>';
+  document.getElementById('rpt-total-wrap').innerHTML='';
+  try{ out.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+  const url=STATE.gsUrl;
+  if(!url){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Set the Google Sheet URL in Setup first.</div>'; return; }
+
+  let J=null;
+  try{
+    const r=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+from+'&to='+to,{cache:'no-store'});
+    J=await r.json();
+  }catch(e){
+    document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--red);">Could not reach the Sheet — check connection.</div>'; return;
+  }
+  const H={}; (J&&J.headers||[]).forEach((h,i)=>{ H[String(h).trim()]=i; });
+  const num=(row,k)=>{ const i=H[k]; return i===undefined?0:(parseFloat(row[i])||0); };
+  const day=d=>_restoreDateKey(String(d||'').trim(),'DMY');
+
+  // qty, fat%, SNF%, rate, milk type — every stream that carries fat and SNF
+  const STREAMS=[
+    ['V1 Morn CM Qty(L)','V1 Morn CM Fat%','V1 Morn CM SNF%','V1 Morn CM Rate(Rs/L)','cm'],
+    ['V1 Morn BM Qty(L)','V1 Morn BM Fat%','V1 Morn BM SNF%','V1 Morn BM Rate(Rs/L)','bm'],
+    ['V1 Eve CM Qty(L)','V1 Eve CM Fat%','V1 Eve CM SNF%','V1 Eve CM Rate(Rs/L)','cm'],
+    ['V1 Eve BM Qty(L)','V1 Eve BM Fat%','V1 Eve BM SNF%','V1 Eve BM Rate(Rs/L)','bm'],
+    ['V2 CM Qty(L)','V2 CM Fat%','V2 CM SNF%','V2 CM Rate(Rs/L)','cm'],
+    ['V2 BM Qty(L)','V2 BM Fat%','V2 BM SNF%','V2 BM Rate(Rs/L)','bm'],
+    ['V3 BM Qty(L)','V3 BM Fat%','V3 BM SNF%','V3 BM Rate(Rs/L)','bm'],
+    ['V4 CM Qty(L)','V4 CM Fat%','V4 CM SNF%','V4 CM Rate(Rs/L)','cm'],
+    ['V4 BM Qty(L)','V4 BM Fat%','V4 BM SNF%','V4 BM Rate(Rs/L)','bm']
+  ];
+  const CM_ONLY=[['V1 Morn CM Qty(L)','V1 Morn CM Rate(Rs/L)'],['V1 Eve CM Qty(L)','V1 Eve CM Rate(Rs/L)'],
+                 ['V2 CM Qty(L)','V2 CM Rate(Rs/L)'],['V4 CM Qty(L)','V4 CM Rate(Rs/L)']];
+
+  const LOSS=gfSepLossPct();
+  const perDay={};
+  (J&&J.rows||[]).forEach(row=>{
+    const k=day(row[0]); if(!k) return;
+    const iso=k.slice(0,4)+'-'+k.slice(4,6)+'-'+k.slice(6,8);
+    const d=perDay[k]={ iso:iso, cmL:0, cmRs:0, skRate:num(row,'V3 Skim Rate(Rs/L)'),
+                        cmSep:num(row,'Cream CM Separated(L)'), creamKg:num(row,'Cream Yield(kg)'),
+                        fatKg:0, snfKg:0, fatRs:0, snfRs:0, bill:0, unpriced:0 };
+    CM_ONLY.forEach(c=>{ const q=num(row,c[0]), r=num(row,c[1]); d.cmL+=q; d.cmRs+=q*r; });
+    STREAMS.forEach(x=>{
+      const q=num(row,x[0]), f=num(row,x[1]), sn=num(row,x[2]), r=num(row,x[3]);
+      if(!(q>0)||!(r>0)) return;
+      d.bill += q*r;
+      const sp=gfSplitLitre(r, f, sn, gfSlopesAny(x[4], iso));
+      if(sp){ d.fatKg+=q*sp.fatKg; d.snfKg+=q*sp.snfKg; d.fatRs+=q*sp.fatPart; d.snfRs+=q*sp.snfPart; }
+      else d.unpriced += q*r;
+    });
+  });
+
+  const keys=Object.keys(perDay).sort();
+  if(!keys.length){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);">No milk rows in this range.</div>'; return; }
+  const N=(x,dp)=>(Math.round(x*Math.pow(10,dp===undefined?1:dp))/Math.pow(10,dp===undefined?1:dp)).toLocaleString('en-IN');
+
+  let T={cmL:0,cmRs:0,cmSep:0,creamKg:0,creamRs:0,creamRs0:0,fatKg:0,snfKg:0,fatRs:0,snfRs:0,bill:0,unpriced:0};
+  let assumedDays=0, assumedCream=0;
+  let rows='';
+  keys.forEach(k=>{
+    const d=perDay[k];
+    const wCM = d.cmL>0 ? d.cmRs/d.cmL : 0;
+    const wSK = d.skRate>0 ? d.skRate : gfSkimValue();      // v183
+    const wSKassumed = !(d.skRate>0);
+    let skimL=0, cost=0, cost0=0, yld=0;
+    if(d.cmSep>0 && d.creamKg>0 && wCM>0){
+      skimL=Math.max(0,(d.cmSep-d.creamKg)*(1-LOSS/100));
+      cost =(d.cmSep*wCM - skimL*wSK)/d.creamKg;
+      cost0=(d.cmSep*wCM - (d.cmSep-d.creamKg)*wSK)/d.creamKg;   // the old, no-loss figure
+      yld  = d.creamKg/d.cmSep*100;
+      T.creamRs += cost*d.creamKg; T.creamRs0 += cost0*d.creamKg;
+      T.cmSep+=d.cmSep; T.creamKg+=d.creamKg;
+      if(wSKassumed){ assumedDays++; assumedCream+=d.creamKg; }
+    }
+    T.cmL+=d.cmL; T.cmRs+=d.cmRs; T.fatKg+=d.fatKg; T.snfKg+=d.snfKg;
+    T.fatRs+=d.fatRs; T.snfRs+=d.snfRs; T.bill+=d.bill; T.unpriced+=d.unpriced;
+    const pf = d.fatKg>0 ? d.fatRs/d.fatKg : 0, ps = d.snfKg>0 ? d.snfRs/d.snfKg : 0;
+    rows+='<tr>'+
+      '<td>'+k.slice(6,8)+'/'+k.slice(4,6)+'</td>'+
+      '<td style="text-align:right;">'+(d.cmSep>0?N(d.cmSep):'—')+'</td>'+
+      '<td style="text-align:right;">'+(d.creamKg>0?N(d.creamKg,2):'—')+'</td>'+
+      '<td style="text-align:right;">'+(yld?N(yld,2)+'%':'—')+'</td>'+
+      '<td style="text-align:right;">'+(skimL?N(skimL):'—')+'</td>'+
+      '<td style="text-align:right;'+(wSKassumed?'color:#E65100;':'')+'">₹'+N(wSK,2)+(wSKassumed?'*':'')+'</td>'+
+      '<td style="text-align:right;">'+(wCM?'₹'+N(wCM,2):'—')+'</td>'+
+      '<td style="text-align:right;font-weight:800;color:var(--green);">'+(cost?'₹'+N(cost,2):'—')+'</td>'+
+      '<td style="text-align:right;color:var(--muted);">'+(cost0?'₹'+N(cost0,2):'—')+'</td>'+
+      '<td style="text-align:right;">'+(d.fatKg?N(d.fatKg,1):'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700;">'+(pf?'₹'+Math.round(pf):'—')+'</td>'+
+      '<td style="text-align:right;">'+(d.snfKg?N(d.snfKg,1):'—')+'</td>'+
+      '<td style="text-align:right;font-weight:700;">'+(ps?'₹'+Math.round(ps):'—')+'</td></tr>';
+  });
+  document.getElementById('rpt-table-wrap').innerHTML=
+    '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table style="width:100%;border-collapse:collapse;font-family:Space Mono;font-size:11px;min-width:900px;">'+
+    '<thead><tr style="background:var(--ink);color:#fff;">'+
+    ['Date','CM sep (L)','Cream (kg)','Yield%','Skim credited (L)','Skim ₹/L','Milk ₹/L','CREAM ₹/kg','was (0% loss)','Fat kg','₹/kg fat','SNF kg','₹/kg SNF']
+      .map(h=>'<th style="padding:7px 8px;text-align:'+(h==='Date'?'left':'right')+';font-size:9px;letter-spacing:.5px;">'+h+'</th>').join('')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+  const avgCream = T.creamKg>0 ? T.creamRs/T.creamKg : 0;
+  const avgCream0= T.creamKg>0 ? T.creamRs0/T.creamKg : 0;
+  const avgFat   = T.fatKg>0 ? T.fatRs/T.fatKg : 0;
+  const avgSnf   = T.snfKg>0 ? T.snfRs/T.snfKg : 0;
+  document.getElementById('rpt-total-wrap').innerHTML=
+    '<div style="margin-top:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);font-family:Space Mono;font-size:12px;line-height:1.95;">'+
+    '<b>PERIOD TOTAL ('+keys.length+' days)</b><br>'+
+    'Milk bill <b>₹'+N(T.bill,0)+'</b> &nbsp;=&nbsp; fat ₹'+N(T.fatRs,0)+' &nbsp;+&nbsp; SNF ₹'+N(T.snfRs,0)+
+      (T.unpriced>0?(' &nbsp;+&nbsp; <span style="color:#E65100;">₹'+N(T.unpriced,0)+' not split (no rate chart)</span>'):'')+'<br>'+
+    'Bought <b>'+N(T.fatKg,1)+' kg fat</b> at <b>₹'+Math.round(avgFat)+'/kg</b> &nbsp;·&nbsp; '+
+      '<b>'+N(T.snfKg,1)+' kg SNF</b> at <b>₹'+Math.round(avgSnf)+'/kg</b><br>'+
+    'Separated '+N(T.cmSep)+' L into '+N(T.creamKg,2)+' kg cream '+
+      (T.cmSep>0?('('+N(T.creamKg/T.cmSep*100,2)+'% yield)'):'')+'<br>'+
+    '<span style="font-size:15px;font-weight:800;color:var(--green);">CREAM COST ₹'+N(avgCream,2)+'/kg</span>'+
+      (avgCream0?('<span style="color:var(--muted);font-size:11px;"> &nbsp; (₹'+N(avgCream0,2)+' if nothing were lost — a '+
+        N(avgCream-avgCream0,2)+'/kg understatement, ₹'+N((avgCream-avgCream0)*T.creamKg,0)+' over the period)</span>'):'')+
+    '</div>'+
+    '<div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#FFF8E1;border:1.5px solid #FFD54F;font-size:11.5px;line-height:1.8;">'+
+    '<b>How these are worked out.</b><br>'+
+    '<b>Cream ₹/kg</b> is a residual: the milk you put through the separator, less the value of the skim that comes back, '+
+    'divided by the cream weighed out. Skim is credited at your own purchase rate, after deducting '+LOSS+'% for separation loss '+
+    '(Settings). It is not a measurement — ±₹1 on the skim rate moves it by roughly '+
+    (T.creamKg>0?N((T.cmSep-T.creamKg)/T.creamKg,2):'0')+'/kg.<br>'+
+    (assumedDays?('<b>* '+assumedDays+' day(s)</b> had no skim purchase, so skim was valued at your Settings figure of ₹'+
+       gfSkimValue().toFixed(2)+'/L rather than an invoice. Those days cover '+N(assumedCream,2)+' kg of cream. '+
+       'Every ₹1 you move that figure changes their cream cost by about ₹'+
+       (T.creamKg>0?N((T.cmSep-T.creamKg)/T.creamKg,2):'0')+'/kg — in the opposite direction to paneer, which pays for skim.<br><br>'):'')+
+    '<b>₹/kg fat and ₹/kg SNF</b> split each litre between its fat and its SNF in proportion to what your own rate chart pays '+
+    'for one more point of each. They add back to the milk bill exactly, so you can cost cream, ghee and paneer with them. '+
+    'The old "cost per kg fat" charged the whole litre to fat and showed SNF as free, which is why it read around ₹1,100–1,200.'+
+    '</div>';
+  showToast('Cream / fat / SNF costing built for '+keys.length+' day(s)','success');
+}
+
 // ══ v157: MILK RECONCILIATION ═══════════════════════════════════════
 // Answers "how much milk is unaccounted for each day". Pulls Milk_Purchase
 // (what came in, less spoilage) and the raw Production sheet (what was entered
@@ -4083,9 +4479,17 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
       const bmDowngraded = bmQ > 0 && isBMDowngraded(bmF, bmS, bmThresh);
       // Effective BM rate: CM rate if downgraded, else BM rate
       const effBMRate = bmDowngraded ? cmR : bmR;
-      // Net CM qty after deduction (deduction from CM first, then BM if excess)
-      const cmDeduct = Math.min(deductQ, cmQ);
-      const bmDeduct = Math.max(0, deductQ - cmDeduct);
+      /* v184: the recorded split, when the row has one. Before v184 there was
+         only a session total, so the report assumed the loss came off cow milk
+         first and spilled onto buffalo — which reduced the wrong line whenever
+         it was the buffalo that spoilt. That assumption is now used ONLY for
+         rows written before the split existed, so old reports reproduce
+         exactly as they did. */
+      const _cmDed = parseFloat(m[p+'_cm_deduct'])||0;
+      const _bmDed = parseFloat(m[p+'_bm_deduct'])||0;
+      const _hasSplit = (_cmDed+_bmDed) > 0;
+      const cmDeduct = _hasSplit ? Math.min(_cmDed, cmQ) : Math.min(deductQ, cmQ);
+      const bmDeduct = _hasSplit ? Math.min(_bmDed, bmQ) : Math.max(0, deductQ - cmDeduct);
       const netCMQ = cmQ - cmDeduct;
       const netBMQ = Math.max(0, bmQ - bmDeduct);
 
@@ -4098,7 +4502,7 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
 
       // Track adjustments for summary
       if(bmDowngraded) adjustments.push({date:fmtDate(m._date), session:s.label||'', type:'BM→CM rate', detail:'Fat '+N(bmF,2)+'% / SNF '+N(bmS,2)+'% below threshold → CM rate ₹'+N(effBMRate,2)+'/L applied to '+N(bmQ,1)+'L BM'});
-      if(deductQ > 0) adjustments.push({date:fmtDate(m._date), session:s.label||'', type:'Deduction', detail:N(deductQ,1)+'L deducted'+( sessionNotes?' ('+sessionNotes+')':'')});
+      if(deductQ > 0) adjustments.push({date:fmtDate(m._date), session:s.label||'', type:'Deduction', detail:N(deductQ,1)+'L deducted'+(_hasSplit?(' (cow '+N(cmDeduct,1)+'L, buffalo '+N(bmDeduct,1)+'L)'):' (type not recorded)')+( sessionNotes?' ('+sessionNotes+')':'')});
 
       html += '<tr' + (cmQ === 0 && bmQ === 0 ? ' style="opacity:0.45;font-style:italic;"' : (bmDowngraded||deductQ>0?' style="background:#FFF3CD;"':'')) + '>';
       html += `<td>${fmtDate(m._date)}</td>`;
@@ -4295,10 +4699,14 @@ function buildMilkSummaryReport(dates, title, wrap, tot, sheetData) {
     const v2CM=parseFloat(m.v2_cm_qty)||0, v2BM=parseFloat(m.v2_bm_qty)||0;
     const v3=parseFloat(m.v3_sk_qty)||0;
     const v1CM=v1mCM+v1eCM, v1BM=v1mBM+v1eBM;
-    const total=v1CM+v1BM+v2CM+v2BM+v3;
+    const total=v1CM+v1BM+v2CM+v2BM+v3+(parseFloat(m.v4_cm_qty)||0)+(parseFloat(m.v4_bm_qty)||0)+(parseFloat(m.v3_bm_qty)||0);
     const v1Pay=(v1mCM*(parseFloat(m.v1m_cm_rate)||0)+v1eCM*(parseFloat(m.v1e_cm_rate)||0)+
                  v1mBM*(parseFloat(m.v1m_bm_rate)||0)+v1eBM*(parseFloat(m.v1e_bm_rate)||0));
-    const cost=v1Pay+(v2CM*(parseFloat(m.v2_cm_rate)||41))+(v2BM*(parseFloat(m.v2_bm_rate)||57))+(v3*(parseFloat(m.v3_sk_rate)||24.5))+((parseFloat(m.v3_bm_qty)||0)*(parseFloat(m.v3_bm_rate)||57));
+    // v179 FIX: Vendor 4's milk was missing from Total Cost AND from Total Milk,
+    // so the purchase report under-reported both on any day V4 supplied.
+    const v4CM=parseFloat(m.v4_cm_qty)||0, v4BM=parseFloat(m.v4_bm_qty)||0;
+    const cost=v1Pay+(v2CM*(parseFloat(m.v2_cm_rate)||41))+(v2BM*(parseFloat(m.v2_bm_rate)||57))+(v3*(parseFloat(m.v3_sk_rate)||gfSkimValue()))+((parseFloat(m.v3_bm_qty)||0)*(parseFloat(m.v3_bm_rate)||57))
+              +(v4CM*(parseFloat(m.v4_cm_rate)||41))+(v4BM*(parseFloat(m.v4_bm_rate)||57));
     tV1CM+=v1CM;tV1BM+=v1BM;tV2CM+=v2CM;tV2BM+=v2BM;tV3+=v3;tTotal+=total;tCost+=cost;tV1Pay+=v1Pay;
     html+=`<tr><td>${fmtDate(m._date)}</td><td>${N(v1CM,1)}</td><td>${N(v1BM,1)}</td><td>${N(v2CM,1)}</td><td>${N(v2BM,1)}</td><td>${N(v3,1)}</td><td style="font-weight:600">${N(total,1)}</td><td>${Rs(cost)}</td><td>${Rs(v1Pay)}</td></tr>`;
   });
@@ -4373,7 +4781,7 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
     const mDate=mRows.find(m=>m._date===p._date)||{};
     const cmR=parseFloat(mDate.v2_cm_rate)||41;
     const bmR=parseFloat(mDate.v1m_bm_rate)||57;
-    const skR=parseFloat(mDate.v3_sk_rate)||24.5;
+    const skR=parseFloat(mDate.v3_sk_rate)||gfSkimValue();   // v183
     const addProdRow=(name,yld,milk,ing,pm,rev,unit)=>{
       if(!yld) return;
       const total=milk+ing+pm+fixed;
@@ -4446,12 +4854,276 @@ function calcCreamSep() {
 // ── v172: DERIVED CREAM COST — one shared source of truth ──────────────────
 // cream cost/kg = (CM separated x weighted CM rate  -  skim it yields x skim rate) / cream kg
 // Guarded to a sane band (₹100–600); falls back to ₹300 when data is incomplete.
+/* ══════════════════════════════════════════════════════════════════════
+   v182 — WHAT A KILOGRAM OF FAT AND A KILOGRAM OF SNF ACTUALLY COST
+
+   Until v181 the app answered "cost per kg fat" with
+
+        rate / (fat/100)            e.g. Rs 41 / 0.035 = Rs 1,171
+
+   which charges the WHOLE milk price to fat and values SNF at zero. For 100 L
+   of cow milk that says 3.5 kg of fat is worth the entire Rs 4,100 and the
+   8.5 kg of SNF — the part that becomes paneer — is free. It also treats fat%
+   as if it were per litre. Fat% is per KILOGRAM, and a litre of milk weighs
+   about 1.03 kg, so there was a further ~3% overstatement on top.
+
+   Your vendor rate chart already knows the answer. It prices every fat/SNF
+   combination, so the slope of that chart in the fat direction is what an
+   extra kilogram of fat is worth, and the slope in the SNF direction is what
+   an extra kilogram of SNF is worth. This fits rate = a + b·fat% + c·snf%
+   across the whole chart by least squares and reads the two slopes off it.
+
+   Two different numbers come out of that, and they answer different questions:
+
+     MARGINAL  — what one more kg of fat costs you. Use it to decide whether
+                 to buy richer milk, or whether ghee is worth making.
+     ALLOCATED — the whole milk bill split between fat and SNF in proportion
+                 to what each is worth. Use it to cost cream, ghee and paneer,
+                 because these add back exactly to the milk bill. */
+var MILK_KG_PER_L = 1.03;          // milk density; fat% and SNF% are by weight
+
+function gfFatSnfSlopes(vendor, type, iso){
+  try{
+    var st = vrFor(vendor, iso);
+    if(!st || st.mode==='fixed') return null;
+    var tbl = st[type]; if(!tbl) return null;
+    var P=[];
+    Object.keys(tbl).forEach(function(f){
+      Object.keys(tbl[f]||{}).forEach(function(sn){
+        var r=parseFloat(tbl[f][sn]);
+        if(r>0) P.push([parseFloat(f), parseFloat(sn), r]);
+      });
+    });
+    if(P.length<6) return null;
+    // least squares for r = a + b*fat + c*snf
+    var N=P.length, Sf=0,Ss=0,Sr=0,Sff=0,Sss=0,Sfs=0,Sfr=0,Ssr=0;
+    P.forEach(function(p){ var f=p[0],x=p[1],r=p[2];
+      Sf+=f; Ss+=x; Sr+=r; Sff+=f*f; Sss+=x*x; Sfs+=f*x; Sfr+=f*r; Ssr+=x*r; });
+    var mf=Sf/N, ms=Ss/N, mr=Sr/N;
+    var cff=Sff-N*mf*mf, css=Sss-N*ms*ms, cfs=Sfs-N*mf*ms;
+    var cfr=Sfr-N*mf*mr, csr=Ssr-N*ms*mr;
+    var det=cff*css-cfs*cfs;
+    if(Math.abs(det)<1e-9) return null;
+    var b=(cfr*css-csr*cfs)/det;         // Rs per litre per 1% fat
+    var c=(csr*cff-cfr*cfs)/det;         // Rs per litre per 1% SNF
+    var a=mr-b*mf-c*ms;
+    if(!(b>0)) return null;              // a chart that does not pay for fat is unusable
+    return { a:a, b:b, c:c, n:N,
+             perKgFat: b*100/MILK_KG_PER_L,
+             perKgSnf: c>0 ? c*100/MILK_KG_PER_L : 0 };
+  }catch(e){ return null; }
+}
+/* The chart slopes, from whichever vendor on this date has a usable chart. */
+function gfSlopesAny(type, iso){
+  var order=['v1','v2','v4','v3'];
+  for(var i=0;i<order.length;i++){
+    var r=gfFatSnfSlopes(order[i], type, iso);
+    if(r) return r;
+  }
+  if(type!=='cm'){ for(var j=0;j<order.length;j++){ var q=gfFatSnfSlopes(order[j],'cm',iso); if(q) return q; } }
+  return null;
+}
+/* Split one litre's price between its fat and its SNF, in proportion to what
+   the chart says each is worth. fatPart + snfPart adds back to ratePerL. */
+function gfSplitLitre(ratePerL, fatPct, snfPct, sl){
+  if(!sl || !(ratePerL>0)) return null;
+  var wf = fatPct*sl.b, ws = snfPct*(sl.c>0?sl.c:0);
+  if(!(wf+ws>0)) return null;
+  var fatPart = ratePerL*wf/(wf+ws), snfPart = ratePerL-fatPart;
+  var fatKg = MILK_KG_PER_L*fatPct/100, snfKg = MILK_KG_PER_L*snfPct/100;
+  return { fatPart:fatPart, snfPart:snfPart, fatKg:fatKg, snfKg:snfKg,
+           perKgFat: fatKg>0?fatPart/fatKg:0,
+           perKgSnf: snfKg>0?snfPart/snfKg:0 };
+}
+
+/* ── v182: the separation loss ─────────────────────────────────────────
+   gfDerivedCreamRate assumed skim = milk separated − cream, i.e. that nothing
+   evaporates and nothing stays in the line or the separator bowl. Skim is a
+   CREDIT in that formula, so over-stating it UNDER-states the cost of cream —
+   and that flows straight into paneer and ghee. Your milk reconciliation puts
+   the unaccounted milk at 2–3%, part of which is this.
+   Spoilage is NOT included here: it is already deducted as "Deduct Qty" on the
+   milk page, and charging it twice would overstate cream. */
+/* ══════════════════════════════════════════════════════════════════════
+   v183 — WHAT IS SKIM WORTH TODAY?
+
+   Rs 24.50 was hard-coded in eleven places as the skim rate to use when no
+   skim was bought that day. Market is Rs 26 and rising, so every one of those
+   days was priced on a stale number — and the error pulls in OPPOSITE
+   directions depending on the product:
+
+     · cream and ghee  — skim is a CREDIT against the milk cost, so valuing it
+                         too low makes cream look MORE expensive than it is
+     · paneer, curd,
+       khoya           — skim is an INPUT, so valuing it too low makes them
+                         look CHEAPER than they are
+
+   Which is how a product mix comes to look profitable in the wrong places.
+   There is now one figure, set in Settings, used everywhere as the fallback.
+   A day on which skim WAS actually purchased still uses that day's real rate —
+   history is never rewritten. */
+/* ══════════════════════════════════════════════════════════════════════
+   v184 — SPOILT MILK IS RECORDED BY MILK TYPE
+
+   One "Deduct Qty" box per vendor could not say WHICH milk was spoilt, so the
+   vendor payment report had to guess: it took the deduction off cow milk first
+   and only spilled onto buffalo once cow ran out. On a day when the buffalo
+   can soured, the wrong vendor line was reduced.
+
+   Each session now records cow and buffalo separately (Vendor 3 records buffalo
+   and skim, since that is what it supplies). The old single column is still
+   written, as the TOTAL, so every existing report, every saved row and every
+   sheet already in the book keeps working untouched. The guess is only used
+   where a row predates this change and has no split. */
+var GF_DEDUCT_PARTS = {
+  v1m:['v1m_cm_deduct','v1m_bm_deduct'], v1e:['v1e_cm_deduct','v1e_bm_deduct'],
+  v2 :['v2_cm_deduct','v2_bm_deduct'],   v3 :['v3_bm_deduct','v3_sk_deduct'],
+  v4 :['v4_cm_deduct','v4_bm_deduct']
+};
+function gfSyncDeduct(pfx){
+  var pr=GF_DEDUCT_PARTS[pfx]; if(!pr) return;
+  var q=function(id){ var e=document.getElementById(id); return parseFloat(e&&e.value)||0; };
+  var el=document.getElementById(pfx+'_deduct');
+  if(el) el.value = Math.round((q(pr[0])+q(pr[1]))*100)/100;
+}
+function gfSyncAllDeducts(){ try{ Object.keys(GF_DEDUCT_PARTS).forEach(gfSyncDeduct); }catch(e){} }
+
+var LS_SKIM_VALUE='gf_skim_value';
+function gfSkimValue(){
+  var v=parseFloat(localStorage.getItem(LS_SKIM_VALUE));
+  if(isFinite(v) && v>0 && v<200) return v;
+  var last=parseFloat(localStorage.getItem('gf_last_sk'));
+  if(isFinite(last) && last>0) return last;
+  return 26;                       // market as of Sep 2026, was 24.5
+}
+function saveSkimValue(){
+  var el=document.getElementById('skim_value_rate');
+  var v=parseFloat(el && el.value);
+  if(!isFinite(v) || v<=0 || v>200){ showToast('Enter a skim rate between 1 and 200','error'); return; }
+  localStorage.setItem(LS_SKIM_VALUE, String(v));
+  var st=document.getElementById('skim-value-status');
+  if(st){ st.style.display='inline'; setTimeout(function(){ st.style.display='none'; },2000); }
+  try{ gfApplyCreamRate(); }catch(e){}
+  try{ calculateSummary(); }catch(e){}
+  showToast('Skim value saved — cream and product costs updated','success');
+}
+
+var LS_SEP_LOSS='gf_sep_loss_pct';
+function gfSepLossPct(){
+  var v=parseFloat(localStorage.getItem(LS_SEP_LOSS));
+  return (isFinite(v) && v>=0 && v<=15) ? v : 2;
+}
+function saveSepLoss(){
+  var el=document.getElementById('sep_loss_pct');
+  var v=parseFloat(el && el.value);
+  if(!isFinite(v) || v<0 || v>15){ showToast('Enter a loss between 0 and 15%','error'); return; }
+  localStorage.setItem(LS_SEP_LOSS, String(v));
+  var st=document.getElementById('sep-loss-status');
+  if(st){ st.style.display='inline'; setTimeout(function(){ st.style.display='none'; },2000); }
+  try{ gfApplyCreamRate(); }catch(e){}
+  showToast('Separation loss saved — cream cost updated','success');
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   v185 — THE FAT BALANCE, AND WHAT IT SAYS ABOUT THE CREAM YIELD
+
+   Fat cannot be created or destroyed in a separator. So milk fat in must equal
+   fat in the cream + the trace left in the skim + a small line loss. That ties
+   three numbers together — milk fat, cream weight, cream fat % — and given any
+   two you get the third. Which makes it a free audit of the weighing.
+
+   Worked on the sheet you were shown: 196 L at 4.30% carries 8.681 kg of fat
+   (by WEIGHT — 196 L weighs ~202 kg; taking 196 x 4.30% = 8.428 kg is the same
+   litres-as-kilograms error this app had until v182, and it cannot be right
+   because the cream alone holds 8.432 kg).
+   13.6 kg of cream only absorbs that much fat if the cream is 62%. At the
+   59-60% you actually get, the same milk should have yielded 14.05-14.29 kg.
+
+   So either ~0.5-0.7 kg of cream per 196 L is not reaching the scale, or the
+   fat test is reading high. Either way it matters twice: it is cream you are
+   not selling, and it inflates the cost of the cream you do record, because
+   the same milk cost is divided by fewer kilograms. */
+var CREAM_SKIM_FAT_PCT = 0.05;          // trace fat left in skim
+var LS_FAT_RECOVERY='gf_fat_recovery';
+function gfFatRecovery(){
+  var v=parseFloat(localStorage.getItem(LS_FAT_RECOVERY));
+  return (isFinite(v) && v>=90 && v<=100) ? v : 98;
+}
+/* Cream is lighter than milk. Mixing rule on fat (0.93) and serum (1.035),
+   which reproduces the 182 L in that industry sheet to within 0.06 L. */
+function gfCreamDensity(f){
+  var x=((f>0?f:59.5)/100);
+  return 1/(x/0.93 + (1-x)/1.035);
+}
+function gfCreamFatPct(){
+  var e=document.getElementById('cream_fat_pct');
+  var v=parseFloat(e&&e.value);
+  return (isFinite(v)&&v>=20&&v<=85)?v:59.5;
+}
+/* Weighted cow-milk fat % from whatever is typed in the milk form. */
+function gfCMFatNow(){
+  var q=function(id){ return parseFloat((document.getElementById(id)||{}).value)||0; };
+  var pr=[['v1m_cm_qty','v1m_cm_fat'],['v1e_cm_qty','v1e_cm_fat'],
+          ['v2_cm_qty','v2_cm_fat'],['v4_cm_qty','v4_cm_fat']];
+  var ql=0, fw=0;
+  pr.forEach(function(x){ var a=q(x[0]), b=q(x[1]); if(a>0&&b>0){ ql+=a; fw+=a*b; } });
+  return ql>0 ? fw/ql : 0;
+}
+function gfFatBalance(){
+  var q=function(id){ return parseFloat((document.getElementById(id)||{}).value)||0; };
+  var cmSep=q('cream_milk_l'), creamKg=q('cream_yield_kg'), cFat=gfCreamFatPct();
+  var cmFat=gfCMFatNow();
+  if(!(cmSep>0) || !(cmFat>0)) return null;
+  var fatIn   = cmSep*MILK_KG_PER_L*cmFat/100;
+  var skimL   = cmSep - (creamKg>0 ? creamKg/gfCreamDensity(cFat) : 0);
+  var fatSkim = Math.max(0, skimL)*1.036*CREAM_SKIM_FAT_PCT/100;
+  var shouldKg= (fatIn*gfFatRecovery()/100 - fatSkim)/(cFat/100);
+  var recovery= creamKg>0 ? ((creamKg*cFat/100 + fatSkim)/fatIn*100) : 0;
+  return { cmSep:cmSep, cmFat:cmFat, creamKg:creamKg, creamFat:cFat,
+           fatIn:fatIn, fatSkim:fatSkim, skimL:skimL,
+           shouldKg:shouldKg, gapKg:shouldKg-creamKg, recovery:recovery };
+}
+function gfRenderFatBalance(rate){
+  var el=document.getElementById('cream_fat_balance'); if(!el) return;
+  var b=gfFatBalance();
+  if(!b || !(b.creamKg>0)){
+    el.innerHTML='<span style="color:var(--muted);">Fat balance appears once CM separated, cream weight and cow-milk fat % are entered.</span>';
+    return;
+  }
+  /* A cream separator in good order recovers ~99% of the fat. 95% is not
+     "nearly right", it is half a kilo of cream missing on a 200 L batch, so
+     the band is tight deliberately. */
+  var ok = b.recovery>=96 && b.recovery<=100.5;
+  var lossRs = b.gapKg>0 ? b.gapKg*(rate||0) : 0;
+  el.innerHTML =
+    '<b>Fat balance</b> &nbsp; milk '+b.cmSep.toFixed(1)+' L x '+b.cmFat.toFixed(2)+'% = <b>'+b.fatIn.toFixed(3)+' kg fat</b>'
+    +'<br>cream '+b.creamKg.toFixed(2)+' kg x '+b.creamFat.toFixed(1)+'% = '+(b.creamKg*b.creamFat/100).toFixed(3)
+    +' kg &nbsp;+&nbsp; skim trace '+b.fatSkim.toFixed(3)+' kg'
+    +'<br><span style="font-weight:700;color:'+(ok?'#1b5e20':'#B3261E')+';">fat recovery '+b.recovery.toFixed(1)+'%</span>'
+    +(ok ? ' &nbsp;— normal (96-99%)'
+         : (b.recovery>100.5
+             ? ' &nbsp;— IMPOSSIBLE. More fat out than in: the cream weight, the cream fat % or the milk fat % is wrong.'
+             : ' &nbsp;— LOW. At '+b.creamFat.toFixed(1)+'% cream, this milk should have yielded <b>'
+               +b.shouldKg.toFixed(2)+' kg</b>, not '+b.creamKg.toFixed(2)+' kg.'))
+    +(!ok && b.gapKg>0.05
+        ? '<br><span style="color:#B3261E;">Missing <b>'+b.gapKg.toFixed(2)+' kg</b> of cream'
+          +(lossRs?(' — about <b>Rs '+Math.round(lossRs).toLocaleString('en-IN')+'</b> at today\'s cream cost'):'')
+          +'. It also inflates the cost of the cream you did record, because the same milk cost is divided by fewer kg.</span>'
+        : '');
+}
+
 function gfDerivedCreamRate(wCM, wSK){
   var q = id => parseFloat(document.getElementById(id)?.value) || 0;
   var cmSep = q('cream_milk_l'), creamKg = q('cream_yield_kg');
   var rate = 300;
   if(creamKg > 0 && cmSep > 0){
-    var d = (cmSep*wCM - (cmSep-creamKg)*wSK) / creamKg;
+    // v182: only the skim that actually survives the separator earns a credit
+    /* v185: cream is lighter than milk, so 13.6 kg occupies ~14.05 L, not
+       13.6 L. Subtracting kilograms as if they were litres credited back
+       skim that was never there. */
+    var skimL = (cmSep - creamKg/gfCreamDensity(gfCreamFatPct())) * (1 - gfSepLossPct()/100);
+    if(skimL < 0) skimL = 0;
+    var d = (cmSep*wCM - skimL*wSK) / creamKg;
     if(d >= 100 && d <= 600) rate = Math.round(d*100)/100;
   }
   return rate;
@@ -4459,12 +5131,15 @@ function gfDerivedCreamRate(wCM, wSK){
 // Weighted milk rates from whatever is currently typed in the Milk form (live, pre-save).
 function gfMilkRatesNow(){
   var q = id => parseFloat(document.getElementById(id)?.value) || 0;
-  var cm  = q('v1m_cm_qty')+q('v1e_cm_qty')+q('v2_cm_qty');
+  // v179 FIX: Vendor 4's cow milk was added to the COST but not to the LITRES,
+  // so wCM came out too high on any day V4 supplied CM — and cream cost moves
+  // Rs 17.33/kg for every Rs 1 of wCM. Both sides now include V4.
+  var cm  = q('v1m_cm_qty')+q('v1e_cm_qty')+q('v2_cm_qty')+q('v4_cm_qty');
   var cmC = q('v1m_cm_qty')*q('v1m_cm_rate')+q('v1e_cm_qty')*q('v1e_cm_rate')
           + q('v2_cm_qty')*(q('v2_cm_rate')||41)+q('v4_cm_qty')*(q('v4_cm_rate')||41);
   var wCM = cm > 0 ? cmC/cm : 41;
   var sk  = q('v3_sk_rate');
-  var wSK = sk > 0 ? sk : (parseFloat(localStorage.getItem('gf_last_sk'))||24.5);
+  var wSK = sk > 0 ? sk : gfSkimValue();                    // v183
   return { wCM: wCM, wSK: wSK };
 }
 // Compute the day's cream rate and push it into every product's Cream Rate field + the badge.
@@ -4480,13 +5155,32 @@ function gfApplyCreamRate(){
   if(b){
     var ready = (q('cream_milk_l') > 0 && q('cream_yield_kg') > 0);
     if(ready){
-      b.textContent = '● Derived cream cost today: ₹' + rate + '/kg — auto-applied to all paneer & ghee';
+      // v179: show the two numbers the answer is built from. This figure is a
+      // RESIDUAL — milk cost less the skim credit — so it moves ₹16.33/kg for
+      // every ₹1 on the skim rate and ₹17.33/kg for every ₹1 on the milk rate.
+      // Printing only the result made it look like a measurement. It isn't.
+      var _cs = q('cream_milk_l'), _ck = q('cream_yield_kg');
+      var _loss = gfSepLossPct();
+      var _ckL = _ck/gfCreamDensity(gfCreamFatPct());          // v185: cream litres
+      var _sk = Math.max(0,(_cs - _ckL)*(1-_loss/100));
+      b.innerHTML = '● Derived cream cost today: <b>₹' + rate + '/kg</b> — auto-applied to all paneer &amp; ghee'
+        + '<div style="font-weight:400;margin-top:5px;line-height:1.7;">'
+        + '(' + _cs.toFixed(1) + ' L × ₹' + r.wCM.toFixed(2) + '/L milk − ' + _sk.toFixed(1)
+        + ' L × ₹' + r.wSK.toFixed(2) + '/L skim) ÷ ' + _ck.toFixed(2) + ' kg cream'
+        + '<br><span style="opacity:.85;">Skim taken as ' + (_cs-_ck).toFixed(1) + ' L less '
+        + _loss + '% separation loss = ' + _sk.toFixed(1) + ' L. '
+        + 'At 0% loss this cream would cost ₹'
+        + (_ck>0 ? (((_cs*r.wCM - (_cs-_ck)*r.wSK)/_ck)).toFixed(2) : '0') + '/kg.</span>'
+        + '<br><span style="opacity:.85;">A residual, not a measurement: ±₹1 on the skim rate moves this ∓₹'
+        + (_ck > 0 ? (_sk/_ck).toFixed(2) : '0') + '/kg, ±₹1 on the milk rate moves it ±₹'
+        + (_ck > 0 ? (_cs/_ck).toFixed(2) : '0') + '/kg.</span></div>';
       b.style.color = '#1b5e20'; b.style.background = '#e8f5e9'; b.style.borderColor = '#a5d6a7';
     } else {
       b.textContent = '● Cream cost will auto-derive once CM Separated + Cream Yield (and milk rates) are entered — using ₹300/kg until then';
       b.style.color = '#8a6d00'; b.style.background = '#fff8e1'; b.style.borderColor = '#ffe082';
     }
   }
+  try{ gfRenderFatBalance(rate); }catch(e){}          // v185
   return rate;
 }
 
@@ -4835,13 +5529,21 @@ function calculateAndShowSummary() {
               + (parseFloat(document.getElementById('cost_transport')?.value)||11);
 
   // Weighted milk rates
-  const cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
+  // ── v179 FIX: two mirror-image bugs in the weighted milk rates ──────
+  //   COW MILK  — V4's cost was in the numerator, its litres were NOT in the
+  //               denominator, so wCM (and therefore cream cost and every
+  //               paneer's milk cost) came out TOO HIGH whenever V4 sold CM.
+  //   BUFFALO   — the exact opposite: V3's and V4's litres were in the
+  //               denominator but their cost was not in the numerator, so wBM
+  //               came out TOO LOW. Both are corrected below.
+  const cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0)+(m.v4_cm_qty||0);
   const bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0)+(m.v4_bm_qty||0);
   const cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)+(m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)+(m.v2_cm_qty||0)*(m.v2_cm_rate||41)+(m.v4_cm_qty||0)*(m.v4_cm_rate||41);
-  const bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57);
+  const bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57)
+            + (m.v3_bm_qty||0)*(m.v3_bm_rate||57)+(m.v4_bm_qty||0)*(m.v4_bm_rate||57);
   const wCM = cm > 0 ? cmC/cm : 41;
   const wBM = bm > 0 ? bmC/bm : 57;
-  const wSK = (m.v3_sk_rate>0 ? m.v3_sk_rate : (parseFloat(localStorage.getItem('gf_last_sk'))||0)) || 24.5;
+  const wSK = (m.v3_sk_rate>0 ? m.v3_sk_rate : 0) || gfSkimValue();   // v183
   if(m.v3_sk_rate>0){ try{ localStorage.setItem('gf_last_sk', m.v3_sk_rate); }catch(e){} }  // remember real skim rate for no-purchase days
 
   // ── DERIVED CREAM COST (auto): value cream at its production cost, not a fixed rate.
@@ -5248,12 +5950,30 @@ function gatherMilkData() {
     v3_sk_qty:gn('v3_sk_qty'), v3_sk_snf:gn('v3_sk_snf'),
     v4_cm_qty:gn('v4_cm_qty'), v4_cm_fat:gn('v4_cm_fat'), v4_cm_snf:gn('v4_cm_snf'), v4_cm_rate:gn('v4_cm_rate'),
     v4_bm_qty:gn('v4_bm_qty'), v4_bm_fat:gn('v4_bm_fat'), v4_bm_snf:gn('v4_bm_snf'), v4_bm_rate:gn('v4_bm_rate'),
-    v4_notes:gv('v4_notes'), v4_deduct:gn('v4_deduct'),
+    v4_notes:gv('v4_notes'),
+    v4_deduct:(gn('v4_cm_deduct')||0)+(gn('v4_bm_deduct')||0),   // v184
     v3_sk_rate:gn('v3_sk_rate'), v3_notes:gv('v3_notes'),
-    v1m_deduct:gn('v1m_deduct')||0, v1e_deduct:gn('v1e_deduct')||0,
-    v2_deduct:gn('v2_deduct')||0,   v3_deduct:gn('v3_deduct')||0,
+    // v179: stamp the pricing basis onto the day, so a COGS figure can always
+    // be traced back to the chart and premiums that produced it
+    // v180: which rate setting priced this day, so a COGS figure can be traced
+    rate_basis:(function(){ try{ var d=vrDate();
+      return ['v1','v2','v3','v4'].map(function(k){ return k+':'+(vrFor(k,d).from||''); }).join(' '); }
+      catch(e){ return ''; } })(),
+    /* v184: the split. The five *_deduct totals below are RECOMPUTED from
+       these rather than read off the read-only boxes, so a total can never
+       disagree with its parts. */
+    v1m_cm_deduct:gn('v1m_cm_deduct')||0, v1m_bm_deduct:gn('v1m_bm_deduct')||0,
+    v1e_cm_deduct:gn('v1e_cm_deduct')||0, v1e_bm_deduct:gn('v1e_bm_deduct')||0,
+    v2_cm_deduct :gn('v2_cm_deduct') ||0, v2_bm_deduct :gn('v2_bm_deduct') ||0,
+    v3_bm_deduct :gn('v3_bm_deduct') ||0, v3_sk_deduct :gn('v3_sk_deduct') ||0,
+    v4_cm_deduct :gn('v4_cm_deduct') ||0, v4_bm_deduct :gn('v4_bm_deduct') ||0,
+    v1m_deduct:(gn('v1m_cm_deduct')||0)+(gn('v1m_bm_deduct')||0),
+    v1e_deduct:(gn('v1e_cm_deduct')||0)+(gn('v1e_bm_deduct')||0),
+    v2_deduct :(gn('v2_cm_deduct') ||0)+(gn('v2_bm_deduct') ||0),
+    v3_deduct :(gn('v3_bm_deduct') ||0)+(gn('v3_sk_deduct') ||0),
     cream_milk_l:gn('cream_milk_l'), cream_yield_kg:gn('cream_yield_kg'),
     cream_std_pct:gn('cream_std_pct')||5.7,
+    cream_fat_pct:gn('cream_fat_pct')||59.5,                  // v185
     cream_theor_kg:gn('cream_theor_kg'), cream_actual_pct:gn('cream_actual_pct'),
     cream_var_kg:gn('cream_var_kg'), cream_var_pct:gn('cream_var_pct'),
   };
@@ -5578,7 +6298,7 @@ async function saveProducts() {
              + (m.v4_bm_qty||0)*(m.v4_bm_rate||57);
   data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
   data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
-  data.milk_wSK = m.v3_sk_rate || 24.5;
+  data.milk_wSK = m.v3_sk_rate || gfSkimValue();            // v183
 
   STATE.todayProd = data;
   const dateKey6 = (document.getElementById('entry-date').value||'').replace(/-/g,'');
@@ -6055,7 +6775,7 @@ async function testSheetConnection() {
       lfp_ing_cost: 500,
       lfp_ings: [{label:'SMP',qty:1.5,rate:345,amt:517.5}],
       cost_labour: 110.25, cost_elec: 20.25, cost_transport: 11,
-      milk_wCM: 41, milk_wBM: 57, milk_wSK: 24.5
+      milk_wCM: 41, milk_wBM: 57, milk_wSK: gfSkimValue()
     };
     const testPayload = encodeURIComponent(JSON.stringify({type:'PRODUCTS', data: testData}));
     const getUrl = url + '?payload=' + testPayload;
@@ -6091,9 +6811,11 @@ function applyStdRatesToThisDate(){
 
 function saveStdRates() {
   const rates = {
-    cm_rate:   parseFloat(document.getElementById('std_cm_rate').value)||41,
-    bm_rate:   parseFloat(document.getElementById('std_bm_rate').value)||57,
-    sm_rate:   parseFloat(document.getElementById('std_sm_rate').value)||24.5,
+    // v181: the CM/BM/SM boxes are gone from this card — Vendor Rates owns them.
+    // The keys stay so older saved settings still load without error.
+    cm_rate:   (STATE.stdRates && STATE.stdRates.cm_rate) || 41,
+    bm_rate:   (STATE.stdRates && STATE.stdRates.bm_rate) || 57,
+    sm_rate:   (STATE.stdRates && STATE.stdRates.sm_rate) || 24.5,
     lfp_yield: parseFloat(document.getElementById('std_lfp_yield').value)||17.3,
     ghee_yield:parseFloat(document.getElementById('std_ghee_yield').value)||52.0,
     cmk_yield: parseFloat(document.getElementById('std_cmk_yield').value)||26.0,
@@ -6989,7 +7711,7 @@ function testConnection() {
     data: {date:'MANUAL-TEST', lp_yield:0, mfp_yield:0, lfp_yield:0, mp_yield:0,
            gh_yield_kg:0, lc_yield:0, fc_yield:0, ch_500ml:0, sl_cups:0, ml_cups:0,
            cmk_yield:0, stk_yield:0, cost_labour:110.25, cost_elec:20.25, cost_transport:11,
-           milk_wCM:41, milk_wBM:57, milk_wSK:24.5,
+           milk_wCM:41, milk_wBM:57, milk_wSK:gfSkimValue(),
            lp_ings:[], mfp_ings:[], lfp_ings:[], mp_ings:[], lc_ings:[], fc_ings:[],
            ch_ings:[], sl_ings:[], ml_ings:[], cmk_ings:[], stk_ings:[]}
   });
@@ -7058,7 +7780,7 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
 
   var wCM = parseFloat(d.milk_wCM)||41;
   var wBM = parseFloat(d.milk_wBM)||57;
-  var wSK = parseFloat(d.milk_wSK)||24.5;
+  var wSK = parseFloat(d.milk_wSK)||gfSkimValue();          // v183
   var fixed = (d.cost_labour||110.25) + (d.cost_elec||20.25) + (d.cost_transport||11);
   var dateStr = d.date; // DD/MM/YYYY
 
@@ -7408,7 +8130,14 @@ function logMilk(ss, d) {
       'TOTAL Skim Qty(L)','TOTAL Skim Amount(Rs)',
       'GRAND TOTAL MILK COST(Rs)',
       'V1 TOTAL PAYABLE(Rs)','V2 CM PAYABLE(Rs)','V2 BM PAYABLE(Rs)','V3 PAYABLE(Rs)',
-      'Cream CM Separated(L)','Cream Yield(kg)','Cream Std%','Cream Theoretical(kg)','Cream Actual%','Cream Variance(kg)','Cream Variance%'
+      'Cream CM Separated(L)','Cream Yield(kg)','Cream Std%','Cream Theoretical(kg)','Cream Actual%','Cream Variance(kg)','Cream Variance%',
+      // v184: appended at the END so every existing column keeps its position
+      'V1 Morn CM Deduct(L)','V1 Morn BM Deduct(L)',
+      'V1 Eve CM Deduct(L)','V1 Eve BM Deduct(L)',
+      'V2 CM Deduct(L)','V2 BM Deduct(L)',
+      'V3 BM Deduct(L)','V3 Skim Deduct(L)',
+      'V4 CM Deduct(L)','V4 BM Deduct(L)',
+      'Cream Fat%'
     ]);
     targetSh.getRange(1,1,1,targetSh.getLastColumn())
       .setBackground('#1A1208').setFontColor('#FFFFFF').setFontWeight('bold');
@@ -7429,7 +8158,7 @@ function logMilkData(sh, d) {
   const v4CMqty=d.v4_cm_qty||0,   v4CMrate=d.v4_cm_rate||41;
   const v4BMqty=d.v4_bm_qty||0,   v4BMrate=d.v4_bm_rate||57;
   const v4CMamt=v4CMqty*v4CMrate,  v4BMamt=v4BMqty*v4BMrate;
-  const v3SKqty=d.v3_sk_qty||0,   v3SKrate=d.v3_sk_rate||24.5;
+  const v3SKqty=d.v3_sk_qty||0,   v3SKrate=d.v3_sk_rate||gfSkimValue();
   const v1mCMamt=v1mCMqty*v1mCMrate, v1mBMamt=v1mBMqty*v1mBMrate;
   const v1eCMamt=v1eCMqty*v1eCMrate, v1eBMamt=v1eBMqty*v1eBMrate;
   const v2CMamt=v2CMqty*v2CMrate, v2BMamt=v2BMqty*v2BMrate;
@@ -7496,7 +8225,13 @@ function logMilkData(sh, d) {
     'Cream Theoretical(kg)': d.cream_theor_kg||0,
     'Cream Actual%': d.cream_actual_pct||0,
     'Cream Variance(kg)': d.cream_var_kg||0,
-    'Cream Variance%': d.cream_var_pct||0
+    'Cream Variance%': d.cream_var_pct||0,
+    'V1 Morn CM Deduct(L)': d.v1m_cm_deduct||0, 'V1 Morn BM Deduct(L)': d.v1m_bm_deduct||0,
+    'V1 Eve CM Deduct(L)' : d.v1e_cm_deduct||0, 'V1 Eve BM Deduct(L)' : d.v1e_bm_deduct||0,
+    'V2 CM Deduct(L)'     : d.v2_cm_deduct ||0, 'V2 BM Deduct(L)'     : d.v2_bm_deduct ||0,
+    'V3 BM Deduct(L)'     : d.v3_bm_deduct ||0, 'V3 Skim Deduct(L)'   : d.v3_sk_deduct ||0,
+    'V4 CM Deduct(L)'     : d.v4_cm_deduct ||0, 'V4 BM Deduct(L)'     : d.v4_bm_deduct ||0,
+    'Cream Fat%'          : d.cream_fat_pct||0
   };
 
   // Get current headers from sheet
@@ -7638,7 +8373,7 @@ function logCOGSDaily(ss, d) {
     sh.setFrozenRows(1); sh.setFrozenColumns(2);
   }
   const shC = ss.getSheetByName(cogsSheetName) || sh;
-  const wCM=parseFloat(d.milk_wCM)||41, wBM=parseFloat(d.milk_wBM)||57, wSK=parseFloat(d.milk_wSK)||24.5;
+  const wCM=parseFloat(d.milk_wCM)||41, wBM=parseFloat(d.milk_wBM)||57, wSK=parseFloat(d.milk_wSK)||gfSkimValue();
   const fixed=(d.cost_labour||110.25)+(d.cost_elec||20.25)+(d.cost_transport||11);
   function addRow(prod,yld,milkCost,ingCost,gasFuel,rev,actYP,stdYP,notes){
     // Skip ghost rows — no milk means no real production batch was run
@@ -7770,79 +8505,178 @@ function _fallbackCopy(text) {
 }
 
 // ── RATE LOOKUP ──────────────────────────────────────────────────
-function lookupRate(milkType, fat, snf) {
-  const tbl = RATE_TABLES[milkType];
-  if (!tbl) return null;
-  const fatKey = (Math.round(fat * 10) / 10).toFixed(1);
-  const snfKey = (Math.round(snf * 10) / 10).toFixed(1);
-  if (tbl[fatKey] && tbl[fatKey][snfKey] !== undefined) return tbl[fatKey][snfKey];
-  const snfNum = parseFloat(snfKey);
-  for (const d of [0.1, -0.1, 0.2, -0.2]) {
-    const trySnf = (Math.round((snfNum+d)*10)/10).toFixed(1);
-    if (tbl[fatKey] && tbl[fatKey][trySnf] !== undefined) return tbl[fatKey][trySnf];
-  }
-  const fatNum = parseFloat(fatKey);
-  for (const df of [0.1, -0.1]) {
-    const tryFat = (Math.round((fatNum+df)*10)/10).toFixed(1);
-    if (tbl[tryFat] && tbl[tryFat][snfKey] !== undefined) return tbl[tryFat][snfKey];
-  }
-  return null;
+function lookupRate(milkType, fat, snf, iso) {
+  // v180: kept so older callers keep working — Vendor 1's chart is the reference
+  var s = vrFor('v1', iso || vrDate());
+  return vrChartLookup(s && s[milkType], fat, snf);
 }
-
-function autoFillRate(milkType, fatId, snfId, rateId, commissionPer) {
-  if (commissionPer === undefined) commissionPer = V1_COMMISSION;
-  const fatEl  = document.getElementById(fatId);
-  const snfEl  = document.getElementById(snfId);
-  const rateEl = document.getElementById(rateId);
-  if (!fatEl || !snfEl || !rateEl) return;
-  const fat = parseFloat(fatEl.value);
-  const snf = parseFloat(snfEl.value);
-  if (isNaN(fat) || isNaN(snf) || fat <= 0 || snf <= 0) return;
-  const base = lookupRate(milkType, fat, snf);
-  if (base !== null && base !== undefined) {
-    const comm = parseFloat(commissionPer) || 0;
-    const final = Math.round((base + comm) * 100) / 100;
-    rateEl.value = final;
-    rateEl.style.background = '#E8F8EE';
-    rateEl.style.borderColor = '#2D7A45';
-    rateEl.title = 'Base Rs ' + base + ' + Commission Rs ' + comm + ' = Rs ' + final;
-    setTimeout(function(){ rateEl.style.background=''; rateEl.style.borderColor=''; }, 2000);
-  } else {
-    rateEl.value = '';
-    rateEl.style.background = '#FFF3CD';
-    rateEl.style.borderColor = '#E8870A';
-    rateEl.title = 'Fat/SNF combination not in rate table — enter rate manually';
+function _vrVendorOf(id){
+  var s = String(id||'');
+  if(s.indexOf('v1m')===0 || s.indexOf('v1e')===0) return 'v1';
+  if(s.indexOf('v2')===0) return 'v2';
+  if(s.indexOf('v3')===0) return 'v3';
+  if(s.indexOf('v4')===0) return 'v4';
+  return 'v1';
+}
+// Fill a rate box from that vendor's setting for the entry date.
+// force = true rewrites even a hand-typed rate (used after you Save rates).
+function autoFillRate(milkType, fatId, snfId, rateId, force) {
+  var fatEl = document.getElementById(fatId);
+  var snfEl = document.getElementById(snfId);
+  var rateEl = document.getElementById(rateId);
+  if (!rateEl) return;
+  var vend = _vrVendorOf(rateId);
+  var fat = fatEl ? parseFloat(fatEl.value) : NaN;
+  var snf = snfEl ? parseFloat(snfEl.value) : NaN;
+  var q = vrQuote(vend, milkType, fat, snf, vrDate());
+  if (!q) {
+    var st = vrFor(vend, vrDate());
+    vrNote(rateId, (st && st.mode==='chart' && fat>0 && snf>0)
+      ? '<span style="color:#8a6d00;">no chart rate for ' + fat + ' / ' + snf + ' — type it in</span>' : '');
+    return;
   }
+  var cur = parseFloat(rateEl.value);
+  var auto = rateEl.dataset.vrAuto ? parseFloat(rateEl.dataset.vrAuto) : NaN;
+  var untouched = force || !(cur > 0) || (!isNaN(auto) && Math.abs(cur - auto) < 0.005);
+  if (untouched) {
+    rateEl.value = q.rate;
+    rateEl.dataset.vrAuto = String(q.rate);
+    rateEl.style.background = '#E8F8EE'; rateEl.style.borderColor = '#2D7A45';
+    setTimeout(function(){ rateEl.style.background=''; rateEl.style.borderColor=''; }, 1200);
+  }
+  rateEl.title = q.why;
+  vrNote(rateId, vrNoteHtml(q, parseFloat(rateEl.value) || q.rate, fat));
 }
-
-// ── Wire up rate lookups via addEventListener (avoids inline oninput issues) ──
-function computeRateIfEmpty(milkType, fatId, snfId) {
-  // Called during save as fallback if rate field was not auto-filled
-  const fat = parseFloat(document.getElementById(fatId)?.value || 0);
-  const snf = parseFloat(document.getElementById(snfId)?.value || 0);
-  if (!fat || !snf) return 0;
-  const base = lookupRate(milkType, fat, snf);
-  if (base === null || base === undefined) return 0;
-  return Math.round((base + (V1_COMMISSION||2)) * 100) / 100;
+function vrNoteHtml(q, actual, fat){
+  var t = q.why;
+  if (Math.abs(actual - q.rate) > 0.005)
+    t += ' &nbsp;·&nbsp; <b style="color:#c0392b;">you have typed ₹' + actual.toFixed(2) + '</b>';
+  // skim carries no fat worth costing, so the fat line is only for CM and BM
+  /* v182: was actual/(fat/100), which charged the whole litre to fat. */
+  if (q.fatSnf && !q.isSkim)
+    t += ' &nbsp;·&nbsp; fat <b>₹' + Math.round(q.fatSnf.perKgFat) + '/kg</b>'
+      +  (q.fatSnf.perKgSnf ? ' · SNF <b>₹' + Math.round(q.fatSnf.perKgSnf) + '/kg</b>' : '');
+  return t;
 }
-
-function wireRateLookups() {
-  const pairs = [
-    {fat:'v1m_cm_fat', snf:'v1m_cm_snf', rate:'v1m_cm_rate', type:'cm'},
-    {fat:'v1m_bm_fat', snf:'v1m_bm_snf', rate:'v1m_bm_rate', type:'bm'},
-    {fat:'v1e_cm_fat', snf:'v1e_cm_snf', rate:'v1e_cm_rate', type:'cm'},
-    {fat:'v1e_bm_fat', snf:'v1e_bm_snf', rate:'v1e_bm_rate', type:'bm'},
+function vrNote(rateId, html){
+  var n = document.getElementById(rateId + '_note');
+  if(!n){
+    var r = document.getElementById(rateId); if(!r) return;
+    n = document.createElement('div'); n.id = rateId + '_note';
+    n.style.cssText = "font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);";
+    (r.closest('.field') || r.parentNode).appendChild(n);
+  }
+  n.innerHTML = html || '';
+}
+// Save-time fallback: if a rate box was left empty, price it from the vendor's
+// setting for that day rather than saving a zero.
+function computeRateIfEmpty(milkType, fatId, snfId){
+  var fat=parseFloat((document.getElementById(fatId)||{}).value||0);
+  var snf=parseFloat((document.getElementById(snfId)||{}).value||0);
+  var vend=_vrVendorOf(fatId);
+  var q=vrQuote(vend, milkType, fat, snf, vrDate());
+  return q ? q.rate : 0;
+}
+var VR_FIELDS = [
+  ['cm','v1m_cm_fat','v1m_cm_snf','v1m_cm_rate'], ['bm','v1m_bm_fat','v1m_bm_snf','v1m_bm_rate'],
+  ['cm','v1e_cm_fat','v1e_cm_snf','v1e_cm_rate'], ['bm','v1e_bm_fat','v1e_bm_snf','v1e_bm_rate'],
+  ['cm','v2_cm_fat','v2_cm_snf','v2_cm_rate'],    ['bm','v2_bm_fat','v2_bm_snf','v2_bm_rate'],
+  ['bm','v3_bm_fat','v3_bm_snf','v3_bm_rate'],    ['sk','v3_sk_snf','v3_sk_snf','v3_sk_rate'],
+  ['cm','v4_cm_fat','v4_cm_snf','v4_cm_rate'],    ['bm','v4_bm_fat','v4_bm_snf','v4_bm_rate']
+];
+// Repaint every rate box. force=true after Save rates or a date change, so the
+// new setting actually lands in the boxes instead of leaving yesterday's number.
+function vrRefreshAll(force){
+  VR_FIELDS.forEach(function(f){ autoFillRate(f[0], f[1], f[2], f[3], force); });
+  try{ vrDateBanner(); }catch(e){}
+  try{ vrFatPanel(); }catch(e){}
+  try{ gfApplyCreamRate(); }catch(e){}
+}
+/* If the entry date sits BEFORE a newer setting, say so on the milk form.
+   This is the thing that made v179 look broken: charts saved from 6 Sep do not
+   price 5 Sep, which is correct but has to be visible. */
+function vrDateBanner(){
+  var box = document.getElementById('vr-date-banner'); if(!box) return;
+  var iso = vrDate(), newer = vrNewerThan(iso);
+  if(!newer.length){ box.innerHTML=''; return; }
+  var seen={}, list=[];
+  newer.forEach(function(n){ var k=n.v+n.from; if(!seen[k]){ seen[k]=1;
+    list.push('Vendor '+n.v.slice(1)+' from '+n.from); } });
+  box.innerHTML = '<div style="background:#FFF8E1;border:1.5px solid #E8870A;border-radius:8px;padding:9px 12px;'
+    + 'font-family:\'Space Mono\',monospace;font-size:11px;line-height:1.7;color:#8a6d00;">'
+    + '<b>You are entering ' + iso + '.</b> Rates below are the ones valid on that day. '
+    + 'You have newer rates saved: ' + list.join(' · ')
+    + '.<br>They start from their own dates — this day is priced as it was.</div>';
+}
+/* Cost per kg of butterfat, by source. Cream and ghee are fat, so this is the
+   number that decides whether they can be sold at a profit. */
+function vrFatPanel(){
+  var box = document.getElementById('vr-fat-panel'); if(!box) return;
+  var q = function(id){ return parseFloat((document.getElementById(id)||{}).value) || 0; };
+  var SRC = [
+    ['Vendor 1 morning · CM','v1m_cm_qty','v1m_cm_fat','v1m_cm_rate','v1m_cm_snf','cm'],
+    ['Vendor 1 morning · BM','v1m_bm_qty','v1m_bm_fat','v1m_bm_rate','v1m_bm_snf','bm'],
+    ['Vendor 1 evening · CM','v1e_cm_qty','v1e_cm_fat','v1e_cm_rate','v1e_cm_snf','cm'],
+    ['Vendor 1 evening · BM','v1e_bm_qty','v1e_bm_fat','v1e_bm_rate','v1e_bm_snf','bm'],
+    ['Vendor 2 · CM','v2_cm_qty','v2_cm_fat','v2_cm_rate','v2_cm_snf','cm'],
+    ['Vendor 2 · BM','v2_bm_qty','v2_bm_fat','v2_bm_rate','v2_bm_snf','bm'],
+    ['Vendor 3 · BM','v3_bm_qty','v3_bm_fat','v3_bm_rate','v3_bm_snf','bm'],
+    ['Vendor 4 · CM','v4_cm_qty','v4_cm_fat','v4_cm_rate','v4_cm_snf','cm'],
+    ['Vendor 4 · BM','v4_bm_qty','v4_bm_fat','v4_bm_rate','v4_bm_snf','bm']
   ];
-  pairs.forEach(function(p) {
-    var fatEl = document.getElementById(p.fat);
-    var snfEl = document.getElementById(p.snf);
-    if (!fatEl || !snfEl) return;
-    function trigger() { autoFillRate(p.type, p.fat, p.snf, p.rate, V1_COMMISSION); }
-    fatEl.addEventListener('input', trigger);
-    fatEl.addEventListener('change', trigger);
-    snfEl.addEventListener('input', trigger);
-    snfEl.addEventListener('change', trigger);
+  var rows='', bill=0, any=false, fatKg=0, snfKg=0, fatRs=0, snfRs=0;
+  SRC.forEach(function(x){
+    var qty=q(x[1]), fat=q(x[2]), rate=q(x[3]);
+    if(!(qty>0) || !(rate>0)) return;
+    any=true; bill += qty*rate;
+    var snf = q(x[4]);
+    var sl  = gfSlopesAny(x[5], vrDate());
+    var sp  = gfSplitLitre(rate, fat, snf, sl);
+    if(sp){ fatKg += qty*sp.fatKg; snfKg += qty*sp.snfKg;
+            fatRs += qty*sp.fatPart; snfRs += qty*sp.snfPart; }
+    rows += '<tr><td>'+x[0]+'</td><td style="text-align:right;">'+qty.toFixed(1)+'</td>'
+         +  '<td style="text-align:right;">'+(fat?fat.toFixed(1)+'%':'—')+'</td>'
+         +  '<td style="text-align:right;">'+(snf?snf.toFixed(1)+'%':'—')+'</td>'
+         +  '<td style="text-align:right;">₹'+rate.toFixed(2)+'</td>'
+         +  '<td style="text-align:right;font-weight:700;">'+(sp?'₹'+Math.round(sp.perKgFat):'—')+'</td>'
+         +  '<td style="text-align:right;">'+(sp&&sp.perKgSnf?'₹'+Math.round(sp.perKgSnf):'—')+'</td></tr>';
   });
+  var empty=document.getElementById('vr-fat-empty');
+  if(empty) empty.style.display = any ? 'none' : '';
+  if(!any){ box.innerHTML=''; return; }
+  box.innerHTML = '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">'
+    + '<table class="rpt-table" style="font-size:11px;min-width:360px;"><thead><tr>'
+    + '<th>Source</th><th style="text-align:right;">Litres</th><th style="text-align:right;">Fat</th>'
+    + '<th style="text-align:right;">SNF</th>'
+    + '<th style="text-align:right;">Rate</th><th style="text-align:right;">₹/kg fat</th>'
+    + '<th style="text-align:right;">₹/kg SNF</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody></table></div>'
+    + '<div style="font-family:\'Space Mono\',monospace;font-size:11px;margin-top:8px;line-height:1.7;">'
+    + 'Milk bill today <b>₹' + Math.round(bill).toLocaleString('en-IN') + '</b>'
+    + (fatKg>0 ? ('<br>Bought <b>' + fatKg.toFixed(1) + ' kg fat</b> at ₹' + Math.round(fatRs/fatKg)
+        + '/kg and <b>' + snfKg.toFixed(1) + ' kg SNF</b> at ₹' + (snfKg>0?Math.round(snfRs/snfKg):0) + '/kg'
+        + '<br><span style="color:var(--muted);">Fat ₹' + Math.round(fatRs).toLocaleString('en-IN')
+        + ' + SNF ₹' + Math.round(snfRs).toLocaleString('en-IN') + ' = the milk bill. The split follows your own '
+        + 'rate chart: how much it pays for one more point of fat against one more point of SNF.</span>') : '')
+    + '<br><span style="color:var(--muted);">Cream and ghee are butterfat — compare vendors on ₹/kg fat, not ₹ per litre.</span></div>';
+}
+function wireRateLookups() {
+  VR_FIELDS.forEach(function(f){
+    var fatEl=document.getElementById(f[1]), snfEl=document.getElementById(f[2]),
+        rEl=document.getElementById(f[3]);
+    if(!rEl) return;
+    function trigger(){ autoFillRate(f[0], f[1], f[2], f[3]); }
+    [fatEl, snfEl].forEach(function(e){ if(e){ e.addEventListener('input',trigger); e.addEventListener('change',trigger); } });
+    rEl.addEventListener('input', function(){
+      var fat=fatEl?parseFloat(fatEl.value):NaN;
+      var q=vrQuote(_vrVendorOf(f[3]), f[0], fat, snfEl?parseFloat(snfEl.value):NaN, vrDate());
+      if(q) vrNote(f[3], vrNoteHtml(q, parseFloat(rEl.value)||q.rate, fat));
+      try{ vrFatPanel(); }catch(e){}
+    });
+    // fixed-rate vendors have no fat/SNF trigger for the rate, so fill on load
+  });
+  var ed = document.getElementById('entry-date');
+  if (ed) ed.addEventListener('change', function(){ try{ vrRefreshAll(true); }catch(e){} });
 }
 
 // ── DATE HELPERS ─────────────────────────────────────────────────
@@ -7937,6 +8771,9 @@ function loadDateData(iso) {
   const MILK_FIELDS = [
     'v1m_cm_qty','v1m_cm_fat','v1m_cm_snf','v1m_cm_rate',
     'v1m_bm_qty','v1m_bm_fat','v1m_bm_snf','v1m_bm_rate','v1m_notes','v1m_deduct',
+    'v1m_cm_deduct','v1m_bm_deduct','v1e_cm_deduct','v1e_bm_deduct',      // v184
+    'v2_cm_deduct','v2_bm_deduct','v3_bm_deduct','v3_sk_deduct',
+    'v4_cm_deduct','v4_bm_deduct','cream_fat_pct',
     'v1e_cm_qty','v1e_cm_fat','v1e_cm_snf','v1e_cm_rate',
     'v1e_bm_qty','v1e_bm_fat','v1e_bm_snf','v1e_bm_rate','v1e_notes','v1e_deduct',
     'v2_cm_qty','v2_cm_fat','v2_cm_snf','v2_cm_rate',
@@ -7945,7 +8782,7 @@ function loadDateData(iso) {
     'v4_cm_qty','v4_cm_fat','v4_cm_snf','v4_cm_rate',
     'v4_bm_qty','v4_bm_fat','v4_bm_snf','v4_bm_rate',
     'v4_notes','v4_deduct',
-    'cream_milk_l','cream_yield_kg','cream_std_pct'
+    'cream_milk_l','cream_yield_kg','cream_std_pct','cream_fat_pct'
   ];
   if (savedMilk) {
     const d = JSON.parse(savedMilk);
@@ -8010,81 +8847,229 @@ function saveCommission() {
   showToast('Commission saved: Rs ' + comm + '/L', 'success');
 }
 
-function uploadRateChart(type, inputEl) {
-  const file = inputEl.files[0];
-  if (!file) return;
-  const statusEl = document.getElementById('upload-status');
-  statusEl.className = 'alert show';
-  statusEl.style.background = 'var(--lblue)';
-  statusEl.style.color = 'var(--blue)';
-  statusEl.style.border = '1px solid rgba(26,82,118,0.3)';
-  statusEl.textContent = '⏳ Reading ' + file.name + '...';
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = new Uint8Array(e.target.result);
-      const wb   = XLSX.read(data, { type: 'array' });
-      const ws   = wb.Sheets[wb.SheetNames[0]];
-      const arr  = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
-
-      // Find the SNF header row (row with 7.0, 7.1, 7.2...)
-      let hdrRowIdx = -1;
-      for (let i = 0; i < arr.length; i++) {
-        const row = arr[i];
-        if (row && row[2] !== null && typeof row[2] === 'number' && Math.abs(row[2] - 7.0) < 0.05) {
-          hdrRowIdx = i; break;
-        }
-      }
-      if (hdrRowIdx < 0) throw new Error('Cannot find SNF header row (expected 7.0, 7.1... in column 3)');
-
-      const snfRow = arr[hdrRowIdx];
-      const snfCols = []; // [{ci, snf}]
-      for (let ci = 2; ci < snfRow.length; ci++) {
-        const v = snfRow[ci];
-        if (v !== null && typeof v === 'number') snfCols.push({ ci, snf: Math.round(v*10)/10 });
-      }
-
-      const table = {};
-      for (let ri = hdrRowIdx + 1; ri < arr.length; ri++) {
-        const row = arr[ri];
-        if (!row || row[1] === null || typeof row[1] !== 'number') continue;
-        const fat = Math.round(parseFloat(row[1]) * 10) / 10;
-        table[fat.toFixed(1)] = {};
-        for (const { ci, snf } of snfCols) {
-          const val = row[ci];
-          if (val !== null && typeof val === 'number') {
-            table[fat.toFixed(1)][snf.toFixed(1)] = Math.round(val * 100) / 100;
-          }
-        }
-      }
-
-      const fatCount = Object.keys(table).length;
-      const snfCount = snfCols.length;
-      if (fatCount < 5 || snfCount < 5) throw new Error('Table too small (' + fatCount + ' fat rows, ' + snfCount + ' SNF cols) — check file format');
-
-      // Update in memory and localStorage
-      RATE_TABLES[type] = table;
-      localStorage.setItem('rate_tables', JSON.stringify(RATE_TABLES));
-
-      // Update version label
-      const today = new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-      document.getElementById('rate_chart_version').value = 'Updated ' + today;
-
-      statusEl.style.background = 'var(--lgreen)';
-      statusEl.style.color      = 'var(--green)';
-      statusEl.style.border     = '1px solid rgba(45,122,69,0.3)';
-      statusEl.textContent = '✓ ' + type.toUpperCase() + ' rate chart updated — ' + fatCount + ' fat rows × ' + snfCount + ' SNF cols loaded from ' + file.name;
-      showToast(type.toUpperCase() + ' rate chart updated!', 'success');
-    } catch(err) {
-      statusEl.style.background = 'var(--lred)';
-      statusEl.style.color      = 'var(--red)';
-      statusEl.style.border     = '1px solid rgba(192,57,43,0.3)';
-      statusEl.textContent = '✗ Error reading ' + file.name + ': ' + err.message;
-      showToast('Upload failed — ' + err.message, 'error');
+// ── v180: read a Panvadi rate chart .xlsx ──────────────────────────────────
+// Tolerant on purpose: the SNF header row is found wherever it is, and the fat
+// column is whichever column sits left of it. The Aug-2026 revision has a
+// hidden column C and starts at SNF 7.1, which the old fixed-position parser
+// would have refused outright.
+function _vrParseWorkbook(arrayBuffer){
+  var wb = XLSX.read(new Uint8Array(arrayBuffer), { type:'array' });
+  var arr = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header:1, defval:null });
+  var hdrRow=-1, snfCols=null;
+  for(var i=0;i<Math.min(arr.length,40);i++){
+    var row=arr[i]||[], cols=[];
+    for(var c=0;c<row.length;c++){
+      var v=row[c];
+      if(typeof v==='number' && v>=6 && v<=11.5) cols.push({ci:c, snf:Math.round(v*10)/10});
+    }
+    // a real SNF header has many values, rising left to right
+    if(cols.length>=6){
+      var rising=true;
+      for(var k=1;k<cols.length;k++) if(cols[k].snf <= cols[k-1].snf) { rising=false; break; }
+      if(rising){ hdrRow=i; snfCols=cols; break; }
+    }
+  }
+  if(hdrRow<0) throw new Error('Could not find the SNF header row (a row of rising numbers between 7 and 10)');
+  var firstSnfCol = snfCols[0].ci;
+  // fat column = the column left of the SNF block that holds numbers on most rows
+  var best=-1, bestHits=0;
+  for(var fc=0; fc<firstSnfCol; fc++){
+    var hits=0;
+    for(var r=hdrRow+1; r<arr.length; r++){
+      var v=(arr[r]||[])[fc];
+      if(typeof v==='number' && v>=1 && v<=15) hits++;
+    }
+    if(hits>bestHits){ bestHits=hits; best=fc; }
+  }
+  if(best<0 || bestHits<5) throw new Error('Could not find the Fat% column to the left of the SNF row');
+  var table={};
+  for(var r2=hdrRow+1; r2<arr.length; r2++){
+    var row2=arr[r2]||[], fv=row2[best];
+    if(typeof fv!=='number' || fv<1 || fv>15) continue;
+    var fk=(Math.round(fv*10)/10).toFixed(1);
+    table[fk]=table[fk]||{};
+    snfCols.forEach(function(sc){
+      var val=row2[sc.ci];
+      if(typeof val==='number' && val>0) table[fk][sc.snf.toFixed(1)]=Math.round(val*100)/100;
+    });
+    if(!Object.keys(table[fk]).length) delete table[fk];
+  }
+  var fatCount=Object.keys(table).length;
+  if(fatCount<5) throw new Error('Only '+fatCount+' fat rows read — check the file');
+  return { table:table, fatCount:fatCount, snfCount:snfCols.length };
+}
+function _vrStatus(msg, kind){
+  var el=document.getElementById('vr-status'); if(!el) return;
+  el.className='alert show';
+  var K={ok:['var(--lgreen)','var(--green)','rgba(45,122,69,0.3)'],
+         err:['var(--lred)','var(--red)','rgba(192,57,43,0.3)'],
+         info:['var(--lblue)','var(--blue)','rgba(26,82,118,0.3)']}[kind||'info'];
+  el.style.background=K[0]; el.style.color=K[1]; el.style.border='1px solid '+K[2];
+  el.innerHTML=msg;
+}
+// Charts you have chosen but not yet saved.
+var VR_PENDING = { v1:{cm:null,bm:null,cmName:'',bmName:''}, v4:{cm:null,bm:null,cmName:'',bmName:''} };
+function vrUploadChart(vendor, type, inputEl){
+  var file=inputEl.files[0]; if(!file) return;
+  _vrStatus('⏳ Reading ' + file.name + ' …','info');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var r=_vrParseWorkbook(e.target.result);
+      VR_PENDING[vendor][type]=r.table;
+      VR_PENDING[vendor][type+'Name']=file.name+' ('+r.fatCount+' fat × '+r.snfCount+' SNF)';
+      _vrStatus('✓ Read <b>'+file.name+'</b> — '+r.fatCount+' fat rows × '+r.snfCount+' SNF columns.'
+              + '<br>Set the <b>valid from</b> date and press <b>Save rates</b>. Nothing changes until you do.','ok');
+      vrRenderSetup();
+    }catch(err){
+      _vrStatus('✗ Could not read '+file.name+': '+err.message,'err');
+      showToast('Could not read that file','error');
     }
   };
   reader.readAsArrayBuffer(file);
+}
+// Save every vendor's rates, each from its own valid-from date.
+function vrSaveAll(){
+  var g=function(id){ return document.getElementById(id); };
+  var num=function(id){ return parseFloat((g(id)||{}).value); };
+  var dt=function(id){ var v=(g(id)||{}).value||''; return /^\d{4}-\d{2}-\d{2}$/.test(v)?v:''; };
+  var changed=[], problems=[];
+
+  // Vendor 1 — chart + commission
+  (function(){
+    var from=dt('vr_v1_from'); if(!from){ problems.push('Vendor 1 needs a valid-from date'); return; }
+    var cur=vrFor('v1', from);
+    var cm=VR_PENDING.v1.cm || (cur.cm||{}), bm=VR_PENDING.v1.bm || (cur.bm||{});
+    var comm=num('vr_v1_comm'); if(isNaN(comm)) comm=cur.comm||0;
+    var e={from:from, mode:'chart', comm:comm, cm:cm, bm:bm,
+           note:[VR_PENDING.v1.cmName?('CM '+VR_PENDING.v1.cmName):'', VR_PENDING.v1.bmName?('BM '+VR_PENDING.v1.bmName):''].filter(Boolean).join(' · ')};
+    vrPut('v1', e); changed.push('Vendor 1 from '+from);
+  })();
+  // Vendor 2 — fixed CM + BM
+  (function(){
+    var from=dt('vr_v2_from'); if(!from){ problems.push('Vendor 2 needs a valid-from date'); return; }
+    var cur=vrFor('v2', from);
+    var cmR=num('vr_v2_cm'), bmR=num('vr_v2_bm');
+    if(isNaN(cmR)) cmR=cur.cmRate; if(isNaN(bmR)) bmR=cur.bmRate;
+    vrPut('v2', {from:from, mode:'fixed', cmRate:cmR, bmRate:bmR});
+    changed.push('Vendor 2 from '+from);
+  })();
+  // Vendor 3 — fixed BM + Skim
+  (function(){
+    var from=dt('vr_v3_from'); if(!from){ problems.push('Vendor 3 needs a valid-from date'); return; }
+    var cur=vrFor('v3', from);
+    var bmR=num('vr_v3_bm'), skR=num('vr_v3_sk');
+    if(isNaN(bmR)) bmR=cur.bmRate; if(isNaN(skR)) skR=cur.skRate;
+    vrPut('v3', {from:from, mode:'fixed', bmRate:bmR, skRate:skR});
+    changed.push('Vendor 3 from '+from);
+  })();
+  // Vendor 4 — chart + commission
+  (function(){
+    var from=dt('vr_v4_from'); if(!from){ problems.push('Vendor 4 needs a valid-from date'); return; }
+    var cur=vrFor('v4', from);
+    var cm=VR_PENDING.v4.cm || (cur.cm||{}), bm=VR_PENDING.v4.bm || (cur.bm||{});
+    var comm=num('vr_v4_comm'); if(isNaN(comm)) comm=cur.comm||0;
+    vrPut('v4', {from:from, mode:'chart', comm:comm, cm:cm, bm:bm,
+      note:[VR_PENDING.v4.cmName?('CM '+VR_PENDING.v4.cmName):'', VR_PENDING.v4.bmName?('BM '+VR_PENDING.v4.bmName):''].filter(Boolean).join(' · ')});
+    changed.push('Vendor 4 from '+from);
+  })();
+
+  if(problems.length){ _vrStatus('✗ '+problems.join(' · '),'err'); return; }
+  vrSave();
+  VR_PENDING={ v1:{cm:null,bm:null,cmName:'',bmName:''}, v4:{cm:null,bm:null,cmName:'',bmName:''} };
+  ['vr_v1_cm_file','vr_v1_bm_file','vr_v4_cm_file','vr_v4_bm_file'].forEach(function(i){
+    var el=document.getElementById(i); if(el) el.value=''; });
+  vrRenderSetup();
+  vrRefreshAll(true);
+  vrPushRates();
+  _vrStatus('✓ Saved. Days on or after each valid-from date use the new rates; earlier days are untouched.','ok');
+  showToast('Rates saved','success');
+}
+// Replace the entry for that exact date, or add a new one.
+function vrPut(vendor, entry){
+  var list = VENDOR_RATES[vendor] = VENDOR_RATES[vendor] || [];
+  var at = -1;
+  list.forEach(function(x,i){ if(x.from===entry.from) at=i; });
+  if(at>=0) list[at]=entry; else list.push(entry);
+}
+function vrRenderSetup(){
+  var g=function(id){ return document.getElementById(id); };
+  var today=vrDate();
+  ['v1','v2','v3','v4'].forEach(function(k){
+    var cur=vrFor(k, today), fromEl=g('vr_'+k+'_from');
+    if(fromEl && !fromEl.value) fromEl.value=cur.from||today;
+    var st=g('vr_'+k+'_state'); if(!st) return;
+    var older=(VENDOR_RATES[k]||[]).length-1;
+    var txt='';
+    if(cur.mode==='chart'){
+      var nCM=Object.keys(cur.cm||{}).length, nBM=Object.keys(cur.bm||{}).length;
+      txt='In use for '+today+': chart valid from <b>'+cur.from+'</b> — CM '+nCM+' fat rows, BM '+nBM+' fat rows'
+        + (cur.comm? ', commission ₹'+cur.comm+'/L':'')
+        + (cur.note? '<br><span style="opacity:.75;">'+cur.note+'</span>':'');
+      if(!nCM && !nBM) txt='No chart loaded yet for this vendor — upload one below, or leave it and type rates by hand.';
+    } else {
+      txt='In use for '+today+': fixed rates valid from <b>'+cur.from+'</b> — '
+        + (k==='v3' ? ('BM ₹'+(cur.bmRate||0)+'/L · Skim ₹'+(cur.skRate||0)+'/L')
+                    : ('CM ₹'+(cur.cmRate||0)+'/L · BM ₹'+(cur.bmRate||0)+'/L'));
+    }
+    if(older>0) txt += '<br><span style="opacity:.7;">'+older+' earlier setting'+(older===1?'':'s')+' kept for older dates.</span>';
+    st.innerHTML=txt;
+  });
+  // fill the fixed-rate boxes with what is in force
+  var v2=vrFor('v2',today), v3=vrFor('v3',today), v1=vrFor('v1',today), v4=vrFor('v4',today);
+  if(g('vr_v2_cm') && g('vr_v2_cm').value==='') g('vr_v2_cm').value = v2.cmRate!==undefined? v2.cmRate : '';
+  if(g('vr_v2_bm') && g('vr_v2_bm').value==='') g('vr_v2_bm').value = v2.bmRate!==undefined? v2.bmRate : '';
+  if(g('vr_v3_bm') && g('vr_v3_bm').value==='') g('vr_v3_bm').value = v3.bmRate!==undefined? v3.bmRate : '';
+  if(g('vr_v3_sk') && g('vr_v3_sk').value==='') g('vr_v3_sk').value = v3.skRate!==undefined? v3.skRate : '';
+  if(g('vr_v1_comm') && g('vr_v1_comm').value==='') g('vr_v1_comm').value = v1.comm!==undefined? v1.comm : 2;
+  if(g('vr_v4_comm') && g('vr_v4_comm').value==='') g('vr_v4_comm').value = v4.comm!==undefined? v4.comm : 0;
+  var pend=[];
+  ['v1','v4'].forEach(function(k){
+    if(VR_PENDING[k].cmName) pend.push('Vendor '+k.slice(1)+' CM: '+VR_PENDING[k].cmName);
+    if(VR_PENDING[k].bmName) pend.push('Vendor '+k.slice(1)+' BM: '+VR_PENDING[k].bmName);
+  });
+  var pe=g('vr-pending');
+  if(pe) pe.innerHTML = pend.length
+    ? '<b>Ready to save:</b> '+pend.join(' · ')+' — press Save rates.' : '';
+}
+// ── optional: keep every device on the same rates through the Sheet ─────────
+function vrPushRates(){
+  try{
+    if(!STATE.gsUrl) return;
+    sendChunked(STATE.gsUrl, 'VENDOR_RATES', { rates: JSON.stringify(VENDOR_RATES) });
+  }catch(e){ console.warn('vendor rate push failed', e); }
+}
+async function vrPullRates(loud){
+  if(!STATE.gsUrl){ if(loud) showToast('Set the Google Script URL first','error'); return; }
+  try{
+    if(loud) _vrStatus('⏳ Reading rates from the Sheet …','info');
+    var r=await fetch(STATE.gsUrl+'?action=getReportData&sheet=Vendor_Rates&from=1900-01-01&to=2999-12-31&_t='+Date.now());
+    var j=await r.json();
+    if(!j || !j.rows || !j.rows.length){
+      // v181: plain words. The old line named an internal tab and read like a
+      // fault; it is simply the normal state until the Apps Script addition is
+      // pasted in, and nothing about this device's rates is affected either way.
+      if(loud) _vrStatus('Your rates are saved on this device and are being used. '
+        + 'Sharing them with your phone needs the small Apps Script addition pasted in first — '
+        + 'until then, set the rates on each device.','info');
+      return;
+    }
+    var H={}; (j.headers||[]).forEach(function(h,i){ H[String(h).trim()]=i; });
+    var blob='';
+    j.rows.forEach(function(row){ blob += String(row[H['Rates JSON']]||''); });
+    blob=blob.trim();
+    if(!blob){ if(loud) _vrStatus('The Vendor_Rates tab has nothing readable.','err'); return; }
+    var got=JSON.parse(blob);
+    if(!(got && got.v1 && got.v2)) { if(loud) _vrStatus('The Vendor_Rates tab is not in the expected shape.','err'); return; }
+    VENDOR_RATES=got; vrSave(); vrRenderSetup(); vrRefreshAll(true);
+    if(loud) _vrStatus('✓ Rates pulled from the Sheet.','ok');
+  }catch(e){ if(loud) _vrStatus('✗ Could not read the Sheet: '+(e.message||e),'err'); }
+}
+// v181: clear the status line so a message from an earlier click cannot sit
+// there looking like a live warning.
+function _vrClearStatus(){
+  var el=document.getElementById('vr-status');
+  if(el){ el.className='alert'; el.innerHTML=''; el.removeAttribute('style'); }
 }
 
 // ── TOAST ─────────────────────────────────────────────────────────
@@ -8284,7 +9269,7 @@ async function doProductUpdate() {
   const _bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57);
   data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
   data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
-  data.milk_wSK = m.v3_sk_rate || 24.5;
+  data.milk_wSK = m.v3_sk_rate || gfSkimValue();            // v183
   data.date = STATE.resubmitDate;   // use the original date, not today
 
   // Attach the list of products to update
