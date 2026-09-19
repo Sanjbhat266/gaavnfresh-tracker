@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v186</span>
+    <span>PRODUCTION TRACKER v190</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -242,7 +242,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments / Quality Notes</label><textarea id="v1m_notes" placeholder="e.g. Milk slightly sour, adulteration check done, farmer name..."></textarea></div>
-        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1m_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1m_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1m')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1m_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div><div class="field" style="grid-column:1/-1;"><label>If spoilt — what happened?<small> decides COGS</small></label><select id="v1m_ded_stage" onchange="gfDedStageChanged()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;"><option value="">Rejected at receipt — the milk was not used</option><option value="process">Used (separator / batch), then spoilt — vendor docked</option></select><div style="font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);">Docked from the vendor = enter litres above. If <b>we</b> bear it (machine, delay) leave spoilt at 0 — the low yield carries the cost. "Used, then spoilt" only if those litres are inside the separation or batch figures.</div></div>
       </div>
     </div>
   </div>
@@ -269,7 +269,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments / Quality Notes</label><textarea id="v1e_notes" placeholder="Evening collection quality notes..."></textarea></div>
-        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1e_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v1e_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v1e')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v1e_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div><div class="field" style="grid-column:1/-1;"><label>If spoilt — what happened?<small> decides COGS</small></label><select id="v1e_ded_stage" onchange="gfDedStageChanged()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;"><option value="">Rejected at receipt — the milk was not used</option><option value="process">Used (separator / batch), then spoilt — vendor docked</option></select><div style="font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);">Docked from the vendor = enter litres above. If <b>we</b> bear it (machine, delay) leave spoilt at 0 — the low yield carries the cost. "Used, then spoilt" only if those litres are inside the separation or batch figures.</div></div>
       </div>
     </div>
   </div>
@@ -294,7 +294,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v2_notes" placeholder="Vendor 2 notes..."></textarea></div>
-        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v2_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v2_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v2')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v2_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div><div class="field" style="grid-column:1/-1;"><label>If spoilt — what happened?<small> decides COGS</small></label><select id="v2_ded_stage" onchange="gfDedStageChanged()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;"><option value="">Rejected at receipt — the milk was not used</option><option value="process">Used (separator / batch), then spoilt — vendor docked</option></select><div style="font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);">Docked from the vendor = enter litres above. If <b>we</b> bear it (machine, delay) leave spoilt at 0 — the low yield carries the cost. "Used, then spoilt" only if those litres are inside the separation or batch figures.</div></div>
       </div>
     </div>
   </div>
@@ -318,7 +318,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       </div>
       <div class="fg" style="margin-top:10px">
         <div class="field"><label>Comments</label><textarea id="v3_notes" placeholder="Skim milk source / quality notes..."></textarea></div>
-        <div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Skim spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_sk_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v3_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Buffalo spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Skim spoilt (L)<small style="color:var(--red);"> rejected</small></label><div class="unit"><input type="number" id="v3_sk_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v3')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v3_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div><div class="field" style="grid-column:1/-1;"><label>If spoilt — what happened?<small> decides COGS</small></label><select id="v3_ded_stage" onchange="gfDedStageChanged()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;"><option value="">Rejected at receipt — the milk was not used</option><option value="process">Used (separator / batch), then spoilt — vendor docked</option></select><div style="font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);">Docked from the vendor = enter litres above. If <b>we</b> bear it (machine, delay) leave spoilt at 0 — the low yield carries the cost. "Used, then spoilt" only if those litres are inside the separation or batch figures.</div></div>
       </div>
     </div>
   </div>
@@ -346,7 +346,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
         <div class="field"><label>Notes</label><input type="text" id="v4_notes" placeholder="Vendor 4 notes..." style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;"></div>
       </div>
       <div class="fg fg-2" style="margin-top:8px;">
-        <div class="field"><label>Cow spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v4_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div>
+        <div class="field"><label>Cow spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_cm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Buffalo spoilt (L)<small> rejected</small></label><div class="unit"><input type="number" id="v4_bm_deduct" placeholder="0" step="0.1" min="0" value="0" oninput="gfSyncDeduct('v4')"><span class="unit-label">L</span></div></div><div class="field"><label>Total deducted</label><div class="unit"><input type="number" id="v4_deduct" value="0" readonly style="background:#f5f5f5;color:var(--muted);font-weight:700;"><span class="unit-label">L</span></div></div><div class="field" style="grid-column:1/-1;"><label>If spoilt — what happened?<small> decides COGS</small></label><select id="v4_ded_stage" onchange="gfDedStageChanged()" style="width:100%;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:Space Mono;font-size:12px;"><option value="">Rejected at receipt — the milk was not used</option><option value="process">Used (separator / batch), then spoilt — vendor docked</option></select><div style="font-family:'Space Mono',monospace;font-size:9.5px;line-height:1.5;margin-top:4px;color:var(--muted);">Docked from the vendor = enter litres above. If <b>we</b> bear it (machine, delay) leave spoilt at 0 — the low yield carries the cost. "Used, then spoilt" only if those litres are inside the separation or batch figures.</div></div>
       </div>
     </div>
   </div>
@@ -3410,6 +3410,9 @@ function parseMilkSheetRows(headers, rows) {
     d.v3_sk_deduct  = parseFloat(get(row,'V3 Skim Deduct(L)'))||0;
     d.v4_cm_deduct  = parseFloat(get(row,'V4 CM Deduct(L)'))||0;
     d.v4_bm_deduct  = parseFloat(get(row,'V4 BM Deduct(L)'))||0;
+    // v188: which sessions' spoilage happened after the milk was used
+    String(get(row,'Spoilt In Process')||'').split(/[,\s]+/).forEach(function(k){
+      if(['v1m','v1e','v2','v3','v4'].indexOf(k)>=0) d[k+'_ded_stage']='process'; });
     ['v1m','v1e','v2','v3','v4'].forEach(function(k){
       var parts=(k==='v3') ? (d.v3_bm_deduct+d.v3_sk_deduct)
                            : ((d[k+'_cm_deduct']||0)+(d[k+'_bm_deduct']||0));
@@ -4995,6 +4998,93 @@ function gfSyncDeduct(pfx){
 }
 function gfSyncAllDeducts(){ try{ Object.keys(GF_DEDUCT_PARTS).forEach(gfSyncDeduct); }catch(e){} }
 
+/* ══════════════════════════════════════════════════════════════════════
+   v188 — COGS CHARGES WHAT THE MILK ACTUALLY COST YOU
+
+   Until v187 every COGS path priced milk as  (litres received x rate) /
+   litres received — the spoilt boxes were ignored. So on a day the vendor
+   was docked for spoilt milk, COGS still charged the milk at full value.
+
+   Now the day's rate is   money actually paid  /  litres that reached production.
+
+     Spoilt, vendor deducted — "Rejected at receipt" (default, as before):
+        the milk never entered the plant. Out of the money AND out of the
+        litres. The rate stays the true rate for the milk you used.
+     Spoilt, vendor deducted — "Used, then spoilt in processing":
+        the milk went through the separator or into a batch, so its litres
+        are still inside those figures. The milk rates stay NORMAL (pushing
+        the credit into the cow-milk rate collapses the cream cost, which is
+        a residual). Instead the deduction is a day-level credit, spread over
+        that day's products in proportion to their milk cost: paneers, ghee,
+        lite curd, khoya. Chaach / lassi carry curd at a notional Rs 50 and
+        fresh curd is an intermediate, so they take no share.
+     Spoilt, WE bear it (machine, delay): do not enter it as spoilt at all.
+        Full price is paid, the litres are in the batch, the yield drops and
+        COGS rises — which is the true cost to quote from.
+
+   Rows saved before v188 have no stage and are read as "at receipt", and a
+   day with no spoilage comes out exactly as before.
+   ══════════════════════════════════════════════════════════════════════ */
+var GF_DED_SESSIONS = [
+  {k:'v1m', cm:['v1m_cm_qty','v1m_cm_rate',0 ,'v1m_cm_deduct'], bm:['v1m_bm_qty','v1m_bm_rate',0 ,'v1m_bm_deduct']},
+  {k:'v1e', cm:['v1e_cm_qty','v1e_cm_rate',0 ,'v1e_cm_deduct'], bm:['v1e_bm_qty','v1e_bm_rate',0 ,'v1e_bm_deduct']},
+  {k:'v2',  cm:['v2_cm_qty', 'v2_cm_rate', 41,'v2_cm_deduct'],  bm:['v2_bm_qty', 'v2_bm_rate', 57,'v2_bm_deduct']},
+  {k:'v3',  cm:null,                                            bm:['v3_bm_qty', 'v3_bm_rate', 57,'v3_bm_deduct']},
+  {k:'v4',  cm:['v4_cm_qty', 'v4_cm_rate', 41,'v4_cm_deduct'],  bm:['v4_bm_qty', 'v4_bm_rate', 57,'v4_bm_deduct']}
+];
+/* get(key) returns the raw value for a milk field — from a saved day's
+   object, or from the form. */
+function gfMilkCostBasis(get){
+  var n=function(k){ var v=parseFloat(get(k)); return isFinite(v)?v:0; };
+  var o={cmL:0,cmRs:0,bmL:0,bmRs:0,cmGrossL:0,cmGrossRs:0,bmGrossL:0,bmGrossRs:0,
+         procL:0,procRs:0,gateL:0,gateRs:0};
+  GF_DED_SESSIONS.forEach(function(s){
+    var proc = String(get(s.k+'_ded_stage')||'') === 'process';
+    [['cm',s.cm],['bm',s.bm]].forEach(function(t){
+      var f=t[1]; if(!f) return;
+      var q=n(f[0]); if(!(q>0)) return;
+      var r=n(f[1]) || f[2];
+      var d=Math.max(0, Math.min(n(f[3]), q));
+      o[t[0]+'GrossL'] += q;   o[t[0]+'GrossRs'] += q*r;
+      o[t[0]+'L']      += proc ? q : (q-d);   // litres that reached production
+      o[t[0]+'Rs']     += (proc ? q : (q-d))*r;  // at receipt: money paid. after use: normal
+                                                 // rate — the deduction becomes the day credit
+      if(proc){ o.procL+=d; o.procRs+=d*r; } else { o.gateL+=d; o.gateRs+=d*r; }
+    });
+  });
+  o.wCM = o.cmL>0 ? o.cmRs/o.cmL : 41;
+  o.wBM = o.bmL>0 ? o.bmRs/o.bmL : 57;
+  return o;
+}
+/* The day's milk cost carried by products that share the credit. g(id) -> number. */
+var GF_CREDIT_PROD = /Paneer|^Ghee$|^Lite Curd$|Khoya/;
+function gfDayMilkBase(g, wCM, wBM, wSK){
+  var t=0;
+  ['lp','mfp','lfp','mp'].forEach(function(p){
+    if(g(p+'_yield')>0){ var mc=g(p+'_bm')*wBM+g(p+'_sm')*wSK+g(p+'_cream')*(g(p+'_cream_rate')||300); if(mc>0) t+=mc; } });
+  if(g('gh_yield_kg')>0) t += g('gh_cream_in')*(g('gh_cream_rate')||300);
+  if(g('lc_yield')>0 && (g('lc_bm')+g('lc_cm')+g('lc_sm'))>0) t += g('lc_bm')*wBM+g('lc_cm')*wCM+g('lc_sm')*wSK;
+  if(g('cmk_yield')>0){ var a=g('cmk_cm')*wCM+g('cmk_sm')*wSK; if(a>0) t+=a; }
+  if(g('stk_yield')>0){ var b=g('stk_bm')*wBM+g('stk_cm')*wCM+g('stk_sm')*wSK; if(b>0) t+=b; }
+  return t;
+}
+/* Multiply each sharing product's milk cost by this. 1 = no credit. */
+function gfCreditFactor(credit, base){
+  if(!(credit>0) || !(base>0)) return 1;
+  return Math.max(0, 1 - credit/base);
+}
+function gfMilkCostBasisForm(){
+  return gfMilkCostBasis(function(id){ var e=document.getElementById(id); return e ? e.value : ''; });
+}
+function gfMilkCostBasisSaved(m){
+  m = m || {};
+  return gfMilkCostBasis(function(k){ return m[k]; });
+}
+function gfDedStageChanged(){
+  try{ calcMilkBalance(); }catch(e){}
+  try{ gfApplyCreamRate(); }catch(e){}
+}
+
 var LS_SKIM_VALUE='gf_skim_value';
 function gfSkimValue(){
   var v=parseFloat(localStorage.getItem(LS_SKIM_VALUE));
@@ -5141,10 +5231,7 @@ function gfMilkRatesNow(){
   // v179 FIX: Vendor 4's cow milk was added to the COST but not to the LITRES,
   // so wCM came out too high on any day V4 supplied CM — and cream cost moves
   // Rs 17.33/kg for every Rs 1 of wCM. Both sides now include V4.
-  var cm  = q('v1m_cm_qty')+q('v1e_cm_qty')+q('v2_cm_qty')+q('v4_cm_qty');
-  var cmC = q('v1m_cm_qty')*q('v1m_cm_rate')+q('v1e_cm_qty')*q('v1e_cm_rate')
-          + q('v2_cm_qty')*(q('v2_cm_rate')||41)+q('v4_cm_qty')*(q('v4_cm_rate')||41);
-  var wCM = cm > 0 ? cmC/cm : 41;
+  var wCM = gfMilkCostBasisForm().wCM;     // v188: money paid ÷ litres that reached production
   var sk  = q('v3_sk_rate');
   var wSK = sk > 0 ? sk : gfSkimValue();                    // v183
   return { wCM: wCM, wSK: wSK };
@@ -5543,13 +5630,11 @@ function calculateAndShowSummary() {
   //   BUFFALO   — the exact opposite: V3's and V4's litres were in the
   //               denominator but their cost was not in the numerator, so wBM
   //               came out TOO LOW. Both are corrected below.
-  const cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0)+(m.v4_cm_qty||0);
-  const bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0)+(m.v4_bm_qty||0);
-  const cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)+(m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)+(m.v2_cm_qty||0)*(m.v2_cm_rate||41)+(m.v4_cm_qty||0)*(m.v4_cm_rate||41);
-  const bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57)
-            + (m.v3_bm_qty||0)*(m.v3_bm_rate||57)+(m.v4_bm_qty||0)*(m.v4_bm_rate||57);
-  const wCM = cm > 0 ? cmC/cm : 41;
-  const wBM = bm > 0 ? bmC/bm : 57;
+  // v188: one rule for every COGS path — money paid ÷ litres that reached production
+  const _mcb = gfMilkCostBasisSaved(m);
+  const wCM = _mcb.wCM;
+  const wBM = _mcb.wBM;
+  let _cf = 1, _cBase = 0;          // v188: day credit factor, set once rates are known
   const wSK = (m.v3_sk_rate>0 ? m.v3_sk_rate : 0) || gfSkimValue();   // v183
   if(m.v3_sk_rate>0){ try{ localStorage.setItem('gf_last_sk', m.v3_sk_rate); }catch(e){} }  // remember real skim rate for no-purchase days
 
@@ -5559,6 +5644,8 @@ function calculateAndShowSummary() {
   var creamRate = gfDerivedCreamRate(wCM, wSK);          // v172: shared derivation — COGS & forms always match
   // reflect into the cream-rate fields so the SAVED payload (and COGS_Daily) uses the same value
   ['lp','mfp','lfp','mp','gh'].forEach(function(p){ var el=document.getElementById(p+'_cream_rate'); if(el) el.value=creamRate; });
+  _cBase = gfDayMilkBase(ic, wCM, wBM, wSK);                // v188
+  _cf    = gfCreditFactor(_mcb.procRs, _cBase);
 
   const rows = [];
 
@@ -5566,6 +5653,7 @@ function calculateAndShowSummary() {
     if (!yld || yld <= 0) return;
     // FIX: Skip ghost rows — require milk cost > 0 (except Ghee which uses cream not milk directly)
     if (milkCost <= 0 && prod !== 'Ghee') return;
+    if (_cf < 1 && GF_CREDIT_PROD.test(prod)) milkCost = milkCost * _cf;   // v188: vendor credit
     const totalCOGS = milkCost + ingCost + pmCost + gasFuel + fixed;
     const cpk = yld > 0 ? totalCOGS/yld : 0;
     const gm  = rev - totalCOGS;
@@ -5618,6 +5706,10 @@ function calculateAndShowSummary() {
     <h3>Today's COGS Summary</h3>
     <span style="font-family:'Space Mono';font-size:11px;color:var(--muted);">Fixed costs/product: ${Rs(fixed)}</span>
   </div><div class="card-body" style="overflow-x:auto;">
+  ${_mcb.procRs > 0 ? `<div style="background:#FFF8E1;border:1.5px solid #E8870A;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-family:'Space Mono';font-size:11px;line-height:1.7;color:#8a6d00;">
+    <b>Vendor deduction credited:</b> ${Rs(_mcb.procRs)} for ${_mcb.procL.toFixed(1)} L spoilt after use.
+    Spread over today's paneer, ghee, curd and khoya in proportion to milk cost — each one's milk cost is
+    <b>${((1-_cf)*100).toFixed(1)}%</b> lower.${_cf<=0 ? ' <b style="color:#c0392b;">The deduction is larger than today\'s whole milk cost — check the spoilt litres.</b>' : ''}</div>` : ''}
   <table style="width:100%;border-collapse:collapse;font-size:11px;font-family:'Space Mono';">
     <thead><tr style="background:#1A1208;color:#fff;">
       <th style="padding:8px 6px;text-align:left;">Product</th>
@@ -5964,6 +6056,10 @@ function gatherMilkData() {
     v4_bm_rate: gn('v4_bm_rate') || computeRateIfEmpty('bm','v4_bm_fat','v4_bm_snf'),
     v4_notes:gv('v4_notes'),
     v4_deduct:(gn('v4_cm_deduct')||0)+(gn('v4_bm_deduct')||0),   // v184
+    // v188: where the spoilt milk was lost — '' at receipt, 'process' after use
+    v1m_ded_stage:gv('v1m_ded_stage'), v1e_ded_stage:gv('v1e_ded_stage'),
+    v2_ded_stage:gv('v2_ded_stage'),   v3_ded_stage:gv('v3_ded_stage'), v4_ded_stage:gv('v4_ded_stage'),
+    ded_process:['v1m','v1e','v2','v3','v4'].filter(function(k){ return gv(k+'_ded_stage')==='process'; }).join(','),
     v3_sk_rate:gn('v3_sk_rate'), v3_notes:gv('v3_notes'),
     // v179: stamp the pricing basis onto the day, so a COGS figure can always
     // be traced back to the chart and premiums that produced it
@@ -6127,8 +6223,12 @@ function calcMilkBalance(){
       _mbNum('v1m_cm_qty')+_mbNum('v1e_cm_qty')+_mbNum('v2_cm_qty')+_mbNum('v4_cm_qty')
     + _mbNum('v1m_bm_qty')+_mbNum('v1e_bm_qty')+_mbNum('v2_bm_qty')+_mbNum('v3_bm_qty')+_mbNum('v4_bm_qty')
     + _mbNum('v3_sk_qty');
-  const deducted =
-      _mbNum('v1m_deduct')+_mbNum('v1e_deduct')+_mbNum('v2_deduct')+_mbNum('v3_deduct')+_mbNum('v4_deduct');
+  /* v188: milk docked from a vendor AFTER it was used is still milk that went
+     through the plant, so it is not taken off what was available. */
+  const _isProc = k => ((document.getElementById(k+'_ded_stage')||{}).value === 'process');
+  const _ks = ['v1m','v1e','v2','v3','v4'];
+  const deducted  = _ks.reduce((a,k) => a + (_isProc(k) ? 0 : _mbNum(k+'_deduct')), 0);
+  const procSpoilt= _ks.reduce((a,k) => a + (_isProc(k) ? _mbNum(k+'_deduct') : 0), 0);
   const allocated =
       _mbNum('lp_bm')+_mbNum('lp_sm')
     + _mbNum('mfp_bm')+_mbNum('mfp_sm')
@@ -6148,7 +6248,7 @@ function calcMilkBalance(){
   // no total-level arithmetic can find them. The only reliable signal is that
   // a deduction was recorded that day, so that is surfaced explicitly.
   const overAlloc = over > 1;                    // hard error: more than existed
-  const spoiltToday = deducted > 0;              // needs an explicit confirmation
+  const spoiltToday = deducted > 0 || procSpoilt > 0;   // needs an explicit confirmation
   const level = overAlloc ? 'red' : (spoiltToday ? 'amber' : 'green');
   const COL = {red:['#FDECEA','#C62828','#C62828'],
                amber:['#FFF8E1','#FFB300','#8D6E00'],
@@ -6161,6 +6261,9 @@ function calcMilkBalance(){
   let verdict;
   if (overAlloc) {
     verdict = '<br>⛔ <b>' + N1(over) + ' L more milk is charged to products than existed today.</b> Check the BM/SM figures.';
+  } else if (spoiltToday && !(deducted > 0)) {
+    verdict = '<br>⚠ <b>' + N1(procSpoilt) + ' L spoilt after it was used, and was docked from the vendor.</b> ' +
+              'Those litres must be INSIDE the separation or batch figures — COGS already charges only what you paid for them.';
   } else if (spoiltToday) {
     verdict = '<br>⚠ <b>' + N1(deducted) + ' L was recorded as spoilt/rejected today.</b> ' +
               'Milk that spoilt must NOT be inside any product\'s BM/SM figure — if it is, that product\'s COGS is overstated and its yield understated. ' +
@@ -6174,6 +6277,7 @@ function calcMilkBalance(){
     ' &nbsp;=&nbsp; net <b>' + N1(net) + ' L</b>' +
     (creamKg>0 ? ' &nbsp;−&nbsp; cream separated ' + N1(creamKg) + ' kg' : '') +
     ' &nbsp;|&nbsp; entered against products <b>' + N1(allocated) + ' L</b>' +
+    (procSpoilt>0 ? ' &nbsp;|&nbsp; spoilt after use, vendor docked <b>' + N1(procSpoilt) + ' L</b>' : '') +
     verdict;
   return {purchased:purchased, deducted:deducted, net:net, allocated:allocated,
           creamKg:creamKg, over:over, level:level};
@@ -6297,20 +6401,15 @@ async function saveProducts() {
   // ── Inject weighted milk rates from today's milk purchase ──────────────
   // These are needed by logCOGSDaily in Apps Script to calculate COGS correctly
   const m = STATE.todayMilk || {};
-  const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0)+(m.v4_cm_qty||0);
-  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0)+(m.v3_bm_qty||0)+(m.v4_bm_qty||0);
-  const _cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)
-             + (m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)
-             + (m.v2_cm_qty||0)*(m.v2_cm_rate||41)
-             + (m.v4_cm_qty||0)*(m.v4_cm_rate||41);
-  const _bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)
-             + (m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)
-             + (m.v2_bm_qty||0)*(m.v2_bm_rate||57)
-             + (m.v3_bm_qty||0)*(m.v3_bm_rate||57)
-             + (m.v4_bm_qty||0)*(m.v4_bm_rate||57);
-  data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
-  data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
+  const _mcb = gfMilkCostBasisSaved(m);                     // v188
+  data.milk_wCM = _mcb.cmL > 0 ? _mcb.wCM.toFixed(4) : 41;
+  data.milk_wBM = _mcb.bmL > 0 ? _mcb.wBM.toFixed(4) : 57;
   data.milk_wSK = m.v3_sk_rate || gfSkimValue();            // v183
+  // v188: vendor deduction for milk spoilt after use -> day credit factor for COGS_Daily
+  data.milk_credit = Math.round(_mcb.procRs*100)/100;
+  data.milk_credit_factor = gfCreditFactor(_mcb.procRs,
+      gfDayMilkBase(function(k){ return parseFloat(data[k])||0; },
+                    parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK))).toFixed(6);
 
   STATE.todayProd = data;
   const dateKey6 = (document.getElementById('entry-date').value||'').replace(/-/g,'');
@@ -7837,7 +7936,13 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
   }
 
   // Helper: compute new row data for a product
+  var _cf=parseFloat(d.milk_credit_factor); if(!(_cf>=0 && _cf<=1)) _cf=1;   // v188
+  var _CRP=/Paneer|^Ghee$|^Lite Curd$|Khoya/;
   function makeRowData(prodName, yld, milkCost, ingCost, gasFuel, rev, actYP, stdYP, notes) {
+    if(_cf<1 && _CRP.test(prodName)){
+      milkCost=milkCost*_cf;
+      notes=(notes?notes+' · ':'')+'milk less vendor deduction '+((1-_cf)*100).toFixed(1)+'%';
+    }
     var total = milkCost + ingCost + gasFuel + fixed;
     var cpu   = yld > 0 ? (total/yld).toFixed(2) : 0;
     var gm    = rev - total;
@@ -8243,7 +8348,8 @@ function logMilkData(sh, d) {
     'V2 CM Deduct(L)'     : d.v2_cm_deduct ||0, 'V2 BM Deduct(L)'     : d.v2_bm_deduct ||0,
     'V3 BM Deduct(L)'     : d.v3_bm_deduct ||0, 'V3 Skim Deduct(L)'   : d.v3_sk_deduct ||0,
     'V4 CM Deduct(L)'     : d.v4_cm_deduct ||0, 'V4 BM Deduct(L)'     : d.v4_bm_deduct ||0,
-    'Cream Fat%'          : d.cream_fat_pct||0
+    'Cream Fat%'          : d.cream_fat_pct||0,
+    'Spoilt In Process'   : d.ded_process||''      // v188: e.g. "v2" — spoilt after use, vendor docked
   };
 
   // Get current headers from sheet
@@ -8387,11 +8493,18 @@ function logCOGSDaily(ss, d) {
   const shC = ss.getSheetByName(cogsSheetName) || sh;
   const wCM=parseFloat(d.milk_wCM)||41, wBM=parseFloat(d.milk_wBM)||57, wSK=parseFloat(d.milk_wSK)||gfSkimValue();
   const fixed=(d.cost_labour||110.25)+(d.cost_elec||20.25)+(d.cost_transport||11);
+  // v188: vendor deduction for milk spoilt after use, spread over the day's products
+  var _cf=parseFloat(d.milk_credit_factor); if(!(_cf>=0 && _cf<=1)) _cf=1;
+  var _CRP=/Paneer|^Ghee$|^Lite Curd$|Khoya/;
   function addRow(prod,yld,milkCost,ingCost,gasFuel,rev,actYP,stdYP,notes){
     // Skip ghost rows — no milk means no real production batch was run
     if(milkCost <= 0 && prod !== 'Ghee'){
       Logger.log('SKIP ghost row: ' + prod + ' on ' + d.date + ' — milkCost=0');
       return;
+    }
+    if(_cf<1 && _CRP.test(prod)){
+      milkCost=milkCost*_cf;
+      notes=(notes?notes+' · ':'')+'milk less vendor deduction '+((1-_cf)*100).toFixed(1)+'%';
     }
     // No duplicate guard — processPayload deletes all rows for this date before writing
     // so every submit always writes fresh data including updated gas costs
@@ -8695,7 +8808,18 @@ function wireRateLookups() {
     // fixed-rate vendors have no fat/SNF trigger for the rate, so fill on load
   });
   var ed = document.getElementById('entry-date');
-  if (ed) ed.addEventListener('change', function(){ try{ vrRefreshAll(true); }catch(e){} });
+  /* v190 FIX: this used to force-reprice every rate box on EVERY date change —
+     including a day that is already saved, so opening a saved day overwrote the
+     rates it was entered with (a hand-typed rate was silently replaced by the
+     current setting, and re-saving the day changed its history). A saved day
+     now keeps its rates; a new day is still priced fresh. Changing fat or SNF
+     on a saved day still re-prices that box, as before. */
+  if (ed) ed.addEventListener('change', function(){
+    try{
+      var _k = String(ed.value||'').replace(/-/g,'');
+      vrRefreshAll(!(_k && localStorage.getItem('milk_' + _k)));
+    }catch(e){}
+  });
 }
 
 // ── DATE HELPERS ─────────────────────────────────────────────────
@@ -8757,6 +8881,21 @@ function resetToToday() {
 
 function loadDateData(iso) {
   if (STATE.savedProducts) STATE.savedProducts = new Set();
+  /* v190 FIX — CALCULATED BOXES CARRIED THE PREVIOUS DAY INTO THE NEW ONE.
+     Opening a date with no saved data cleared only the boxes you type into.
+     Every read-only calculated box kept the last day's figure:
+       · the vendor "Total deducted" boxes — so 12 Sep's 326 L of spoilt V2
+         milk was subtracted again on 13 Sep and the milk balance showed a
+         false 260 L shortfall;
+       · every ingredient Amount box — and a product's ingredient cost is the
+         SUM of those boxes, so an ingredient not used today still carried
+         yesterday's rupees into today's COGS;
+       · cream variance, yield %, packing and gas figures.
+     Now every calculated box starts from its blank state, and after the day
+     is loaded they are all worked out again from what is actually entered. */
+  document.querySelectorAll('#tab-milk input[readonly], #tab-products input[readonly], #tab-products input[type=hidden]').forEach(el => {
+    if (el.id && el.id !== 'entry-date') el.value = el.defaultValue;
+  });
   // Reset ingredient defaults (prevents old localStorage from overriding new rates)
   const ING_RESET = {
     lp_ing2_name:'ING 2 (Citric Acid)', lp_ing2_rate:'150',
@@ -8801,6 +8940,7 @@ function loadDateData(iso) {
     'v4_cm_qty','v4_cm_fat','v4_cm_snf','v4_cm_rate',
     'v4_bm_qty','v4_bm_fat','v4_bm_snf','v4_bm_rate',
     'v4_notes','v4_deduct',
+    'v1m_ded_stage','v1e_ded_stage','v2_ded_stage','v3_ded_stage','v4_ded_stage',   // v188
     'cream_milk_l','cream_yield_kg','cream_std_pct','cream_fat_pct'
   ];
   if (savedMilk) {
@@ -8856,6 +8996,21 @@ function loadDateData(iso) {
     Object.keys(INGREDIENT_DEFS).forEach(prod => sumIngredients(prod));
     updateProductStatus();
   }
+  gfRecalcLoadedDay();   // v190
+}
+/* v190: work out every calculated box again from what this day actually has,
+   exactly as if each figure had just been typed. Milk fat/SNF boxes are NOT
+   re-fired, so a saved day's milk rates are never re-priced by opening it. */
+function gfRecalcLoadedDay(){
+  try{ gfSyncAllDeducts(); }catch(e){}
+  try{ calcCreamSep(); }catch(e){}
+  document.querySelectorAll('#tab-products input:not([readonly]):not([type=hidden]), #tab-products select').forEach(el => {
+    if (el.value === '' || el.classList.contains('ing-name-input')) return;
+    try{ el.dispatchEvent(new Event(el.tagName==='SELECT' ? 'change' : 'input', {bubbles:true})); }catch(e){}
+  });
+  try{ Object.keys(INGREDIENT_DEFS).forEach(p => sumIngredients(p)); }catch(e){}
+  try{ calcMilkBalance(); }catch(e){}
+  try{ updateProductStatus(); }catch(e){}
 }
 
 // ── RATE CHART UPLOAD ────────────────────────────────────────────
@@ -9282,13 +9437,18 @@ async function doProductUpdate() {
   }
   // Inject milk rates
   const m = STATE.todayMilk || {};
-  const _cm = (m.v1m_cm_qty||0)+(m.v1e_cm_qty||0)+(m.v2_cm_qty||0);
-  const _bm = (m.v1m_bm_qty||0)+(m.v1e_bm_qty||0)+(m.v2_bm_qty||0);
-  const _cmC = (m.v1m_cm_qty||0)*(m.v1m_cm_rate||0)+(m.v1e_cm_qty||0)*(m.v1e_cm_rate||0)+(m.v2_cm_qty||0)*(m.v2_cm_rate||41);
-  const _bmC = (m.v1m_bm_qty||0)*(m.v1m_bm_rate||0)+(m.v1e_bm_qty||0)*(m.v1e_bm_rate||0)+(m.v2_bm_qty||0)*(m.v2_bm_rate||57);
-  data.milk_wCM = _cm > 0 ? (_cmC/_cm).toFixed(4) : 41;
-  data.milk_wBM = _bm > 0 ? (_bmC/_bm).toFixed(4) : 57;
+  /* v188: same rule as a normal save. This path also used to leave out
+     Vendor 3's BM and all of Vendor 4, so a re-submitted day was priced
+     without them. */
+  const _mcb = gfMilkCostBasisSaved(m);
+  data.milk_wCM = _mcb.cmL > 0 ? _mcb.wCM.toFixed(4) : 41;
+  data.milk_wBM = _mcb.bmL > 0 ? _mcb.wBM.toFixed(4) : 57;
   data.milk_wSK = m.v3_sk_rate || gfSkimValue();            // v183
+  // v188: same day credit as a normal save
+  data.milk_credit = Math.round(_mcb.procRs*100)/100;
+  data.milk_credit_factor = gfCreditFactor(_mcb.procRs,
+      gfDayMilkBase(function(k){ return parseFloat(data[k])||0; },
+                    parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK))).toFixed(6);
   data.date = STATE.resubmitDate;   // use the original date, not today
 
   // Attach the list of products to update
@@ -10664,17 +10824,43 @@ var RS_LABEL = {mfp:'Med Fat Paneer', lfp:'Low Fat Paneer', lp:'Lite Paneer',
 /* build the list of [field id, value, human label] this sheet would write */
 function rsPlan(d){
   var plan=[], warn=[];
+  var _lots={};   // v189: how many lots of each vendor + milk type we have placed
 
   (d.milk_received||[]).forEach(function(m){
     var col=String(m.collection||'V1').toUpperCase();
-    var src=String(m.source||'').toUpperCase().indexOf('BM')>=0 ? 'bm' : 'cm';
+    /* v187: skim ("SM", or "M.M" / skim spelt out) is its own type. It used to
+       fall through to 'cm', so Meghmalhar's skim was skipped as "V3 cow milk". */
+    var _s=String(m.source||'').toUpperCase().replace(/[^A-Z]/g,'');
+    var src=_s.indexOf('BM')>=0 ? 'bm' : ((_s==='SM'||_s==='MM'||_s.indexOf('SKIM')>=0) ? 'sm' : 'cm');
+    if(src==='sm'){
+      if(String(m.collection||'').toUpperCase()!=='V3'){
+        warn.push('skim milk read for '+(m.collection||'?')+' — only Vendor 3 (Meghmalhar) has skim boxes; skipped'); return; }
+      if(m.qty_litres!=null) plan.push(['v3_sk_qty', rsNum(m.qty_litres), 'V3 SKIM quantity (L)']);
+      if(m.snf!=null)        plan.push(['v3_sk_snf', rsNum(m.snf),        'V3 SKIM SNF']);
+      if(m.spoiled) warn.push((m.supplier||'Meghmalhar')+' skim marked SPOILED — enter it in V3 Skim spoilt');
+      return;
+    }
     var base = col==='V1' ? 'v1m_'+src : (col==='V2' ? 'v2_'+src : (col==='V3' ? 'v3_'+src
              : (col==='V4' ? 'v4_'+src : null)));   // v186: V4 was skipped
     if(!base){ warn.push('collection "'+col+'" has no matching form section'); return; }
     if(col==='V3' && src==='cm'){ warn.push('V3 has no cow-milk boxes in the tracker — skipped'); return; }
-    if(m.qty_litres!=null) plan.push([base+'_qty', rsNum(m.qty_litres), col+' '+src.toUpperCase()+' quantity (L)']);
-    if(m.fat!=null)        plan.push([base+'_fat', rsNum(m.fat),        col+' '+src.toUpperCase()+' fat']);
-    if(m.snf!=null)        plan.push([base+'_snf', rsNum(m.snf),        col+' '+src.toUpperCase()+' SNF']);
+    /* v189: a vendor can bring two lots of the same milk at different fat/SNF
+       ("CM = 174 + 17.4"). Every V1 lot used to go into the MORNING boxes, so
+       the second one silently overwrote the first and the evening boxes stayed
+       empty. V1's second lot now goes to the evening boxes; any other extra lot
+       has no second set of boxes, so it is flagged instead of overwriting. */
+    var _k=col+'_'+src, _n=(_lots[_k]||0)+1; _lots[_k]=_n;
+    var _lbl=col+' '+src.toUpperCase();
+    if(col==='V1'){ base = (_n===1 ? 'v1m_' : 'v1e_')+src; _lbl = 'V1 '+(_n===1?'MORNING':'EVENING')+' '+src.toUpperCase(); }
+    if(_n>2 || (_n>1 && col!=='V1')){
+      warn.push(_lbl+' lot '+_n+' ('+(m.qty_litres!=null?m.qty_litres+' L':'?')
+        +(m.fat!=null?' at '+m.fat+'/'+(m.snf!=null?m.snf:'?'):'')+') has no free boxes — NOT filled. '
+        +'Add it yourself, or combine the lots on paper first.');
+      return;
+    }
+    if(m.qty_litres!=null) plan.push([base+'_qty', rsNum(m.qty_litres), _lbl+' quantity (L)']);
+    if(m.fat!=null)        plan.push([base+'_fat', rsNum(m.fat),        _lbl+' fat']);
+    if(m.snf!=null)        plan.push([base+'_snf', rsNum(m.snf),        _lbl+' SNF']);
     if(m.spoiled) warn.push((m.supplier||src.toUpperCase())+' milk marked SPOILED — the tracker has no spoilage box, note it manually');
   });
 
