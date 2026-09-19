@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v190</span>
+    <span>PRODUCTION TRACKER v191</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -10801,10 +10801,15 @@ function rsPrefix(name){
   /* v174: the old version tested for "paneer" before it tested for "malai",
      so EVERY Malai Paneer batch landed in the Med Fat boxes. Order now runs
      most-specific first, and Malai has its own prefix ('mp'). */
+  if(String(name||'').indexOf('तूप')>=0) return 'gh';   // v191: Marathi "tup" = ghee (stripped below)
   var n=String(name||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
   if(!n) return null;
   var has=function(t){ return n.indexOf(t)>=0; };
   var abbr=function(t){ return new RegExp('\\b'+t+'\\b').test(n); };
+
+  /* v191: ghee had no entry here, so every Ghee block on the sheet was
+     dropped as "does not match any product". */
+  if(has('ghee')||has('ghi')||abbr('tup')) return 'gh';
 
   /* curd / khoya first — they never carry the word "paneer" */
   if(has('lite curd')||has('curd')||has('dahi')||has('yog')) return 'lc';
@@ -10819,7 +10824,7 @@ function rsPrefix(name){
   return null;
 }
 var RS_LABEL = {mfp:'Med Fat Paneer', lfp:'Low Fat Paneer', lp:'Lite Paneer',
-                mp:'Malai Paneer', lc:'Lite Curd', cmk:'CM Khoya'};
+                mp:'Malai Paneer', lc:'Lite Curd', cmk:'CM Khoya', gh:'Ghee'};
 
 /* build the list of [field id, value, human label] this sheet would write */
 function rsPlan(d){
@@ -10884,6 +10889,33 @@ function rsPlan(d){
     if(!pre){ warn.push('"'+(p.name||'?')+'" does not match any product in the tracker — skipped'); return; }
     if(p.made_today===false) return;
     var i=p.inputs||{}, o=p.output||{}, L=RS_LABEL[pre];
+
+    /* v191: gas — the cylinder weight before minus after, in kg. Khoya's box
+       is called fuel. The written figure is used; a subtraction that does not
+       match is flagged so the paper can be checked. */
+    if(i.gas_kg!=null && rsNum(i.gas_kg)!=null){
+      var _gid = (pre==='cmk'||pre==='stk') ? pre+'_fuel_qty' : pre+'_gas_qty';
+      plan.push([_gid, rsNum(i.gas_kg), L+' — gas used (kg)']);
+      if(i.gas_start_kg!=null && i.gas_end_kg!=null){
+        var _dg = rsNum(i.gas_start_kg) - rsNum(i.gas_end_kg);
+        if(isFinite(_dg) && Math.abs(_dg - rsNum(i.gas_kg)) > 0.005)
+          warn.push(L+': gas written as '+i.gas_kg+' kg, but '+i.gas_start_kg+' − '+i.gas_end_kg+' = '
+            +_dg.toFixed(3)+' kg. The written '+i.gas_kg+' is filled — change it if the subtraction is right.');
+      }
+    }
+
+    if(pre==='gh'){                              /* v191: ghee */
+      if(i.cream_kg!=null)   plan.push(['gh_cream_in', rsNum(i.cream_kg), L+' — cream in (kg)']);
+      if(o.kg!=null)         plan.push(['gh_yield_kg', rsNum(o.kg), L+' — ghee made (kg)']);
+      else if(o.litres!=null && rsNum(o.litres)!=null)
+                             plan.push(['gh_yield_kg', +(rsNum(o.litres)*0.905).toFixed(3), L+' — ghee made (kg, from '+o.litres+' L)']);
+      else warn.push(L+': no ghee yield on this sheet — weigh it and enter Ghee Yield (kg) yourself, or its COGS cannot be worked out');
+      if(o.pouches_1l!=null)    plan.push(['gh_pouches',     rsNum(o.pouches_1l),    L+' — 1 L pouches']);
+      if(o.pouches_500ml!=null) plan.push(['gh_pouches_500', rsNum(o.pouches_500ml), L+' — 500 ml pouches']);
+      if(o.jars!=null)          plan.push(['gh_jars',        rsNum(o.jars),          L+' — jars']);
+      if(o.tins!=null)          plan.push(['gh_tins',        rsNum(o.tins),          L+' — tins']);
+      return;
+    }
 
     if(pre==='lc'){                              /* lite curd has its own ingredient names */
       if(i.cm_litres!=null)  plan.push([pre+'_cm', rsNum(i.cm_litres), L+' — CM (L)']);
