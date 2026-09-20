@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v191</span>
+    <span>PRODUCTION TRACKER v192</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -2893,7 +2893,7 @@ function autoFillStdYields(force) {
   // the milk form. Now: apply the saved rate unless this date already has its
   // own saved milk entry (historical days keep the rate they were entered with).
   const _dk = (document.getElementById('entry-date')||{}).value || '';
-  const _hasSavedMilk = _dk ? !!localStorage.getItem('milk_' + _dk.replace(/-/g,'')) : false;
+  const _hasSavedMilk = _dk ? (!!localStorage.getItem('milk_' + _dk.replace(/-/g,'')) || gfHasDraft('milk', _dk)) : false;   // v192: a draft keeps its rates too
   const _applyStd = force || !_hasSavedMilk;
   function _setRate(id, val){
     const el = document.getElementById(id);
@@ -3036,6 +3036,7 @@ function saveProductCard(pid) {
   const dateKey = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   localStorage.setItem('prod_' + dateKey, JSON.stringify(data));
   localStorage.setItem('today_prod', JSON.stringify(data));
+  gfClearDraft('prod', document.getElementById('entry-date').value);   // v192: saved — no longer a draft
   STATE.todayProd = data;
 
   // Mark button as done immediately
@@ -5593,6 +5594,7 @@ async function saveMilk() {
   const dateKey = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   localStorage.setItem('milk_' + dateKey, JSON.stringify(data));
   localStorage.setItem('today_milk', JSON.stringify(data));
+  gfClearDraft('milk', document.getElementById('entry-date').value);   // v192: submitted — no longer a draft
   // Only send as RESUBMIT if explicitly in correction mode AND date matches
   const currentDateVal = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   const resubmitDateKey = STATE.resubmitDate
@@ -6414,6 +6416,7 @@ async function saveProducts() {
   STATE.todayProd = data;
   const dateKey6 = (document.getElementById('entry-date').value||'').replace(/-/g,'');
   localStorage.setItem('prod_' + dateKey6, JSON.stringify(data));
+  gfClearDraft('prod', document.getElementById('entry-date').value);   // v192
   localStorage.setItem('today_prod', JSON.stringify(data));  // backward compat
   // Auto-check inventory alerts after production save
   setTimeout(function() { if(typeof checkInvAlerts==='function') checkInvAlerts(); }, 500);
@@ -8817,7 +8820,7 @@ function wireRateLookups() {
   if (ed) ed.addEventListener('change', function(){
     try{
       var _k = String(ed.value||'').replace(/-/g,'');
-      vrRefreshAll(!(_k && localStorage.getItem('milk_' + _k)));
+      vrRefreshAll(!(_k && (localStorage.getItem('milk_' + _k) || gfHasDraft('milk', ed.value))));   // v192
     }catch(e){}
   });
 }
@@ -8879,7 +8882,110 @@ function resetToToday() {
   onDateChange(todayISO);
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   v192 — WHAT YOU FILL IN STAYS, EVEN BEFORE YOU SUBMIT
+   Until v191 a day's figures were kept only when Submit (or a product's
+   Save) was pressed. Anything filled by Read Sheet or typed by hand lived
+   only on the screen: change the date, or let the phone close the app, and
+   it was gone.
+   Now every change is kept as a DRAFT for that date, on this device:
+     · it comes back when you return to the date, or reopen the app
+     · it is NOT submitted — reports, COGS and the Sheet still use only what
+       you submit; a banner says so, with a Discard button
+     · pressing Submit (or a product's Save) stores it properly and clears
+       the draft
+   Milk and Products are drafted separately, because they are submitted
+   separately.
+   ══════════════════════════════════════════════════════════════════════ */
+var GF_DRAFT_TAB = {milk:'tab-milk', prod:'tab-products'};
+var _gfDirty = {milk:false, prod:false}, _gfLoading = false, _gfDraftDate = null, _gfDraftTimer = null;
+function _gfDraftKey(kind, iso){ return 'draft_'+kind+'_'+String(iso||'').replace(/-/g,''); }
+function _gfDraftFields(kind){
+  var tab=document.getElementById(GF_DRAFT_TAB[kind]); if(!tab) return [];
+  return Array.prototype.filter.call(tab.querySelectorAll('input,select,textarea'), function(el){
+    return el.id && !el.readOnly && el.type!=='file' && el.type!=='button' && el.type!=='hidden' && el.id!=='entry-date';
+  });
+}
+function gfDraftFor(kind, iso){ try{ return JSON.parse(localStorage.getItem(_gfDraftKey(kind, iso))||'null'); }catch(e){ return null; } }
+function gfHasDraft(kind, iso){ var d=gfDraftFor(kind, iso); return !!(d && d.v); }
+function gfSaveDrafts(){
+  if(!_gfDraftDate) return;
+  ['milk','prod'].forEach(function(k){
+    if(!_gfDirty[k]) return;
+    var v={}; _gfDraftFields(k).forEach(function(el){ v[el.id]=el.value; });
+    try{ localStorage.setItem(_gfDraftKey(k,_gfDraftDate), JSON.stringify({at:Date.now(), v:v})); }catch(e){}
+  });
+}
+function gfClearDraft(kind, iso){
+  try{ localStorage.removeItem(_gfDraftKey(kind, iso||_gfDraftDate)); }catch(e){}
+  if(!iso || iso===_gfDraftDate) _gfDirty[kind]=false;
+  gfDraftBanner();
+}
+function _gfApplyDraft(kind, iso){
+  var d=gfDraftFor(kind, iso); if(!d || !d.v) return false;
+  Object.keys(d.v).forEach(function(id){ var el=document.getElementById(id); if(el && !el.readOnly) el.value=d.v[id]; });
+  _gfDirty[kind]=true;
+  return true;
+}
+function gfDraftBanner(){
+  ['milk','prod'].forEach(function(k){
+    var tab=document.getElementById(GF_DRAFT_TAB[k]); if(!tab) return;
+    var b=document.getElementById('gf-draft-'+k);
+    if(!b){ b=document.createElement('div'); b.id='gf-draft-'+k; tab.insertBefore(b, tab.firstChild); }
+    var on=_gfDraftDate && gfHasDraft(k,_gfDraftDate);
+    if(!on){ b.style.display='none'; b.innerHTML=''; return; }
+    b.style.cssText='display:block;background:#FFF8E1;border:1.5px solid #E8870A;border-radius:8px;padding:9px 12px;margin:0 0 12px;'
+      +"font-family:'Space Mono',monospace;font-size:11px;line-height:1.7;color:#8a6d00;";
+    b.innerHTML='\u270E <b>Not submitted yet.</b> These '+(k==='milk'?'milk':'production')+' figures for '+_gfDraftDate
+      +' are kept on this device only. Press <b>'+(k==='milk'?'Submit':'Submit All Production Data')+'</b> to send them to the Sheet and into COGS. '
+      +'<a href="#" onclick="gfDiscardDraft(\''+k+'\');return false;" style="color:#C62828;font-weight:700;margin-left:6px;">Discard</a>';
+  });
+}
+function gfDiscardDraft(kind){
+  if(!confirm('Discard the unsubmitted '+(kind==='milk'?'milk':'production')+' figures for '+_gfDraftDate+'?\n\nThe form goes back to what was last submitted.')) return;
+  var iso=_gfDraftDate;
+  try{ localStorage.removeItem(_gfDraftKey(kind, iso)); }catch(e){}
+  _gfDirty[kind]=false;
+  var other = kind==='milk' ? 'prod' : 'milk';
+  var keepOther=_gfDirty[other];
+  gfSaveDrafts();                         // keep the other section's draft exactly as it is
+  _gfDirty[other]=false;
+  _gfDraftDate=null;                      // do not re-save the discarded section on reload
+  loadDateData(iso);
+  try{ vrRefreshAll(!(localStorage.getItem('milk_'+iso.replace(/-/g,'')) || gfHasDraft('milk',iso))); }catch(e){}
+  _gfDirty[other]=keepOther || _gfDirty[other];
+  showToast('Draft discarded','info');
+}
+// Anything typed or filled (Read Sheet fires the same events) marks that section changed.
+['input','change'].forEach(function(ev){
+  document.addEventListener(ev, function(e){
+    if(_gfLoading || !_gfDraftDate || !e.target || !e.target.closest) return;
+    var k = e.target.closest('#tab-milk') ? 'milk' : (e.target.closest('#tab-products') ? 'prod' : null);
+    if(!k || e.target.readOnly) return;
+    _gfDirty[k]=true;
+    clearTimeout(_gfDraftTimer);
+    _gfDraftTimer=setTimeout(function(){ gfSaveDrafts(); gfDraftBanner(); }, 400);
+  }, true);
+});
+window.addEventListener('pagehide', function(){ try{ gfSaveDrafts(); }catch(e){} });
+document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden'){ try{ gfSaveDrafts(); }catch(e){} } });
+
 function loadDateData(iso) {
+  gfSaveDrafts();                 // v192: keep what was on screen for the date we are leaving
+  clearTimeout(_gfDraftTimer);
+  _gfDirty = {milk:false, prod:false};
+  _gfLoading = true;
+  try { _gfLoadDateData(iso); }
+  finally {
+    // v192: a draft for this date is newer than what was submitted — put it back
+    var dm=_gfApplyDraft('milk', iso), dp=_gfApplyDraft('prod', iso);
+    if(dm||dp){ try{ gfRecalcLoadedDay(); }catch(e){} }
+    _gfDraftDate = iso;
+    _gfLoading = false;
+    gfDraftBanner();
+  }
+}
+function _gfLoadDateData(iso) {
   if (STATE.savedProducts) STATE.savedProducts = new Set();
   /* v190 FIX — CALCULATED BOXES CARRIED THE PREVIOUS DAY INTO THE NEW ONE.
      Opening a date with no saved data cleared only the boxes you type into.
