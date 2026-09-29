@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v197</span>
+    <span>PRODUCTION TRACKER v198</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -359,7 +359,8 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 
   <div id="vr-date-banner" style="margin-bottom:14px;"></div>
   <div style="margin:-6px 0 14px;"><button type="button" onclick="gfRepriceDay()" style="padding:8px 14px;background:#fff;border:1.5px solid #1565C0;color:#1565C0;border-radius:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;">↻ Re-price this day from the rate chart</button>
-    <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-left:8px;">A saved day keeps the rates it was saved with. Use this after uploading a new chart, then Save.</span></div>
+    <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-left:8px;">A saved day keeps the rates it was saved with. Use this after uploading a new chart, then Save.</span>
+    <div id="vr-reprice-status" style="margin-top:8px;font-family:'Space Mono',monospace;font-size:11px;line-height:1.6;"></div></div>
 
   <!-- v180: COST PER KG OF FAT -->
   <div class="card">
@@ -8952,7 +8953,15 @@ var VR_FIELDS = [
 /* v197: put the rate setting valid on this day into every rate box of a day
    that is already saved, then let the amounts recalculate. Nothing is sent to
    the Sheet until the day is saved. */
-function gfRepriceDay(){
+/* v198: the form of a saved day is filled from THIS BROWSER's copy, not from
+   the Sheet. So the form can already hold the chart rates (the day was
+   re-priced and saved here) while the Sheet still has the old ones (that save
+   never reached it) — and v197 then said "already match" although Rate Check
+   still listed the day. Now the Sheet's row for the day is read as well and
+   compared, and the message says which of the two is out of date. */
+const GF_RP_SLOTS = [['v1m_cm','V1 Morning CM'],['v1m_bm','V1 Morning BM'],['v1e_cm','V1 Evening CM'],['v1e_bm','V1 Evening BM'],
+  ['v2_cm','V2 CM'],['v2_bm','V2 BM'],['v3_bm','V3 BM'],['v3_sk','V3 Skim'],['v4_cm','V4 CM'],['v4_bm','V4 BM']];
+async function gfRepriceDay(){
   var before = {};
   VR_FIELDS.forEach(function(f){ var e=document.getElementById(f[3]); if(e) before[f[3]]=e.value; });
   vrRefreshAll(true);
@@ -8961,7 +8970,45 @@ function gfRepriceDay(){
     if (String(e.value) !== String(before[f[3]])) changed++;
     try{ e.dispatchEvent(new Event('input',{bubbles:true})); }catch(x){} });
   try{ calcMilkBalance(); }catch(x){}
-  showToast(changed ? (changed + ' rate(s) updated from the chart — now press Save milk, then Save products') : 'Rates already match the chart for ' + vrDate(), changed ? 'success' : 'info');
+  var iso = vrDate(), box = document.getElementById('vr-reprice-status');
+  var say = function(html, col){ if(box){ box.innerHTML = html; box.style.color = col; } };
+  // compare the Sheet's saved rates for this day with what the form now holds
+  var stale = [], sheetRow = null, sheetErr = '';
+  try{
+    if (STATE.gsUrl) {
+      var sh = function(d,n){ var x=new Date(d+'T00:00:00'); x.setDate(x.getDate()+n);
+        return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+      var r = await fetch(STATE.gsUrl+'?action=getReportData&sheet=Milk_Purchase&from='+sh(iso,-3)+'&to='+sh(iso,3)+'&_t='+Date.now(), {cache:'no-store'});
+      var J = await r.json();
+      if (J && J.rows) {
+        var want = toReportDateInt(iso);
+        parseMilkSheetRows(J.headers||[], J.rows).forEach(function(m){ if (toReportDateInt(m._date) === want) sheetRow = m; });
+      }
+    }
+  }catch(e){ sheetErr = e.message || String(e); }
+  if (sheetRow) {
+    GF_RP_SLOTS.forEach(function(sl){
+      var q = parseFloat(sheetRow[sl[0]+'_qty'])||0; if (!(q > 0)) return;
+      var el = document.getElementById(sl[0]+'_rate'); if (!el) return;
+      var formR = parseFloat(el.value)||0, sheetR = parseFloat(sheetRow[sl[0]+'_rate'])||0;
+      if (formR > 0 && Math.abs(formR - sheetR) >= 0.005) stale.push(sl[1]+' ₹'+sheetR.toFixed(2)+' → ₹'+formR.toFixed(2));
+    });
+  }
+  if (changed) {
+    say('✓ ' + changed + ' rate(s) updated from the chart for ' + iso + '. Now press <b>Save milk</b>, then <b>Save products</b>.', '#2D7A45');
+    showToast(changed + ' rate(s) updated from the chart — now press Save milk, then Save products', 'success');
+  } else if (stale.length) {
+    say('⚠ The form already has the chart rates for ' + iso + ', but the <b>Sheet still has the old ones</b>: ' + stale.join(' · ')
+      + '.<br>An earlier save of this day did not reach the Sheet. Press <b>Save milk</b>, then <b>Save products</b>.', '#C62828');
+    showToast('Sheet still has the old rates for this day — press Save milk, then Save products', 'error');
+  } else if (sheetRow) {
+    say('✓ ' + iso + ': the form and the Sheet both match the rate chart. Nothing to do.', '#2D7A45');
+    showToast('Rates match the chart, and the Sheet has them', 'success');
+  } else {
+    say('Rates on the form match the chart for ' + iso + '. '
+      + (sheetErr ? 'Could not check the Sheet (' + sheetErr + ').' : 'This day has no milk row in the Sheet yet — press Save milk.'), '#8a6d00');
+    showToast('Form matches the chart — ' + (sheetErr ? 'could not check the Sheet' : 'no Sheet row yet, press Save milk'), 'info');
+  }
 }
 function vrRefreshAll(force){
   VR_FIELDS.forEach(function(f){ autoFillRate(f[0], f[1], f[2], f[3], force); });
