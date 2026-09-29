@@ -181,7 +181,7 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v192</span>
+    <span>PRODUCTION TRACKER v197</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -358,6 +358,8 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
   </div>
 
   <div id="vr-date-banner" style="margin-bottom:14px;"></div>
+  <div style="margin:-6px 0 14px;"><button type="button" onclick="gfRepriceDay()" style="padding:8px 14px;background:#fff;border:1.5px solid #1565C0;color:#1565C0;border-radius:8px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;">↻ Re-price this day from the rate chart</button>
+    <span style="font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-left:8px;">A saved day keeps the rates it was saved with. Use this after uploading a new chart, then Save.</span></div>
 
   <!-- v180: COST PER KG OF FAT -->
   <div class="card">
@@ -1998,11 +2000,17 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
     <button class="rpt-btn" onclick="generateReport('vendor3')" ontouchstart="">
       🪣 Vendor 3 (Skim)<br><small>Skim milk qty, SNF, rate, amount</small>
     </button>
+    <button class="rpt-btn" onclick="generateReport('vendor4')" ontouchstart="">
+      🚜 Vendor 4 Payment<br><small>CM + BM milk, fat, SNF, rate, amount</small>
+    </button>
+    <button class="rpt-btn" onclick="generateReport('ratecheck')" ontouchstart="" style="grid-column:1/-1;background:rgba(21,101,192,0.06);border-color:rgba(21,101,192,0.4);">
+      🔎 Rate Check<br><small>Saved milk rates vs your rate chart for each day · shows which days were priced on an older setting</small>
+    </button>
     <button class="rpt-btn" onclick="generateReport('milksummary')" ontouchstart="">
       🥛 Milk Summary<br><small>All vendors, daily totals</small>
     </button>
     <button class="rpt-btn" onclick="generateMilkReconReport()" ontouchstart="" style="border-color:#C62828;">
-      ⚖ Milk Reconciliation<br><small>Milk in vs milk used — unaccounted per day</small>
+      ⚖ Milk Reconciliation<br><small>Milk loss beyond evaporation — quantity, ₹ and severity</small>
     </button>
     <button class="rpt-btn" onclick="generateReport('production')" ontouchstart="">
       🧀 Production Summary<br><small>Daily yield by product</small>
@@ -3174,19 +3182,15 @@ async function runDiagnostic() {
     });
     html += '</tbody></table>';
     wrap.innerHTML = html;
-    const summaryForWA = {reportTitle, grandTotal, grandTotalCMQty, grandTotalCMAmt, grandTotalBMQty, grandTotalBMAmt, adjustments};
-  const waData = encodeURIComponent(JSON.stringify(summaryForWA));
-  tot.innerHTML = `<div style="font-family:'Space Mono';font-size:13px;font-weight:700;color:var(--green);">
-    Total Payable to ${reportTitle.replace(' Milk Payment','')}: ${Rs(grandTotal)}</div>
-    <div style="font-family:'Space Mono';font-size:10px;color:var(--muted);margin-top:4px;">
-    CM: ${N(grandTotalCMQty,1)}L (${Rs(grandTotalCMAmt)}) &nbsp;|&nbsp; BM: ${N(grandTotalBMQty,1)}L (${Rs(grandTotalBMAmt)})</div>`
-    + adjHtml
-    + `<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-        <button data-wa="${waData}" onclick="generateVendorWA(JSON.parse(decodeURIComponent(this.dataset.wa)))"
-          style="flex:1;padding:11px;background:#25D366;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128242; WhatsApp Payment</button>
-        <button onclick="generateVendorExcel()"
-          style="flex:1;padding:11px;background:#1565C0;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128196; Export Excel</button>
-      </div>`;
+    /* v193: a vendor-payment totals block had been pasted in here, referring to
+       reportTitle / grandTotal / adjHtml — none of which exist in this
+       function. It threw, and the catch below reported it as "Fetch error",
+       so Check Sheet Dates looked like a connection problem. Replaced with the
+       row counts this diagnostic actually computes. */
+    tot.innerHTML = `<div style="font-family:'Space Mono';font-size:12px;color:var(--ink);">
+      <b>${total}</b> row(s) in Milk_Purchase &nbsp;|&nbsp;
+      <span style="color:${badDates ? 'var(--red)' : 'var(--muted)'};">${badDates} unreadable date(s)</span> &nbsp;|&nbsp;
+      <span style="color:var(--muted);">${inRange} in the 08–17 Mar test window</span></div>`;
   } catch(e) {
     wrap.innerHTML = `<div style="padding:20px;color:var(--red);font-family:Space Mono;font-size:11px;">Fetch error: ${e.message}<br>Check Setup URL and ensure script is deployed.</div>`;
   }
@@ -4030,12 +4034,46 @@ async function generateFatCostReport(){
 // (what came in, less spoilage) and the raw Production sheet (what was entered
 // against products) for the whole date range in ONE click, and lines them up
 // day by day. Read-only: it changes no stored data and no cost formula.
+//
+// v194: MILK LOSS — QUANTUM AND SEVERITY. The open vats lose ~2% of the milk to
+// evaporation every day; that is a real, recurring cost, but it is not a
+// mistake. v194 takes it out as its own line (a % you set, default 1.8% — the
+// median gap on normal days, Aug–Sep 2026) so what is left is the loss that
+// should not have happened. Each complete day is graded on that remainder:
+//   OK       < 3% of net milk    (normal noise — carry-over, rounding)
+//   WATCH    3% to < 8%
+//   SERIOUS  8% or more          (spoilage, machine/SOP failure, pilferage, wrong entry)
+//   OVER-ENTERED  below −3%      (more used than came in — carry-over or mis-keying)
+// Days with milk but no production (or the reverse) are kept OUT of the loss
+// figures and listed separately: their gap is missing data, not lost milk.
+// Litres are valued at that day's average purchase rate (GRAND TOTAL MILK COST
+// ÷ litres received); a day with no cost uses the period average.
+// Still read-only: nothing is saved except the evaporation % (this device).
+var LS_EVAP_PCT='gf_evap_pct';
+function gfEvapPct(){
+  var v=parseFloat(localStorage.getItem(LS_EVAP_PCT));
+  return (isFinite(v) && v>=0 && v<=10) ? v : 1.8;
+}
+function gfSetEvapPct(){
+  var el=document.getElementById('mr-evap-pct'); var v=parseFloat(el && el.value);
+  if(!isFinite(v) || v<0 || v>10){ showToast('Enter an evaporation % between 0 and 10','error'); return; }
+  localStorage.setItem(LS_EVAP_PCT, String(v));
+  generateMilkReconReport();
+}
+// Pure grading — one place, so the table, the totals and the tests agree.
+function gfMilkLossGrade(net, gap, evapPct){
+  var evap = net>0 ? net*evapPct/100 : 0;
+  var excess = gap - evap;
+  var ePct = net>0 ? excess/net*100 : 0;
+  var sev = ePct>=8 ? 'SERIOUS' : (ePct>=3 ? 'WATCH' : (ePct<-3 ? 'OVER' : 'OK'));
+  return {evap:evap, excess:excess, ePct:ePct, sev:sev};
+}
 async function generateMilkReconReport(){
   const from=document.getElementById('rpt-from').value || '';
   const to  =document.getElementById('rpt-to').value   || new Date().toISOString().slice(0,10);
   if(!from){ showToast('Pick a From date first','error'); return; }
   const out=document.getElementById('rpt-output'); out.style.display='block';
-  document.getElementById('rpt-title').textContent='⚖ Milk Reconciliation — milk in vs milk used';
+  document.getElementById('rpt-title').textContent='⚖ Milk Reconciliation — loss beyond evaporation';
   document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:24px;text-align:center;font-family:Space Mono;font-size:12px;color:var(--muted);">⏳ Reading milk purchases and production…</div>';
   document.getElementById('rpt-total-wrap').innerHTML='';
   try{ out.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
@@ -4058,7 +4096,7 @@ async function generateMilkReconReport(){
   }
 
   const perDay={};
-  const ensure=k=>{ if(!perDay[k]) perDay[k]={cm:0,bm:0,sk:0,ded:0,prod:0,cream:0,cmSep:0,panCream:0,hasProd:false,hasMilk:false}; return perDay[k]; };
+  const ensure=k=>{ if(!perDay[k]) perDay[k]={cm:0,bm:0,sk:0,ded:0,prod:0,cream:0,cmSep:0,panCream:0,cost:0,hasProd:false,hasMilk:false}; return perDay[k]; };
 
   // ── milk in ──
   const mm=hmap(milkJ&&milkJ.headers);
@@ -4075,6 +4113,7 @@ async function generateMilkReconReport(){
     // (cream added INTO batches), which is why editing 13.5 never showed up.
     d.cream += num(row,mm,'Cream Yield(kg)');
     d.cmSep += num(row,mm,'Cream CM Separated(L)');
+    d.cost  += num(row,mm,'GRAND TOTAL MILK COST(Rs)');   // v194: litres received × rate, before deductions
   });
 
   // ── milk used by products ──
@@ -4096,18 +4135,43 @@ async function generateMilkReconReport(){
   if(!keys.length){ document.getElementById('rpt-table-wrap').innerHTML='<div style="padding:20px;color:var(--muted);">No milk or production rows in this range.</div>'; return; }
 
   const N=(x,dp)=>(Math.round(x*Math.pow(10,dp===undefined?1:dp))/Math.pow(10,dp===undefined?1:dp)).toLocaleString('en-IN');
-  let T={cm:0,bm:0,sk:0,ded:0,net:0,prod:0,cream:0,gap:0};
+  const R=x=>'₹'+Math.round(x).toLocaleString('en-IN');
+  const EV=gfEvapPct();
+  const SEVCOL={SERIOUS:'var(--red)',WATCH:'#E65100',OK:'var(--green)',OVER:'#1565C0'};
+  const SEVTXT={SERIOUS:'SERIOUS',WATCH:'WATCH',OK:'OK',OVER:'OVER-ENTERED'};
+
+  // period average ₹/L — for days whose cost column is empty
+  let cIn=0, cRs=0;
+  keys.forEach(k=>{ const d=perDay[k], i=d.cm+d.bm+d.sk; if(i>0 && d.cost>0){ cIn+=i; cRs+=d.cost; } });
+  const avgRate = cIn>0 ? cRs/cIn : 0;
+
+  let T={cm:0,bm:0,sk:0,ded:0,net:0,prod:0,cream:0,gap:0,cost:0,dedRs:0,
+         cNet:0,cProd:0,cCream:0,cGap:0,evap:0,evapRs:0,excess:0,excessRs:0,
+         pDays:0,pGap:0,pNet:0};
+  const S={SERIOUS:{n:0,L:0,Rs:0},WATCH:{n:0,L:0,Rs:0},OK:{n:0,L:0,Rs:0},OVER:{n:0,L:0,Rs:0}};
+  const cleanPcts=[], ranked=[];
   let rows='';
   keys.forEach(k=>{
     const d=perDay[k];
     const inTot=d.cm+d.bm+d.sk, net=inTot-d.ded;
     const gap=net-d.prod-d.cream;
     const pct=net>0?(gap/net*100):0;
+    const rate=(inTot>0 && d.cost>0) ? d.cost/inTot : avgRate;
     T.cm+=d.cm; T.bm+=d.bm; T.sk+=d.sk; T.ded+=d.ded; T.net+=net; T.prod+=d.prod; T.cream+=d.cream; T.gap+=gap;
-    const partial=!d.hasProd||!d.hasMilk;
-    const col = partial ? '#888' : (Math.abs(pct)>=10 ? 'var(--red)' : (Math.abs(pct)>=5 ? '#E65100' : 'var(--green)'));
-    const flag = partial ? ' ⚠ one side missing' : (Math.abs(pct)>=5 ? ' ◀ investigate' : '');
-    rows+='<tr'+(partial?' style="opacity:.6;font-style:italic;"':(Math.abs(pct)>=10?' style="background:#FDECEA;"':''))+'>'+
+    T.cost+=d.cost; T.dedRs+=d.ded*rate;
+    const partial=!d.hasProd||!d.hasMilk||net<=0||d.prod<=0;
+    let g=null;
+    if(partial){ T.pDays++; T.pGap+=gap; T.pNet+=net; }
+    else{
+      g=gfMilkLossGrade(net,gap,EV);
+      T.cNet+=net; T.cProd+=d.prod; T.cCream+=d.cream; T.cGap+=gap;
+      T.evap+=g.evap; T.evapRs+=g.evap*rate; T.excess+=g.excess; T.excessRs+=g.excess*rate;
+      const s=S[g.sev]; s.n++; s.L+=g.excess; s.Rs+=g.excess*rate;
+      if(pct>-3 && pct<10) cleanPcts.push(pct);
+      if(g.sev==='SERIOUS'||g.sev==='WATCH') ranked.push({k:k,L:g.excess,Rs:g.excess*rate,ePct:g.ePct,sev:g.sev});
+    }
+    const col = partial ? '#888' : SEVCOL[g.sev];
+    rows+='<tr'+(partial?' style="opacity:.6;font-style:italic;"':(g.sev==='SERIOUS'?' style="background:#FDECEA;"':(g.sev==='WATCH'?' style="background:#FFF3E0;"':'')))+'>'+
       '<td>'+k.slice(6,8)+'/'+k.slice(4,6)+'</td>'+
       '<td style="text-align:right;">'+N(d.cm)+'</td>'+
       '<td style="text-align:right;">'+N(d.bm)+'</td>'+
@@ -4116,30 +4180,83 @@ async function generateMilkReconReport(){
       '<td style="text-align:right;font-weight:700;">'+N(net)+'</td>'+
       '<td style="text-align:right;">'+N(d.prod)+'</td>'+
       '<td style="text-align:right;">'+(d.cream>0?N(d.cream):'—')+'</td>'+
-      '<td style="text-align:right;font-weight:800;color:'+col+';">'+N(gap)+'</td>'+
-      '<td style="text-align:right;font-weight:700;color:'+col+';">'+N(pct,1)+'%'+flag+'</td></tr>';
+      '<td style="text-align:right;font-weight:700;">'+N(gap)+'</td>'+
+      '<td style="text-align:right;">'+N(pct,1)+'%</td>'+
+      '<td style="text-align:right;color:var(--muted);">'+(partial?'—':N(g.evap))+'</td>'+
+      '<td style="text-align:right;font-weight:800;color:'+col+';">'+(partial?'—':N(g.excess))+'</td>'+
+      '<td style="text-align:right;font-weight:700;color:'+col+';">'+(partial?'—':R(g.excess*rate))+'</td>'+
+      '<td style="text-align:left;font-weight:800;color:'+col+';white-space:nowrap;">'+(partial?'⚠ one side missing':(SEVTXT[g.sev]+' '+N(g.ePct,1)+'%'))+'</td></tr>';
   });
-  const tPct=T.net>0?(T.gap/T.net*100):0;
-  document.getElementById('rpt-table-wrap').innerHTML=
-    '<table style="width:100%;border-collapse:collapse;font-family:Space Mono;font-size:11px;">'+
+
+  const inAll=T.cm+T.bm+T.sk;
+  const ePctAll=T.cNet>0?T.excess/T.cNet*100:0;
+  const totLossL=T.evap+T.excess, totLossRs=T.evapRs+T.excessRs;
+  const daysN=keys.length;
+  cleanPcts.sort((a,b)=>a-b);
+  const measured = cleanPcts.length ? (cleanPcts.length%2 ? cleanPcts[(cleanPcts.length-1)/2] : (cleanPcts[cleanPcts.length/2-1]+cleanPcts[cleanPcts.length/2])/2) : null;
+  ranked.sort((a,b)=>b.Rs-a.Rs);
+  const hc = ePctAll>=3 ? 'var(--red)' : 'var(--green)';
+
+  // ── headline (a div, not a table — Export Excel takes the first table) ──
+  const head=
+    '<div style="padding:14px 16px;border-bottom:2px solid var(--border);font-family:Space Mono;font-size:12px;line-height:1.8;">'+
+    '<div style="font-size:10px;letter-spacing:1px;color:var(--muted);">LOSS BEYOND EVAPORATION · '+(daysN-T.pDays)+' complete day(s)</div>'+
+    '<div style="font-size:20px;font-weight:800;color:'+hc+';">'+N(T.excess)+' L &nbsp;·&nbsp; '+R(T.excessRs)+' &nbsp;·&nbsp; '+N(ePctAll,1)+'% of net milk</div>'+
+    '<div><span style="color:var(--red);font-weight:800;">SERIOUS '+S.SERIOUS.n+' day(s) '+N(S.SERIOUS.L)+' L '+R(S.SERIOUS.Rs)+'</span> &nbsp;·&nbsp; '+
+      '<span style="color:#E65100;font-weight:800;">WATCH '+S.WATCH.n+' day(s) '+N(S.WATCH.L)+' L '+R(S.WATCH.Rs)+'</span></div>'+
+    '<div style="color:var(--muted);">Plus normal evaporation '+N(T.evap)+' L '+R(T.evapRs)+' ('+EV+'%) — total milk lost '+N(totLossL)+' L '+R(totLossRs)+'</div>'+
+    '<div style="margin-top:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">'+
+      '<span>Evaporation allowance</span>'+
+      '<input type="number" id="mr-evap-pct" value="'+EV+'" step="0.1" min="0" max="10" style="width:70px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;font-family:Space Mono;font-size:12px;">%'+
+      '<button onclick="gfSetEvapPct()" style="background:var(--ink);color:#fff;border:none;padding:6px 12px;border-radius:6px;font-family:Space Mono;font-size:10px;font-weight:700;cursor:pointer;">APPLY</button>'+
+      (measured!==null?('<span style="color:var(--muted);">measured this period on normal days: <b>'+N(measured,1)+'%</b></span>'):'')+
+    '</div></div>';
+
+  document.getElementById('rpt-table-wrap').innerHTML= head+
+    '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;"><table style="width:100%;border-collapse:collapse;font-family:Space Mono;font-size:11px;min-width:1050px;">'+
     '<thead><tr style="background:var(--ink);color:#fff;">'+
-    ['Date','CM in','BM in','Skim in','Spoilt','NET IN','Used in products','Cream sep (kg)','UNACCOUNTED','%']
-      .map(h=>'<th style="padding:7px 8px;text-align:'+(h==='Date'?'left':'right')+';font-size:9px;letter-spacing:.5px;">'+h+'</th>').join('')+
-    '</tr></thead><tbody>'+rows+'</tbody></table>';
+    ['Date','CM in','BM in','Skim in','Spoilt','NET IN','Used in products','Cream sep (kg)','UNACCOUNTED','%','Evap (L)','LOSS (L)','LOSS ₹','Severity']
+      .map(h=>'<th style="padding:7px 8px;text-align:'+(h==='Date'||h==='Severity'?'left':'right')+';font-size:9px;letter-spacing:.5px;">'+h+'</th>').join('')+
+    '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+
+  const W=(label,L,rs,pctOf,bold,col,note)=>'<tr'+(bold?' style="font-weight:800;border-top:2px solid var(--ink);"':'')+'>'+
+    '<td style="padding:5px 6px;">'+label+(note?' <span style="color:var(--muted);font-weight:400;font-size:10.5px;">'+note+'</span>':'')+'</td>'+
+    '<td style="padding:5px 6px;text-align:right;'+(col?'color:'+col+';':'')+'">'+N(L)+'</td>'+
+    '<td style="padding:5px 6px;text-align:right;'+(col?'color:'+col+';':'')+'">'+(rs===null?'':R(rs))+'</td>'+
+    '<td style="padding:5px 6px;text-align:right;color:var(--muted);">'+(pctOf===null?'':N(pctOf,1)+'%')+'</td></tr>';
+  const pc=x=>T.cNet>0?x/T.cNet*100:null;
+  const topList = ranked.slice(0,5).map(x=>'<span style="color:'+SEVCOL[x.sev]+';font-weight:700;">'+x.k.slice(6,8)+'/'+x.k.slice(4,6)+' '+N(x.L)+' L '+R(x.Rs)+'</span>').join(' &nbsp;·&nbsp; ');
+
   document.getElementById('rpt-total-wrap').innerHTML=
-    '<div style="margin-top:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);font-family:Space Mono;font-size:12px;line-height:1.9;">'+
-    '<b>PERIOD TOTAL ('+keys.length+' days)</b><br>'+
-    'Milk in '+N(T.cm+T.bm+T.sk)+' L &nbsp;−&nbsp; spoilt '+N(T.ded)+' L &nbsp;=&nbsp; <b>net '+N(T.net)+' L</b><br>'+
-    'Used in products '+N(T.prod)+' L &nbsp;+&nbsp; cream separated out '+N(T.cream)+' kg<br>'+
-    '<span style="font-size:15px;font-weight:800;color:'+(Math.abs(tPct)>=5?'var(--red)':'var(--green)')+';">UNACCOUNTED '+N(T.gap)+' L ('+N(tPct,1)+'% of net)</span>'+
+    '<div style="margin-top:4px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--cream);font-family:Space Mono;font-size:12px;line-height:1.7;">'+
+    '<b>PERIOD TOTAL ('+daysN+' days)</b><br>'+
+    'Milk in '+N(inAll)+' L &nbsp;−&nbsp; vendor-deducted '+N(T.ded)+' L &nbsp;=&nbsp; <b>net '+N(T.net)+' L</b> &nbsp;·&nbsp; unaccounted '+N(T.gap)+' L ('+N(T.net>0?T.gap/T.net*100:0,1)+'%)'+
+    '<table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:11.5px;">'+
+    '<tr style="color:var(--muted);font-size:10px;"><td style="padding:4px 6px;">COMPLETE DAYS ('+(daysN-T.pDays)+')</td><td style="padding:4px 6px;text-align:right;">LITRES</td><td style="padding:4px 6px;text-align:right;">₹</td><td style="padding:4px 6px;text-align:right;">% OF NET</td></tr>'+
+    W('Net milk in',T.cNet,null,100,false,'','after vendor deductions')+
+    W('− Used in products',T.cProd,null,pc(T.cProd))+
+    W('− Cream separated (kg)',T.cCream,null,pc(T.cCream))+
+    W('− Normal evaporation',T.evap,T.evapRs,pc(T.evap),false,'','open vats, '+EV+'% — a daily cost')+
+    W('= LOSS BEYOND EVAPORATION',T.excess,T.excessRs,pc(T.excess),true,hc)+
+    W('&nbsp;&nbsp;on SERIOUS days ('+S.SERIOUS.n+')',S.SERIOUS.L,S.SERIOUS.Rs,pc(S.SERIOUS.L),false,'var(--red)','8%+ of net')+
+    W('&nbsp;&nbsp;on WATCH days ('+S.WATCH.n+')',S.WATCH.L,S.WATCH.Rs,pc(S.WATCH.L),false,'#E65100','3–8%')+
+    W('&nbsp;&nbsp;on OK days ('+S.OK.n+')',S.OK.L,S.OK.Rs,pc(S.OK.L),false,'','within ±3% — noise')+
+    W('&nbsp;&nbsp;on OVER-ENTERED days ('+S.OVER.n+')',S.OVER.L,S.OVER.Rs,pc(S.OVER.L),false,'#1565C0','more used than came in')+
+    W('TOTAL MILK LOST (evaporation + loss)',totLossL,totLossRs,pc(totLossL),true,'var(--red)')+
+    '</table>'+
+    '<div style="margin-top:8px;">Vendor-deducted '+N(T.ded)+' L ≈ '+R(T.dedRs)+' — spoilt milk the vendors bore, not in the figures above.</div>'+
+    (T.pDays?('<div style="margin-top:4px;color:#888;font-style:italic;">Not counted: '+T.pDays+' day(s) with one side missing — gap '+N(T.pGap)+' L. That is missing data, not lost milk: enter the missing milk or production for those days.</div>'):'')+
+    (topList?('<div style="margin-top:8px;"><b>Biggest loss days:</b> '+topList+'</div>'):'')+
     '</div>'+
     '<div style="margin-top:8px;padding:10px 14px;border-radius:8px;background:#FFF8E1;border:1.5px solid #FFD54F;font-size:11.5px;line-height:1.7;">'+
     '<b>How to read this.</b> “Unaccounted” = net milk in − milk entered against products − cream separated out of the milk '+
-    '(the “Cream Yield (kg)” figure on the milk page, not the cream added into paneer). It bundles together: '+
-    'evaporation and process loss in a manual plant, milk or skim carried over to the next day, and mis-keyed entries. '+
-    'A single day can look bad purely because milk was held overnight, so <b>judge the period total, not one day</b> — carry-over cancels out over a month, '+
-    'so the total is close to your true physical loss. Investigate the individual days flagged in red (10%+): those are where wastage, '+
-    'pilferage or a wrong entry actually sit. Grey italic rows have milk but no production (or vice versa), so their gap is not meaningful.'+
+    '(the “Cream Yield (kg)” figure on the milk page, not the cream added into paneer). '+
+    'Part of it is <b>normal evaporation</b> from the open vats — the allowance above (set it to the “measured on normal days” figure once you trust it). '+
+    'What is left is <b>loss beyond evaporation</b>: spoilage, machine or SOP failures, pilferage, or a wrong entry. '+
+    'Each day is graded on that remainder as a % of its net milk: <b style="color:var(--red);">SERIOUS</b> 8%+, <b style="color:#E65100;">WATCH</b> 3–8%, OK within ±3%, '+
+    '<b style="color:#1565C0;">OVER-ENTERED</b> below −3% (usually milk carried over from the day before, or a mis-keyed figure). '+
+    'Milk held overnight moves litres from one day to the next, so <b>judge the period total</b> and use the day grades to know where to look. '+
+    '₹ = litres × that day’s average purchase rate. Grey italic rows have milk but no production (or the reverse) and are left out of the loss.'+
     '</div>';
   showToast('Milk reconciliation built for '+keys.length+' day(s)','success');
 }
@@ -4327,7 +4444,8 @@ async function generateReport(type) {
   // Sheet-to-report mapping
   const sheetMap = {
     vendor1: 'Milk_Purchase', vendor2: 'Milk_Purchase', vendor3: 'Milk_Purchase',
-    milksummary: 'Milk_Purchase', production: 'COGS_Daily', cogs: 'COGS_Daily', avgcogs: 'COGS_Daily', avgyield: 'COGS_Daily', milkquality: 'Milk_Purchase'
+    vendor4: 'Milk_Purchase',
+    milksummary: 'Milk_Purchase', ratecheck: 'Milk_Purchase', production: 'COGS_Daily', cogs: 'COGS_Daily', avgcogs: 'COGS_Daily', avgyield: 'COGS_Daily', milkquality: 'Milk_Purchase'
   };
   const sheetName = sheetMap[type] || 'COGS_Daily';
 
@@ -4396,11 +4514,29 @@ async function generateReport(type) {
   }
 
   const dates = getDateRange();
+  /* v197: a day with no row in the sheet used to simply not appear, so a
+     10-day range showed 9 rows with no hint why. Say which days are missing. */
+  if (sheetName === 'Milk_Purchase' && dates && dates.length) {
+    const _have = {};
+    (sheetData.rows||[]).forEach(function(r){ _have[toReportDateInt(String(r[0]||''))] = 1; });
+    const _miss = dates.filter(function(d){ return !_have[toReportDateInt(d)]; });
+    if (_miss.length) {
+      const mb = document.createElement('div');
+      mb.id = 'rpt-missing-banner';
+      mb.style.cssText = 'background:#FDECEA;border:1.5px solid #C62828;border-radius:8px;padding:9px 14px;margin-bottom:10px;font-family:Space Mono,monospace;font-size:11px;color:#8B1A1A;';
+      mb.innerHTML = '⚠ <b>' + _miss.length + ' of ' + dates.length + ' days have no milk entry in the sheet:</b> '
+        + _miss.map(fmtDate).join(', ') + '. Open that date on the Milk tab and save it.';
+      const old = document.getElementById('rpt-missing-banner'); if (old) old.remove();
+      out.insertBefore(mb, out.firstChild);
+    } else { const old = document.getElementById('rpt-missing-banner'); if (old) old.remove(); }
+  }
 
   if (type === 'vendor1')      buildVendorReport(dates, 'v1', 'Vendor 1 Milk Payment', title, wrap, tot, sheetData);
   else if (type === 'vendor2') buildVendorReport(dates, 'v2', 'Vendor 2 Milk Payment', title, wrap, tot, sheetData);
   else if (type === 'vendor3') buildV3Report(dates, title, wrap, tot, sheetData);
+  else if (type === 'vendor4') buildVendorReport(dates, 'v4', 'Vendor 4 Milk Payment', title, wrap, tot, sheetData);
   else if (type === 'milksummary') buildMilkSummaryReport(dates, title, wrap, tot, sheetData);
+  else if (type === 'ratecheck')   buildRateCheckReport(dates, title, wrap, tot, sheetData);
   else if (type === 'production') {
     if (sheetData && sheetData.rows && sheetData.rows.length > 0) {
       // Use COGS_Daily to show production summary (yield by product by day)
@@ -4449,13 +4585,17 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
     seenDates[di] = m; // overwrite with latest
     return true;
   });
+  // v197: a day in the range with no row at all gets its own line
+  (dates || []).forEach(function(iso){ const di = toReportDateInt(iso); if (di && !seenDates[di]) seenDates[di] = { _date: iso, _missing: true }; });
   // Rebuild as deduplicated array in date order
   rows = Object.values(seenDates).sort((a, b) => toReportDateInt(a._date) - toReportDateInt(b._date));
 
-  // Vendor 1 has morning + evening sessions; Vendor 2 has one session
+  /* Vendor 1 has morning + evening sessions; Vendors 2 and 4 have one session.
+     v193: the single-session branch used to be hard-coded to 'v2', so any other
+     single-session vendor would silently have read V2's boxes. */
   const sessions = vendor === 'v1'
     ? [{pfx:'v1m', label:'Morning'}, {pfx:'v1e', label:'Evening'}]
-    : [{pfx:'v2',  label:''}];
+    : [{pfx:vendor, label:''}];
 
   let html = '<table class="rpt-table"><thead><tr>';
   if (vendor === 'v1') {
@@ -4472,6 +4612,12 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
   const adjustments = [];
 
   rows.forEach(m => {
+    if (m._missing) {   // v197
+      html += '<tr style="background:#FDECEA;"><td>' + fmtDate(m._date) + '</td>' + (vendor === 'v1' ? '<td>—</td>' : '')
+        + '<td colspan="12" style="text-align:center;color:#C62828;font-weight:700;">⚠ not in the sheet — this day was never saved</td></tr>';
+      adjustments.push({date:fmtDate(m._date), session:'', type:'Not saved', detail:'no milk entry in the sheet for this day'});
+      return;
+    }
     let dayTotal = 0;
     sessions.forEach(s => {
       const p = s.pfx;
@@ -4552,13 +4698,34 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
   html += '</tr></tfoot></table>';
 
   wrap.innerHTML = html;
+
+  /* ── Adjustment summary ──────────────────────────────────────────────
+     v193: adjHtml and summaryForWA were referenced here but never declared in
+     this function (the declarations had been pasted into runDiagnostic), so
+     every Vendor 1 / Vendor 2 payment report threw "adjHtml is not defined"
+     right after drawing the table — the totals line, the WhatsApp button and
+     the Excel button never appeared. Declared here, where they belong. */
+  let adjHtml = '';
+  if (adjustments.length) {
+    adjHtml = '<div style="background:#FFF3CD;border:1.5px solid #F39C12;border-radius:10px;padding:12px 14px;margin-top:12px;">'
+      + '<div style="font-family:\'Space Mono\';font-size:11px;font-weight:700;color:#E67E22;margin-bottom:8px;">⚠ ADJUSTMENTS APPLIED</div>'
+      + adjustments.map(a => '<div style="font-family:\'Space Mono\';font-size:11px;margin-bottom:4px;">'
+        + '<b>' + a.date + (a.session ? ' ' + a.session : '') + '</b> — ' + a.type + ': ' + a.detail + '</div>').join('')
+      + '</div>';
+  }
+
+  const summaryForWA = {reportTitle, grandTotal, grandTotalCMQty, grandTotalCMAmt, grandTotalBMQty, grandTotalBMAmt, adjustments};
+  // Pass through a data attribute, not an inline quoted literal — a note
+  // containing a quote used to break the button's onclick.
+  const waData = encodeURIComponent(JSON.stringify(summaryForWA));
+
   tot.innerHTML = `<div style="font-family:'Space Mono';font-size:13px;font-weight:700;color:var(--green);">
     Total Payable to ${reportTitle.replace(' Milk Payment','')}: ${Rs(grandTotal)}</div>
     <div style="font-family:'Space Mono';font-size:10px;color:var(--muted);margin-top:4px;">
     CM: ${N(grandTotalCMQty,1)}L (${Rs(grandTotalCMAmt)}) &nbsp;|&nbsp; BM: ${N(grandTotalBMQty,1)}L (${Rs(grandTotalBMAmt)})</div>`
     + adjHtml
     + `<div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;">
-        <button onclick='generateVendorWA(${JSON.stringify(summaryForWA).replace(/\\/g,"\\\\").replace(/'/g,"\\'")})'
+        <button data-wa="${waData}" onclick="generateVendorWA(JSON.parse(decodeURIComponent(this.dataset.wa)))"
           style="flex:1;padding:11px;background:#25D366;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128242; WhatsApp Payment</button>
         <button onclick="generateVendorExcel()"
           style="flex:1;padding:11px;background:#1565C0;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128196; Export Excel</button>
@@ -4599,7 +4766,9 @@ function generateVendorWA(data) {
 
 function generateVendorExcel() {
   // Get the current report table HTML and export as Excel-compatible file
-  const table = document.querySelector('#rpt-wrap table');
+  // v193: was '#rpt-wrap table' — no such element, so Export Excel always
+  // stopped at "No report table found". The wrapper is #rpt-table-wrap.
+  const table = document.querySelector('#rpt-table-wrap table');
   if(!table) { alert('No report table found. Generate a report first.'); return; }
   const from = document.getElementById('rpt-from').value;
   const to   = document.getElementById('rpt-to').value;
@@ -4639,6 +4808,65 @@ function generateVendorExcel() {
   URL.revokeObjectURL(url);
 }
 
+/* v197: RATE CHECK. A saved day keeps the rates it was saved with (v190), so a
+   chart uploaded later does not change days already entered. This report prices
+   every saved litre again with the setting valid on ITS day and lists the days
+   whose saved rate differs. Read-only — nothing is changed. */
+function buildRateCheckReport(dates, title, wrap, tot, sheetData) {
+  title.textContent = 'Rate Check — saved rate vs rate chart';
+  let rows = parseMilkSheetRows(sheetData.headers, sheetData.rows);
+  const seen = {};
+  rows.forEach(function(m){ const di = toReportDateInt(m._date); if (di) seen[di] = m; });
+  rows = Object.keys(seen).sort().map(function(k){ return seen[k]; });
+  const toIso = function(d){ const i = String(toReportDateInt(d)); return i.slice(0,4)+'-'+i.slice(4,6)+'-'+i.slice(6,8); };
+  const SLOTS = [
+    ['v1','V1 Morning','cm','v1m_cm'], ['v1','V1 Morning','bm','v1m_bm'],
+    ['v1','V1 Evening','cm','v1e_cm'], ['v1','V1 Evening','bm','v1e_bm'],
+    ['v2','V2','cm','v2_cm'], ['v2','V2','bm','v2_bm'],
+    ['v3','V3','bm','v3_bm'], ['v3','V3 Skim','sk','v3_sk'],
+    ['v4','V4','cm','v4_cm'], ['v4','V4','bm','v4_bm']
+  ];
+  const diffs = [], byV = {}, noQuote = [];
+  let checked = 0;
+  rows.forEach(function(m){
+    const iso = toIso(m._date);
+    SLOTS.forEach(function(sl){
+      const q = parseFloat(m[sl[3]+'_qty'])||0; if (!(q > 0)) return;
+      const snf = parseFloat(m[sl[3]+'_snf'])||0;
+      const fat = sl[2] === 'sk' ? snf : (parseFloat(m[sl[3]+'_fat'])||0);
+      const saved = parseFloat(m[sl[3]+'_rate'])||0;
+      const qt = vrQuote(sl[0], sl[2], fat, snf, iso);
+      checked++;
+      if (!qt) { noQuote.push(fmtDate(m._date)+' '+sl[1]+' '+sl[2].toUpperCase()+' ('+fat+'/'+snf+')'); return; }
+      if (Math.abs(saved - qt.rate) < 0.005) return;
+      const rs = (qt.rate - saved) * q;
+      diffs.push({ date:fmtDate(m._date), who:sl[1], type:sl[2].toUpperCase(), q:q, fat:fat, snf:snf, saved:saved, chart:qt.rate, why:qt.why, rs:rs });
+      byV[sl[0]] = (byV[sl[0]]||0) + rs;
+    });
+  });
+  if (!rows.length) { wrap.innerHTML = '<div style="padding:20px;text-align:center;color:var(--muted);">No saved milk days in this range.</div>'; tot.innerHTML=''; return; }
+  let html = '<table class="rpt-table"><thead><tr><th>Date</th><th>Vendor</th><th>Milk</th><th>Qty(L)</th><th>Fat%</th><th>SNF%</th>'
+    + '<th>Saved rate</th><th>Chart rate</th><th>Diff ₹/L</th><th>Diff ₹</th><th>Setting used by the chart</th></tr></thead><tbody>';
+  diffs.forEach(function(d){
+    html += '<tr><td>'+d.date+'</td><td>'+d.who+'</td><td>'+d.type+'</td><td>'+N(d.q,1)+'</td><td>'+N(d.fat,2)+'</td><td>'+N(d.snf,2)+'</td>'
+      + '<td>'+N(d.saved,2)+'</td><td style="font-weight:700;">'+N(d.chart,2)+'</td>'
+      + '<td style="color:'+(d.chart>d.saved?'#C62828':'#2D7A45')+';">'+(d.chart>d.saved?'+':'')+N(d.chart-d.saved,2)+'</td>'
+      + '<td style="color:'+(d.rs>0?'#C62828':'#2D7A45')+';">'+(d.rs>0?'+':'')+Rs(d.rs)+'</td>'
+      + '<td style="font-size:10px;color:var(--muted);">'+d.why+'</td></tr>';
+  });
+  if (!diffs.length) html += '<tr><td colspan="11" style="text-align:center;color:#2D7A45;font-weight:700;">✓ Every saved rate matches the rate setting valid on its day</td></tr>';
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
+  const days = {}; diffs.forEach(function(d){ days[d.date]=1; });
+  const vTxt = Object.keys(byV).sort().map(function(k){ return 'Vendor '+k.slice(1)+' '+(byV[k]>0?'+':'')+Rs(byV[k]); }).join(' · ');
+  tot.innerHTML = '<div style="font-family:\'Space Mono\';font-size:12px;font-weight:700;color:'+(diffs.length?'#C62828':'var(--green)')+';">'
+    + (diffs.length ? (Object.keys(days).length + ' day(s) priced differently from the chart — ' + diffs.length + ' of ' + checked + ' entries') : ('All ' + checked + ' entries match'))
+    + '</div>'
+    + (diffs.length ? '<div style="font-family:\'Space Mono\';font-size:11px;margin-top:6px;">Payable would change by: ' + vTxt + ' (+ means the chart pays more)</div>'
+      + '<div style="font-family:\'Space Mono\';font-size:11px;margin-top:8px;line-height:1.7;">To correct a day: pick it as the entry date, press <b>↻ Re-price this day</b> on the Milk tab, then <b>Save milk</b> and <b>Save products</b> (so its COGS uses the corrected milk cost).</div>' : '')
+    + (noQuote.length ? '<div style="font-family:\'Space Mono\';font-size:10px;margin-top:8px;color:#8a6d00;">No chart rate for: ' + noQuote.join(' · ') + ' — these are left as saved.</div>' : '');
+}
+
 function buildV3Report(dates, title, wrap, tot, sheetData) {
   title.textContent = 'Vendor 3 (Skim Milk) Payment';
   let rows;
@@ -4672,16 +4900,10 @@ function buildV3Report(dates, title, wrap, tot, sheetData) {
   html += `</tbody><tfoot><tr><td>TOTAL</td><td>${N(totalQty,1)}</td><td></td><td></td><td>${Rs(totalAmt)}</td><td></td></tr></tfoot></table>`;
   wrap.innerHTML = html;
 
-  // ── Adjustment summary ──────────────────────────────────────────────
-  let adjHtml = '';
-  if(adjustments.length) {
-    adjHtml = '<div style="background:#FFF3CD;border:1.5px solid #F39C12;border-radius:10px;padding:12px 14px;margin-top:12px;">'
-      +'<div style="font-family:\'Space Mono\';font-size:11px;font-weight:700;color:#E67E22;margin-bottom:8px;">⚠ ADJUSTMENTS APPLIED</div>'
-      +adjustments.map(a=>'<div style="font-family:\'Space Mono\';font-size:11px;margin-bottom:4px;">'
-        +'<b>'+a.date+(a.session?' '+a.session:'')+'</b> — '+a.type+': '+a.detail+'</div>').join('')
-      +'</div>';
-  }
-
+  /* v193: an adjustment-summary block used to sit here referring to an
+     `adjustments` array that this report never builds, so Vendor 3 threw
+     "adjustments is not defined" and the Total Payable line never rendered.
+     Removed — Vendor 3 has no rate downgrades or split deductions to list. */
   tot.innerHTML = `<div style="font-family:'Space Mono';font-size:13px;font-weight:700;color:var(--green);">Total Payable to Vendor 3: ${Rs(totalAmt)}</div>`;
 }
 
@@ -4809,8 +5031,10 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
     const lp=parseFloat(p.lp_yield)||0;if(lp>0)addProdRow('Lite Paneer',lp,(parseFloat(p.lp_bm)||0)*bmR+(parseFloat(p.lp_sm)||0)*skR+(parseFloat(p.lp_cream)||0)*(parseFloat(p.lp_cream_rate)||300),parseFloat(p.lp_ing_cost)||0,parseFloat(p.lp_pm_cost)||0,lp*(parseFloat(p.lp_rate)||230),'kg');
     const mfp=parseFloat(p.mfp_yield)||0;if(mfp>0)addProdRow('Med Fat',mfp,(parseFloat(p.mfp_bm)||0)*bmR+(parseFloat(p.mfp_sm)||0)*skR+(parseFloat(p.mfp_cream)||0)*(parseFloat(p.mfp_cream_rate)||300),parseFloat(p.mfp_ing_cost)||0,parseFloat(p.mfp_pm_cost)||0,mfp*(parseFloat(p.mfp_rate)||240),'kg');
     const lfp=parseFloat(p.lfp_yield)||0;if(lfp>0)addProdRow('Low Fat Paneer',lfp,(parseFloat(p.lfp_bm)||0)*bmR+(parseFloat(p.lfp_sm)||0)*skR+(parseFloat(p.lfp_cream)||0)*(parseFloat(p.lfp_cream_rate)||300),parseFloat(p.lfp_ing_cost)||0,parseFloat(p.lfp_pm_cost)||0,lfp*(parseFloat(p.lfp_rate)||230),'kg');
-    const mp=parseFloat(p.mp_packs)||0;if(mp>0)addProdRow('Malai',parseFloat(p.mp_yield)||0,(parseFloat(p.mp_bm)||0)*bmR+(parseFloat(p.mp_sm)||0)*skR+(parseFloat(p.mp_cream)||0)*(parseFloat(p.mp_cream_rate)||300),parseFloat(p.mp_ing_cost)||0,parseFloat(p.mp_pm_cost)||0,mp*(parseFloat(p.mp_rate)||350),'kg');
-    const gh=parseFloat(p.gh_yield_kg)||0;if(gh>0){const rev=(parseFloat(p.gh_pouches)||0)*(parseFloat(p.gh_pouch_rate)||780)+(parseFloat(p.gh_pouches_500)||0)*(parseFloat(p.gh_pouch_500_rate)||390)+(parseFloat(p.gh_jars)||0)*390+(parseFloat(p.gh_tins)||0)*3900;addProdRow('Ghee',gh,(parseFloat(p.gh_cream_in)||0)*(parseFloat(p.gh_cream_rate)||300),0,parseFloat(p.gh_pm_cost)||0,rev,'kg');}
+    const mp=parseFloat(p.mp_packs)||0;if(mp>0)addProdRow('Malai',parseFloat(p.mp_yield)||0,(parseFloat(p.mp_bm)||0)*bmR+(parseFloat(p.mp_sm)||0)*skR+(parseFloat(p.mp_cream)||0)*(parseFloat(p.mp_cream_rate)||300),parseFloat(p.mp_ing_cost)||0,parseFloat(p.mp_pm_cost)||0,(parseFloat(p.mp_yield)||0)*(parseFloat(p.mp_rate)||350),'kg');   /* v195: kg x Rs/kg */
+    const gh=parseFloat(p.gh_yield_kg)||0;if(gh>0){const rev=(parseFloat(p.gh_pouches)||0)*780+(parseFloat(p.gh_pouches_500)||0)*390+(parseFloat(p.gh_jars)||0)*390+(parseFloat(p.gh_tins)||0)*3900;
+    /* v195: selling price per pack, not the packing cost */
+    addProdRow('Ghee',gh,(parseFloat(p.gh_cream_in)||0)*(parseFloat(p.gh_cream_rate)||300),0,parseFloat(p.gh_pm_cost)||0,rev,'kg');}
     const lc=parseFloat(p.lc_yield)||0;if(lc>0)addProdRow('Lite Curd',lc,(parseFloat(p.lc_bm)||0)*bmR+(parseFloat(p.lc_cm)||0)*cmR+(parseFloat(p.lc_sm)||0)*skR,parseFloat(p.lc_ing_cost)||0,parseFloat(p.lc_pm_cost)||0,(parseFloat(p.lc_jars)||0)*(parseFloat(p.lc_jar_rate)||300)+(parseFloat(p.lc_bulk_kg)||0)*60,'kg');
     const ch=parseFloat(p.ch_packed_l)||0;if(ch>0)addProdRow('Chaach',ch,(parseFloat(p.ch_curd)||0)*50,parseFloat(p.ch_ing_cost)||0,(parseFloat(p.ch_pm_cost)||0)+(parseFloat(p.ch_case_pm_cost)||0),(parseFloat(p.ch_500ml)||0)*(parseFloat(p.ch_rate)||40)*0.5+(parseFloat(p.ch_1l)||0)*(parseFloat(p.ch_rate)||40),'L');
     const sl=parseFloat(p.sl_cups)||0;if(sl>0)addProdRow('Sweet Lassi',sl,(parseFloat(p.sl_curd)||0)*50,parseFloat(p.sl_ing_cost)||0,parseFloat(p.sl_pm_cost)||0,sl*(parseFloat(p.sl_rate)||100),'cups');
@@ -5672,9 +5896,11 @@ function calculateAndShowSummary() {
   // ── Low Fat Paneer
   if(ic('lfp_yield')>0){const mlk=(ic('lfp_bm')+ic('lfp_sm'));addRow('Low Fat Paneer',ic('lfp_yield'),ic('lfp_bm')*wBM+ic('lfp_sm')*wSK+ic('lfp_cream')*creamRate,ic('lfp_ing_cost'),ic('lfp_pm_cost'),ic('lfp_gas'),ic('lfp_yield')*(ic('lfp_rate')||230),mlk>0?(ic('lfp_yield')/mlk*100):0,ic('lfp_std_yield_pct')||19.0);}
   // ── Malai Paneer
-  if(ic('mp_yield')>0){const mlk=(ic('mp_bm')+ic('mp_sm'));addRow('Malai Paneer',ic('mp_yield'),ic('mp_bm')*wBM+ic('mp_sm')*wSK+ic('mp_cream')*creamRate,ic('mp_ing_cost'),ic('mp_pm_cost'),ic('mp_gas'),ic('mp_packs')*(ic('mp_rate')||350),mlk>0?(ic('mp_yield')/mlk*100):0,22);}
+  if(ic('mp_yield')>0){const mlk=(ic('mp_bm')+ic('mp_sm'));addRow('Malai Paneer',ic('mp_yield'),ic('mp_bm')*wBM+ic('mp_sm')*wSK+ic('mp_cream')*creamRate,ic('mp_ing_cost'),ic('mp_pm_cost'),ic('mp_gas'),ic('mp_yield')*(ic('mp_rate')||350),mlk>0?(ic('mp_yield')/mlk*100):0,22);}
   // ── Ghee
-  if(ic('gh_yield_kg')>0){const cIn=ic('gh_cream_in');const ghRev=ic('gh_pouches')*(ic('gh_pouch_rate')||780)+ic('gh_pouches_500')*(ic('gh_pouch_500_rate')||390)+ic('gh_jars')*(ic('gh_jar_rate')||17)*500/1000*780+ic('gh_tins')*3900;addRow('Ghee',ic('gh_yield_kg'),cIn*creamRate,0,ic('gh_pm_cost'),ic('gh_gas'),ghRev,cIn>0?(ic('gh_yield_kg')/cIn*100):0,51.7);}
+  if(ic('gh_yield_kg')>0){const cIn=ic('gh_cream_in');const ghRev=ic('gh_pouches')*780+ic('gh_pouches_500')*390+ic('gh_jars')*390+ic('gh_tins')*3900;
+    /* v195: selling price per pack, not the packing cost */
+    addRow('Ghee',ic('gh_yield_kg'),cIn*creamRate,0,ic('gh_pm_cost'),ic('gh_gas'),ghRev,cIn>0?(ic('gh_yield_kg')/cIn*100):0,51.7);}
   // ── Lite Curd — FIX: require milk input > 0
   if(ic('lc_yield')>0 && (ic('lc_bm')+ic('lc_cm')+ic('lc_sm'))>0){const mlk=(ic('lc_bm')+ic('lc_cm')+ic('lc_sm'));addRow('Lite Curd',ic('lc_yield'),ic('lc_bm')*wBM+ic('lc_cm')*wCM+ic('lc_sm')*wSK,ic('lc_ing_cost'),ic('lc_pm_cost'),ic('lc_gas'),ic('lc_jars')*(ic('lc_jar_rate')||300)+ic('lc_bulk_kg')*60,mlk>0?(ic('lc_yield')/mlk*100):0,100);}
   // ── Fresh Curd
@@ -6312,12 +6538,12 @@ function gatherProductData() {
     date: getEntryDate(),
     // Lite Paneer
     lp_bm:gn('lp_bm'), lp_sm:gn('lp_sm'), lp_cream:gn('lp_cream'), lp_cream_rate:gn('lp_cream_rate')||300, lp_cream_amt:gn('lp_cream_amt'), lp_cream_pct:gn('lp_cream_pct'),
-    lp_yield:gn('lp_yield'), lp_std:gn('lp_std')||16.0, lp_gas_qty:gn('lp_gas_qty'), lp_gas_rate:gn('lp_gas_rate')||100, lp_gas:gn('lp_gas')||(gn('lp_gas_qty')*(gn('lp_gas_rate||100'))),  // fallback: qty*rate if field empty
+    lp_yield:gn('lp_yield'), lp_std:gn('lp_std')||16.0, lp_gas_qty:gn('lp_gas_qty'), lp_gas_rate:gn('lp_gas_rate')||100, lp_gas:gn('lp_gas')||(gn('lp_gas_qty')*(gn('lp_gas_rate')||100)),   /* fallback: qty*rate if field empty */
     lp_pm_qty:gn('lp_pm_qty'), lp_pm_rate:gn('lp_pm_rate')||1.6, lp_pm_cost:gn('lp_pm_cost'), lp_rate:gn('lp_rate')||230, lp_notes:gv('lp_notes'),
     lp_ing_cost:getIngTotalCost('lp'), lp_ings:gatherIngredients('lp'),
     // Med Fat Paneer
     mfp_bm:gn('mfp_bm'), mfp_sm:gn('mfp_sm'), mfp_cream:gn('mfp_cream'), mfp_cream_rate:gn('mfp_cream_rate')||300, mfp_cream_amt:gn('mfp_cream_amt'), mfp_cream_pct:gn('mfp_cream_pct'), mfp_yield:gn('mfp_yield'),
-    mfp_std:gn('mfp_std')||16.5, mfp_gas_qty:gn('mfp_gas_qty'), mfp_gas_rate:gn('mfp_gas_rate')||100, mfp_gas:gn('mfp_gas')||(gn('mfp_gas_qty')*(gn('mfp_gas_rate||100'))),  // fallback: qty*rate if field empty
+    mfp_std:gn('mfp_std')||16.5, mfp_gas_qty:gn('mfp_gas_qty'), mfp_gas_rate:gn('mfp_gas_rate')||100, mfp_gas:gn('mfp_gas')||(gn('mfp_gas_qty')*(gn('mfp_gas_rate')||100)),   /* fallback: qty*rate if field empty */
     mfp_pm_qty:gn('mfp_pm_qty'), mfp_pm_rate:gn('mfp_pm_rate')||1.6, mfp_pm_cost:gn('mfp_pm_cost'), mfp_rate:gn('mfp_rate')||240, mfp_notes:gv('mfp_notes'),
     mfp_ing_cost:getIngTotalCost('mfp'), mfp_ings:gatherIngredients('mfp'),
     // Low Fat Paneer
@@ -6328,7 +6554,8 @@ function gatherProductData() {
     // Malai Paneer
     mp_bm:gn('mp_bm'), mp_sm:gn('mp_sm'), mp_cream:gn('mp_cream'), mp_cream_rate:gn('mp_cream_rate')||300, mp_cream_amt:gn('mp_cream_amt'), mp_cream_pct:gn('mp_cream_pct'), mp_yield:gn('mp_yield'),
     mp_packs:gn('mp_packs'), mp_rework:gn('mp_rework'),
-    mp_gas_qty:gn('mp_gas_qty'), mp_gas_rate:gn('mp_gas_rate')||100, mp_gas:gn('mp_gas')||(gn('mp_gas_qty')*(gn('mp_gas_rate||100'))),  // fallback: qty*rate if field empty mp_pm_qty:gn('mp_pm_qty'), mp_pm_rate:gn('mp_pm_rate')||1.5, mp_pm_cost:gn('mp_pm_cost'), mp_rate:gn('mp_rate')||350, mp_notes:gv('mp_notes'),
+    mp_gas_qty:gn('mp_gas_qty'), mp_gas_rate:gn('mp_gas_rate')||100, mp_gas:gn('mp_gas')||(gn('mp_gas_qty')*(gn('mp_gas_rate')||100)),   /* fallback: qty*rate if field empty */
+    mp_pm_qty:gn('mp_pm_qty'), mp_pm_rate:gn('mp_pm_rate')||1.5, mp_pm_cost:gn('mp_pm_cost'), mp_rate:gn('mp_rate')||350, mp_notes:gv('mp_notes'),
     mp_ing_cost:getIngTotalCost('mp'), mp_ings:gatherIngredients('mp'),
     // Ghee
     gh_cream_in:gn('gh_cream_in'), gh_yield_kg:gn('gh_yield_kg'),
@@ -6338,16 +6565,19 @@ function gatherProductData() {
     gh_jars:gn('gh_jars'), gh_jar_rate:gn('gh_jar_rate')||17, gh_jar_cost:gn('gh_jar_cost'),
     gh_tins:gn('gh_tins'), gh_tin_rate:gn('gh_tin_rate')||25, gh_tin_cost:gn('gh_tin_cost'),
     gh_pm_cost:gn('gh_pm_cost'),
-    gh_cream_rate:gn('gh_cream_rate')||300, gh_gas_qty:gn('gh_gas_qty'), gh_gas_rate:gn('gh_gas_rate')||100, gh_gas:gn('gh_gas')||(gn('gh_gas_qty')*(gn('gh_gas_rate||100'))),  // fallback: qty*rate if field empty gh_notes:gv('gh_notes'),
+    gh_cream_rate:gn('gh_cream_rate')||300, gh_gas_qty:gn('gh_gas_qty'), gh_gas_rate:gn('gh_gas_rate')||100, gh_gas:gn('gh_gas')||(gn('gh_gas_qty')*(gn('gh_gas_rate')||100)),   /* fallback: qty*rate if field empty */
+    gh_notes:gv('gh_notes'),
     // Lite Curd
     lc_cm:gn('lc_cm'), lc_sm:gn('lc_sm'), lc_yield:gn('lc_yield'), lc_loose_kg:gn('lc_loose_kg'), lc_culture_qty:gn('lc_culture_qty'),
     lc_jars:gn('lc_jars'), lc_pm_rate:gn('lc_pm_rate')||18, lc_pm_cost:gn('lc_pm_cost'), lc_bulk_kg:gn('lc_bulk_kg'),
-    lc_jar_rate:gn('lc_jar_rate')||300, lc_gas_qty:gn('lc_gas_qty'), lc_gas_rate:gn('lc_gas_rate')||100, lc_gas:gn('lc_gas')||(gn('lc_gas_qty')*(gn('lc_gas_rate||100'))),  // fallback: qty*rate if field empty lc_notes:gv('lc_notes'),
+    lc_jar_rate:gn('lc_jar_rate')||300, lc_gas_qty:gn('lc_gas_qty'), lc_gas_rate:gn('lc_gas_rate')||100, lc_gas:gn('lc_gas')||(gn('lc_gas_qty')*(gn('lc_gas_rate')||100)),   /* fallback: qty*rate if field empty */
+    lc_notes:gv('lc_notes'),
     lc_ing_cost:getIngTotalCost('lc'), lc_ings:gatherIngredients('lc'),
     // Fresh Curd
     fc_cm:gn('fc_cm'), fc_sm:gn('fc_sm'), fc_yield:gn('fc_yield'),
     fc_jars:gn('fc_jars'), fc_bulk_kg:gn('fc_bulk_kg'),
-    fc_jar_rate:gn('fc_jar_rate')||300, fc_gas_qty:gn('fc_gas_qty'), fc_gas_rate:gn('fc_gas_rate')||100, fc_gas:gn('fc_gas')||(gn('fc_gas_qty')*(gn('fc_gas_rate||100'))),  // fallback: qty*rate if field empty fc_notes:gv('fc_notes'),
+    fc_jar_rate:gn('fc_jar_rate')||300, fc_gas_qty:gn('fc_gas_qty'), fc_gas_rate:gn('fc_gas_rate')||100, fc_gas:gn('fc_gas')||(gn('fc_gas_qty')*(gn('fc_gas_rate')||100)),   /* fallback: qty*rate if field empty */
+    fc_notes:gv('fc_notes'),
     fc_ing_cost:getIngTotalCost('fc'), fc_ings:gatherIngredients('fc'),
     // Chaach
     ch_curd:gn('ch_curd'), ch_water:gn('ch_water'), ch_yield_l:gn('ch_yield_l'),
@@ -7871,6 +8101,9 @@ function migrateMilkPurchaseSheet(ss, sheetName) {
 }
 
 
+// v195: server-side fallback. The page's gfSkimValue() reads this browser's setting and is
+// not part of the Apps Script, so a blank skim rate used to stop the save with an error.
+function gfSkimValue(){ return 26; }
 function getOrCreateSheet(ss, name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
@@ -8000,9 +8233,9 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
     } else if (pName === 'Malai Paneer') {
       var m=(d.mp_bm||0)+(d.mp_sm||0);
       var mc=(d.mp_bm||0)*wBM+(d.mp_sm||0)*wSK+(d.mp_cream||0)*(d.mp_cream_rate||300);
-      if(mc>0) rowData=makeRowData(pName,d.mp_yield,mc,d.mp_ing_cost||ic(d.mp_ings),(d.mp_gas||0)+(d.mp_pm_cost||0),(d.mp_packs||0)*(d.mp_rate||350),yp(d.mp_yield,m),22,d.mp_notes);
+      if(mc>0) rowData=makeRowData(pName,d.mp_yield,mc,d.mp_ing_cost||ic(d.mp_ings),(d.mp_gas||0)+(d.mp_pm_cost||0),(d.mp_yield||0)*(d.mp_rate||350),yp(d.mp_yield,m),22,d.mp_notes);   /* v195: kg x Rs/kg (was packs x Rs/kg) */
     } else if (pName === 'Ghee') {
-      var rev=(d.gh_pouches||0)*(d.gh_pouch_rate||780)+(d.gh_pouches_500||0)*(d.gh_pouch_500_rate||390)+(d.gh_jars||0)*390+(d.gh_tins||0)*3900;
+      var rev=(d.gh_pouches||0)*780+(d.gh_pouches_500||0)*390+(d.gh_jars||0)*390+(d.gh_tins||0)*3900;   /* v195: selling price per pack, not the packing cost */
       var mc=(d.gh_cream_in||0)*(d.gh_cream_rate||300);
       rowData=makeRowData(pName,d.gh_yield_kg,mc,0,(d.gh_gas||0)+(d.gh_pm_cost||0),rev,yp(d.gh_yield_kg,d.gh_cream_in||0),51.7,d.gh_notes);
     } else if (pName === 'Lite Curd') {
@@ -8528,8 +8761,10 @@ function logCOGSDaily(ss, d) {
   if((d.lp_yield||0)>0){const m=(d.lp_bm||0)+(d.lp_sm||0);addRow('Lite Paneer',d.lp_yield,(d.lp_bm||0)*wBM+(d.lp_sm||0)*wSK+(d.lp_cream||0)*(d.lp_cream_rate||300),d.lp_ing_cost||ic(d.lp_ings),(d.lp_gas||0)+(d.lp_pm_cost||0),(d.lp_yield||0)*(d.lp_rate||230),yp(d.lp_yield,m),d.lp_std||16.0,d.lp_notes);}
   if((d.mfp_yield||0)>0){const m=(d.mfp_bm||0)+(d.mfp_sm||0);addRow('Med Fat Paneer',d.mfp_yield,(d.mfp_bm||0)*wBM+(d.mfp_sm||0)*wSK+(d.mfp_cream||0)*(d.mfp_cream_rate||300),d.mfp_ing_cost||ic(d.mfp_ings),(d.mfp_gas||0)+(d.mfp_pm_cost||0),(d.mfp_yield||0)*(d.mfp_rate||240),yp(d.mfp_yield,m),d.mfp_std||16.5,d.mfp_notes);}
   if((d.lfp_yield||0)>0){const m=(d.lfp_bm||0)+(d.lfp_sm||0);addRow('Low Fat Paneer',d.lfp_yield,(d.lfp_bm||0)*wBM+(d.lfp_sm||0)*wSK+(d.lfp_cream||0)*(d.lfp_cream_rate||300),d.lfp_ing_cost||ic(d.lfp_ings),(d.lfp_gas||0)+(d.lfp_pm_cost||0),(d.lfp_yield||0)*(d.lfp_rate||230),yp(d.lfp_yield,m),d.lfp_std_yield_pct||19.0,d.lfp_notes);}
-  if((d.mp_yield||0)>0){const m=(d.mp_bm||0)+(d.mp_sm||0);addRow('Malai Paneer',d.mp_yield,(d.mp_bm||0)*wBM+(d.mp_sm||0)*wSK+(d.mp_cream||0)*(d.mp_cream_rate||300),d.mp_ing_cost||ic(d.mp_ings),(d.mp_gas||0)+(d.mp_pm_cost||0),(d.mp_packs||0)*(d.mp_rate||350),yp(d.mp_yield,m),22,d.mp_notes);}
-  if((d.gh_yield_kg||0)>0){const rev=(d.gh_pouches||0)*(d.gh_pouch_rate||780)+(d.gh_pouches_500||0)*(d.gh_pouch_500_rate||390)+(d.gh_jars||0)*390+(d.gh_tins||0)*3900;addRow('Ghee',d.gh_yield_kg,(d.gh_cream_in||0)*(d.gh_cream_rate||300),0,(d.gh_gas||0)+(d.gh_pm_cost||0),rev,yp(d.gh_yield_kg,d.gh_cream_in||0),51.7,d.gh_notes);}
+  if((d.mp_yield||0)>0){const m=(d.mp_bm||0)+(d.mp_sm||0);addRow('Malai Paneer',d.mp_yield,(d.mp_bm||0)*wBM+(d.mp_sm||0)*wSK+(d.mp_cream||0)*(d.mp_cream_rate||300),d.mp_ing_cost||ic(d.mp_ings),(d.mp_gas||0)+(d.mp_pm_cost||0),(d.mp_yield||0)*(d.mp_rate||350),yp(d.mp_yield,m),22,d.mp_notes);}   /* v195: kg x Rs/kg (was packs x Rs/kg) */
+  if((d.gh_yield_kg||0)>0){const rev=(d.gh_pouches||0)*780+(d.gh_pouches_500||0)*390+(d.gh_jars||0)*390+(d.gh_tins||0)*3900;
+    /* v195: selling price per pack, not the packing cost */
+    addRow('Ghee',d.gh_yield_kg,(d.gh_cream_in||0)*(d.gh_cream_rate||300),0,(d.gh_gas||0)+(d.gh_pm_cost||0),rev,yp(d.gh_yield_kg,d.gh_cream_in||0),51.7,d.gh_notes);}
   // FIX: Lite Curd — require at least one milk input > 0 before writing row
   if((d.lc_yield||0)>0 && ((d.lc_bm||0)+(d.lc_cm||0)+(d.lc_sm||0))>0){
     const m=(d.lc_bm||0)+(d.lc_cm||0)+(d.lc_sm||0);
@@ -8714,6 +8949,20 @@ var VR_FIELDS = [
 ];
 // Repaint every rate box. force=true after Save rates or a date change, so the
 // new setting actually lands in the boxes instead of leaving yesterday's number.
+/* v197: put the rate setting valid on this day into every rate box of a day
+   that is already saved, then let the amounts recalculate. Nothing is sent to
+   the Sheet until the day is saved. */
+function gfRepriceDay(){
+  var before = {};
+  VR_FIELDS.forEach(function(f){ var e=document.getElementById(f[3]); if(e) before[f[3]]=e.value; });
+  vrRefreshAll(true);
+  var changed = 0;
+  VR_FIELDS.forEach(function(f){ var e=document.getElementById(f[3]); if(!e) return;
+    if (String(e.value) !== String(before[f[3]])) changed++;
+    try{ e.dispatchEvent(new Event('input',{bubbles:true})); }catch(x){} });
+  try{ calcMilkBalance(); }catch(x){}
+  showToast(changed ? (changed + ' rate(s) updated from the chart — now press Save milk, then Save products') : 'Rates already match the chart for ' + vrDate(), changed ? 'success' : 'info');
+}
 function vrRefreshAll(force){
   VR_FIELDS.forEach(function(f){ autoFillRate(f[0], f[1], f[2], f[3], force); });
   try{ vrDateBanner(); }catch(e){}
