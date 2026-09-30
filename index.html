@@ -176,12 +176,252 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
+<script>
+/* v199: settings every device shares (see the note in the next script) */
+window.GF_SHARED_CFG = {
+  app:'Tracker', title:'Production Tracker',
+  url:'https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec', urlOverrideKey:'gs_url',
+  keys:['gf_vendor_rates_v180','rate_tables','v1_commission','std_rates','ingredient_rates','gf_ing_names',
+        'gf_bm_thresh','gf_evap_pct','gf_skim_value','gf_sep_loss_pct','gf_fat_recovery','gf_mat_master',
+        'gf_last_sk','gf_reader_url','gf_reader_secret','sales_gs_url'],
+  prefixes:[]
+};
+</script>
+<script>
+/* ═══ SHARED SETTINGS + ACCESS CODE (Dashboard v167 · Tracker v199) ═══════
+   Every setting that changes a number lives in ONE place — the "Settings" tab
+   of the production Google Sheet — and every device uses that copy. This
+   browser only keeps a working copy, refreshed when the app opens and when
+   you come back to it. A change made here is sent to the Sheet within a
+   second or two; other devices pick it up the next time they open or return.
+   Each device asks for the access code ONCE; the Sheet checks it (only a hash
+   of it is stored there). Change the code and every device asks again, once.
+   Things that belong to this device only (PIN-free unlock, last tab, unsent
+   drafts, caches) are not shared. */
+(function(){
+  var CFG = window.GF_SHARED_CFG || {};
+  var LS; try{ LS = window.localStorage; }catch(e){ return; }
+  var _set = Storage.prototype.setItem, _rem = Storage.prototype.removeItem;
+  var CODE_KEY='gf_access_code', DEV_KEY='gf_device_id', PEND_KEY='gf_settings_pending', SEEN_KEY='gf_settings_synced';
+  var G = { ready:false, pending:{}, applying:false, lastPull:0, timer:null, t0:Date.now(), touched:false, busy:false };
+  function raw(k){ try{ return LS.getItem(k); }catch(e){ return null; } }
+  function put(k,v){ G.applying=true; try{ if(v===null||v===undefined) _rem.call(LS,k); else _set.call(LS,k,String(v)); }catch(e){} G.applying=false; }
+  function shared(k){ k=String(k); return (CFG.keys||[]).indexOf(k)>=0 || (CFG.prefixes||[]).some(function(p){ return k.indexOf(p)===0; }); }
+  function url(){ var o=''; try{ o=(CFG.urlOverrideKey && raw(CFG.urlOverrideKey)) || ''; }catch(e){} return String(o||CFG.url||'').trim(); }
+  function code(){ return raw(CODE_KEY)||''; }
+  function dev(){ var d=raw(DEV_KEY); if(!d){ d=Math.random().toString(36).slice(2,8); put(DEV_KEY,d); } return d; }
+  function who(){ var ua=navigator.userAgent||''; return (/Android|iPhone|iPad|Mobile/i.test(ua)?'Phone':'Desktop')+' · '+(CFG.app||'app')+' · '+dev(); }
+  try{ G.pending=JSON.parse(raw(PEND_KEY)||'{}')||{}; }catch(e){ G.pending={}; }
+  function savePend(){ put(PEND_KEY, JSON.stringify(G.pending)); }
+
+  // ── every write to a shared key is queued for the Sheet ──
+  Storage.prototype.setItem=function(k,v){
+    var before = (this===LS && !G.applying && shared(k)) ? raw(k) : undefined;
+    _set.call(this,k,v);
+    if(this===LS && !G.applying && shared(k) && String(v)!==before) mark(k);
+  };
+  Storage.prototype.removeItem=function(k){
+    var had = (this===LS && !G.applying && shared(k)) ? raw(k) : null;
+    _rem.call(this,k);
+    if(this===LS && !G.applying && shared(k) && had!==null) mark(k);
+  };
+  function mark(k){
+    // Before this device has read the Sheet once, a write is the app filling
+    // in its own defaults — sending it would overwrite the real settings.
+    if(!G.ready) return;
+    G.pending[k]=1; savePend(); chip('saving'); clearTimeout(G.timer); G.timer=setTimeout(push, 900);
+  }
+  async function post(body){
+    var r=await fetch(url(), { method:'POST', body:JSON.stringify(body), cache:'no-store' });
+    return r.json();
+  }
+  async function push(){
+    var ks=Object.keys(G.pending); if(!ks.length){ chip('ok'); return; }
+    if(!code()){ return; }
+    try{
+      var J=await post({ type:'GF_SETTINGS_SET', code:code(), by:who(), items:ks.map(function(k){ return { k:k, v:raw(k) }; }) });
+      if(J && J.error==='access'){ lostAccess(); return; }
+      if(!J || !J.ok) throw new Error((J&&J.error)||'no answer');
+      ks.forEach(function(k){ if(G.pending[k]) delete G.pending[k]; });
+      savePend(); chip('ok');
+    }catch(e){ chip('offline'); clearTimeout(G.timer); G.timer=setTimeout(push, 30000); }
+  }
+  async function pull(manual){
+    if(!code() || G.busy) return [];
+    G.busy=true;
+    try{
+      if(Object.keys(G.pending).length) await push();       // your own unsent changes go first
+      var r=await fetch(url()+'?action=gfGetSettings&code='+encodeURIComponent(code())+'&_t='+Date.now(), { cache:'no-store' });
+      var J=null; try{ J=JSON.parse(await r.text()); }catch(x){ J=null; }
+      if(J && J.error==='access'){ lostAccess(); return []; }
+      if(!J || (J.ok===undefined && J.error===undefined)){ oldServer(); return []; }
+      if(!J.ok) throw new Error(J.error||'no answer');
+      G.off=false;
+      var S=J.settings||{}, changed=[];
+      Object.keys(S).forEach(function(k){
+        if(!shared(k) || G.pending[k]) return;
+        var v=S[k].v; if(v!==raw(k)){ put(k,v); changed.push(k); }
+      });
+      // first time: settings this device has that the Sheet does not yet — send them
+      var up=0;
+      for(var i=0;i<LS.length;i++){ var k=LS.key(i); if(shared(k) && !(k in S) && raw(k)!==null){ G.pending[k]=1; up++; } }
+      G.ready=true; put(SEEN_KEY, new Date().toISOString()); G.lastPull=Date.now();
+      if(up){ savePend(); await push(); }
+      chip('ok');
+      if(changed.length) onChanged(changed, manual);
+      else if(manual) note('✓ Settings are the same as on the Sheet.', '#2D7A45');
+      return changed;
+    }catch(e){
+      // offline: a device that has synced before keeps working and queues its changes
+      if(raw(SEEN_KEY)) G.ready=true;
+      chip('offline'); if(manual) note('Could not reach the Google Sheet — working with this device\'s copy.', '#C62828');
+      return [];
+    }finally{ G.busy=false; }
+  }
+  function onChanged(keys, manual){
+    if(typeof CFG.onChanged==='function'){ try{ if(CFG.onChanged(keys)===true) return; }catch(e){} }
+    var recent=false; try{ recent=(Date.now()-(+sessionStorage.getItem('gf_sync_reload')||0))<60000; }catch(e){}
+    if(!G.touched && (Date.now()-G.t0)<20000 && !recent){
+      try{ sessionStorage.setItem('gf_sync_reload', String(Date.now())); }catch(e){}
+      location.reload(); return;
+    }
+    note('⟳ Settings were changed on another device ('+keys.length+'). <button onclick="location.reload()" style="margin-left:8px;padding:4px 12px;border-radius:6px;border:none;background:#1565C0;color:#fff;font-weight:700;cursor:pointer;">Reload to use them</button>', '#1565C0', true);
+  }
+  function lostAccess(){ put(CODE_KEY, null); G.ready=false; gate('The access code was changed. Enter the new one.'); }
+
+  // ── small status chip and notes ──
+  function chip(st){
+    var c=document.getElementById('gf-sync-chip'); if(!c){ if(!document.body) return;
+      c=document.createElement('div'); c.id='gf-sync-chip'; c.title='Shared settings — tap to refresh now';
+      c.style.cssText='position:fixed;left:10px;bottom:10px;z-index:99990;font:11px/1.2 monospace;padding:5px 9px;border-radius:12px;background:#fff;border:1px solid #ccc;box-shadow:0 1px 4px rgba(0,0,0,.15);cursor:pointer;opacity:.85;';
+      c.onclick=function(){ pull(true); }; document.body.appendChild(c); }
+    c.textContent = st==='saving' ? '☁ saving…' : st==='offline' ? '☁ offline — will sync' : st==='off' ? '☁ shared settings off — update the Apps Script' : '☁ synced';
+    c.style.color = st==='offline' ? '#C62828' : (st==='saving'||st==='off') ? '#8a6d00' : '#2D7A45';
+  }
+  function note(html, col, sticky){
+    var n=document.getElementById('gf-sync-note'); if(!n){ if(!document.body) return;
+      n=document.createElement('div'); n.id='gf-sync-note';
+      n.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:44px;z-index:99991;max-width:92vw;font:12px/1.5 system-ui,sans-serif;padding:9px 14px;border-radius:10px;background:#fff;border:1.5px solid;box-shadow:0 2px 10px rgba(0,0,0,.2);';
+      document.body.appendChild(n); }
+    n.innerHTML=html; n.style.color=col; n.style.borderColor=col; n.style.display='';
+    clearTimeout(n._t); if(!sticky) n._t=setTimeout(function(){ n.style.display='none'; }, 5000);
+  }
+
+  // ── the access-code screen ──
+  function gate(msg){
+    var g=document.getElementById('gf-gate');
+    if(!g){ g=document.createElement('div'); g.id='gf-gate';
+      g.style.cssText='position:fixed;inset:0;z-index:100000;background:#1F3864;color:#fff;display:flex;align-items:center;justify-content:center;font-family:system-ui,sans-serif;padding:16px;';
+      (document.body||document.documentElement).appendChild(g); }
+    g.style.display='flex';
+    g.innerHTML='<div style="max-width:340px;width:100%;text-align:center;">'
+      +'<div style="font-size:21px;font-weight:800;margin-bottom:6px;">🐄 Gaavn Fresh — '+(CFG.title||'')+'</div>'
+      +'<div id="gf-gate-msg" style="font-size:13px;opacity:.9;margin-bottom:16px;line-height:1.5;">'+(msg||'Checking…')+'</div>'
+      +'<div id="gf-gate-form"></div>'
+      +'<div id="gf-gate-err" style="color:#FFCDD2;font-size:12px;margin-top:10px;min-height:16px;"></div></div>';
+    status();
+  }
+  var inp='font-size:18px;text-align:center;padding:10px;border-radius:10px;border:none;width:100%;box-sizing:border-box;margin-bottom:8px;';
+  var btn='margin-top:6px;background:#C8830A;color:#fff;border:none;border-radius:10px;padding:11px 26px;font-size:15px;font-weight:700;cursor:pointer;';
+  async function status(){
+    var f=document.getElementById('gf-gate-form'), m=document.getElementById('gf-gate-msg'), e=document.getElementById('gf-gate-err');
+    var r, J=null;
+    try{ r=await fetch(url()+'?action=gfAccessStatus&_t='+Date.now(), { cache:'no-store' }); }
+    catch(x){
+      e.textContent='Could not reach the Google Sheet. Check the internet connection.';
+      f.innerHTML='<button id="gf-go" style="'+btn+'">Try again</button>';
+      document.getElementById('gf-go').onclick=status; return;
+    }
+    try{ J=JSON.parse(await r.text()); }catch(x){ J=null; }
+    // The Sheet's script is still the older one (no access code yet): open the
+    // app as before and say what to do — otherwise the new script could never
+    // be copied out of this very app.
+    if(!J || J.hasCode===undefined){ oldServer(); return; }
+    try{
+      if(J.hasCode){
+        if(m.textContent==='Checking…') m.textContent='Enter the access code. This device asks only once.';
+        f.innerHTML='<input id="gf-code" type="password" autocomplete="off" style="'+inp+'" placeholder="access code">'
+          +'<button id="gf-go" style="'+btn+'">Open</button>';
+        document.getElementById('gf-go').onclick=enter;
+      } else {
+        m.innerHTML='<b>First device.</b> Create the access code for the Gaavn Fresh apps (at least 6 characters). Every device will ask for it once.';
+        f.innerHTML='<input id="gf-code" type="password" autocomplete="off" style="'+inp+'" placeholder="new access code">'
+          +'<input id="gf-code2" type="password" autocomplete="off" style="'+inp+'" placeholder="repeat it">'
+          +'<button id="gf-go" style="'+btn+'">Create and open</button>';
+        document.getElementById('gf-go').onclick=create;
+      }
+      var ci=document.getElementById('gf-code'); ci.focus(); ci.onkeydown=function(ev){ if(ev.key==='Enter') document.getElementById('gf-go').click(); };
+    }catch(x){ e.textContent=String(x.message||x); }
+  }
+  function oldServer(){
+    G.off=true; var g=document.getElementById('gf-gate'); if(g) g.style.display='none';
+    chip('off');
+    note('Shared settings and the access code are not switched on yet: copy the Apps Script from the Production Tracker (Setup), paste it into the Sheet\'s script and deploy a new version.', '#8a6d00', true);
+  }
+  async function enter(){
+    var c=(document.getElementById('gf-code').value||'').trim(), e=document.getElementById('gf-gate-err');
+    if(!c){ e.textContent='Type the access code'; return; }
+    e.style.color='#FFD9A0'; e.textContent='Checking…';
+    try{
+      var r=await fetch(url()+'?action=gfCheckAccess&code='+encodeURIComponent(c)+'&_t='+Date.now(), { cache:'no-store' }); var J=await r.json();
+      if(J && J.ok){ opened(c); return; }
+      e.style.color='#FFCDD2'; e.textContent='Wrong access code'; document.getElementById('gf-code').value='';
+    }catch(x){ e.style.color='#FFCDD2'; e.textContent='Could not reach the Google Sheet — try again.'; }
+  }
+  async function create(){
+    var c=(document.getElementById('gf-code').value||'').trim(), c2=(document.getElementById('gf-code2').value||'').trim(), e=document.getElementById('gf-gate-err');
+    if(c.length<6){ e.textContent='At least 6 characters'; return; }
+    if(c!==c2){ e.textContent='The two do not match'; return; }
+    try{ var J=await post({ type:'GF_ACCESS_SET', code:c });
+      if(J && J.ok){ opened(c); return; } e.textContent=(J&&J.error)||'Could not save'; }
+    catch(x){ e.textContent='Could not reach the Google Sheet — try again.'; }
+  }
+  function opened(c){ put(CODE_KEY,c); var g=document.getElementById('gf-gate'); if(g) g.style.display='none';
+    G.t0=Date.now(); G.touched=false;          // the app screen starts now
+    if(typeof CFG.onOpen==='function'){ try{ CFG.onOpen(); }catch(e){} }
+    pull(false); }
+
+  // ── change the code (from the app's settings screen) ──
+  window.gfChangeAccessCode=function(){
+    gate('Change the access code. Every other device will ask for the new one, once.');
+    setTimeout(function(){
+      var f=document.getElementById('gf-gate-form');
+      f.innerHTML='<input id="gf-old" type="password" style="'+inp+'" placeholder="current access code">'
+        +'<input id="gf-code" type="password" style="'+inp+'" placeholder="new access code (6+ characters)">'
+        +'<input id="gf-code2" type="password" style="'+inp+'" placeholder="repeat new code">'
+        +'<button id="gf-go" style="'+btn+'">Change</button>'
+        +'<div style="margin-top:12px;"><a href="#" id="gf-cancel" style="color:#FFD9A0;font-size:12px;">cancel</a></div>';
+      document.getElementById('gf-cancel').onclick=function(){ document.getElementById('gf-gate').style.display='none'; return false; };
+      document.getElementById('gf-go').onclick=async function(){
+        var o=document.getElementById('gf-old').value.trim(), c=document.getElementById('gf-code').value.trim(), c2=document.getElementById('gf-code2').value.trim(), e=document.getElementById('gf-gate-err');
+        if(c.length<6){ e.textContent='At least 6 characters'; return; } if(c!==c2){ e.textContent='The new codes do not match'; return; }
+        try{ var J=await post({ type:'GF_ACCESS_SET', code:c, old:o });
+          if(J && J.ok){ put(CODE_KEY,c); document.getElementById('gf-gate').style.display='none'; note('✓ Access code changed. Other devices will ask for it once.', '#2D7A45'); }
+          else e.textContent=(J&&J.error)||'Could not change it'; }
+        catch(x){ e.textContent='Could not reach the Google Sheet'; }
+      };
+    }, 400);
+  };
+  // forget the code on this device only
+  window.gfLockDevice=function(){ put(CODE_KEY,null); location.reload(); };
+  window.GFS={ pull:pull, push:push, shared:shared, state:G };
+
+  // ── start ──
+  ['input','keydown','change'].forEach(function(ev){ window.addEventListener(ev, function(x){ if(x.isTrusted && !(x.target && x.target.closest && x.target.closest('#gf-gate'))) G.touched=true; }, true); });
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='visible' && Date.now()-G.lastPull>30000) pull(false); });
+  window.addEventListener('online', function(){ pull(false); });
+  function start(){ if(!code()) gate(); else pull(false); }
+  window.addEventListener('focus', function(){ if(!G.off && Date.now()-G.lastPull>30000 && code()) pull(false); });
+  if(document.body) start(); else document.addEventListener('DOMContentLoaded', start);
+})();
+
+</script>
 
 <div class="app-header">
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v198</span>
+    <span>PRODUCTION TRACKER v199</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -2287,6 +2527,11 @@ input[type=number],input[type=text],textarea{font-size:16px!important;} /* preve
       <div class="fg fg-2" style="margin-top:12px;">
         <button class="btn-submit" onclick="vrSaveAll()">Save rates</button>
         <button class="btn-submit" onclick="vrPullRates(true)" style="background:var(--blue);">Get rates from Sheet</button>
+      </div>
+      <div style="font-family:'Space Mono';font-size:10px;color:var(--muted);margin-top:8px;line-height:1.6;">Rates, charts, thresholds and ingredient rates are shared: a change saved here is used by every device (Settings tab of the Sheet).</div>
+      <div class="fg fg-2" style="margin-top:10px;">
+        <button class="btn-submit" onclick="gfChangeAccessCode()" style="background:#0B7A3B;">Change access code</button>
+        <button class="btn-submit" onclick="if(confirm('Forget the access code on this device? It will ask for it again.'))gfLockDevice()" style="background:#7f8c8d;">Lock this device</button>
       </div>
       <div id="vr-status" class="alert" style="margin-top:10px;"></div>
       <div style="background:var(--lred);border:1px solid rgba(192,57,43,0.3);border-radius:8px;padding:12px 14px;margin-top:14px;font-family:'Space Mono';font-size:10px;color:var(--red);">
@@ -7491,20 +7736,32 @@ function doGet(e) {
   try {
     const ss = SpreadsheetApp.openById(SS_ID);
 
+    // v199: access code + shared settings
+    var _gfr = gfHandleGet(ss, e.parameter || {});
+    if (_gfr) return _gfr;
+
     // ── Handle chunked large payloads ──────────────────────────
+    // v199 FIX: the pieces were kept in a global variable, but every request
+    // to a web app runs fresh — globals do not survive from one request to the
+    // next — so a save big enough to be split was never put back together and
+    // was silently dropped. The pieces are now kept in the script cache.
     if (e.parameter.chunk !== undefined) {
       const batchId = e.parameter.batch;
       const idx     = parseInt(e.parameter.idx);
       const total   = parseInt(e.parameter.total);
-      if (!CHUNKS[batchId]) CHUNKS[batchId] = new Array(total);
-      CHUNKS[batchId][idx] = e.parameter.chunk; // Apps Script already decodes e.parameter values — no need for decodeURIComponent
-      // Check if all chunks received
-      const allReceived = CHUNKS[batchId].every(c => c !== undefined);
-      if (allReceived) {
-        const fullPayload = JSON.parse(CHUNKS[batchId].join(''));
-        delete CHUNKS[batchId];
-        processPayload(ss, fullPayload);
-      }
+      var cache = CacheService.getScriptCache();
+      cache.put('ck_' + batchId + '_' + idx, e.parameter.chunk, 21600);
+      var ckeys = []; for (var ci = 0; ci < total; ci++) ckeys.push('ck_' + batchId + '_' + ci);
+      var clock = LockService.getScriptLock(); clock.waitLock(20000);
+      try {
+        var got = cache.getAll(ckeys);
+        if (Object.keys(got).length === total && !cache.get('ckdone_' + batchId)) {
+          cache.put('ckdone_' + batchId, '1', 21600);
+          const fullPayload = JSON.parse(ckeys.map(function(k){ return got[k]; }).join(''));
+          cache.removeAll(ckeys);
+          processPayload(ss, fullPayload);
+        }
+      } finally { clock.releaseLock(); }
       return ContentService.createTextOutput('ok').setMimeType(ContentService.MimeType.TEXT);
     }
 
@@ -7921,6 +8178,8 @@ function doPost(e) {
     if (!rawBody) throw new Error('Empty payload');
     const payload = JSON.parse(rawBody);
     const ss = SpreadsheetApp.openById(SS_ID);
+    var _gfp = gfHandlePost(ss, payload);          // v199: access code + shared settings
+    if (_gfp) return _gfp;
     processPayload(ss, payload);
     return ContentService.createTextOutput(JSON.stringify({status:'ok'}))
       .setMimeType(ContentService.MimeType.JSON);
@@ -8105,6 +8364,113 @@ function migrateMilkPurchaseSheet(ss, sheetName) {
 // v195: server-side fallback. The page's gfSkimValue() reads this browser's setting and is
 // not part of the Apps Script, so a blank skim rate used to stop the save with an error.
 function gfSkimValue(){ return 26; }
+// ── v199: SHARED SETTINGS + ACCESS CODE ─────────────────────────────
+// One place for every setting that changes a number (vendor rate charts,
+// thresholds, typed stock values, seasonal customers …) so a change made on
+// one device is what every device uses. Stored in the "Settings" tab — one
+// row per setting, the value as JSON split over as many cells as it needs
+// (a cell holds 50,000 characters; a rate chart is bigger). Every change is
+// also written to "Settings_Log". The access code is kept only as a hash in
+// the script's properties. Forgotten it? Run gfResetAccessCode() once from
+// the Apps Script editor; the next device to open the app sets a new one.
+var GF_PART = 45000;
+function gfProps(){ return PropertiesService.getScriptProperties(); }
+function gfHash(s){
+  var d = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, 'gaavn-fresh:' + String(s));
+  return d.map(function(b){ var v = (b + 256) % 256; return (v < 16 ? '0' : '') + v.toString(16); }).join('');
+}
+function gfHasCode(){ return !!gfProps().getProperty('GF_ACCESS_HASH'); }
+function gfAccessOK(code){
+  var h = gfProps().getProperty('GF_ACCESS_HASH');
+  var ok = !!h && !!code && gfHash(code) === h;
+  if (!ok && code) Utilities.sleep(1500);            // slows down guessing
+  return ok;
+}
+function gfResetAccessCode(){ gfProps().deleteProperty('GF_ACCESS_HASH'); return 'Access code cleared — the next device to open an app will set a new one.'; }
+function gfJson(o){ return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
+function gfSettingsSheet(ss){
+  var sh = ss.getSheetByName('Settings');
+  if (!sh) {
+    sh = ss.insertSheet('Settings');
+    sh.appendRow(['Key', 'Updated At', 'Updated By', 'Version', 'Parts', 'Value (JSON) →']);
+    sh.setFrozenRows(1);
+  }
+  return sh;
+}
+function gfSettingsLog(ss, key, by, oldV, newV){
+  var sh = ss.getSheetByName('Settings_Log');
+  if (!sh) { sh = ss.insertSheet('Settings_Log'); sh.appendRow(['When', 'Key', 'By', 'Before (first 300 chars)', 'After (first 300 chars)']); sh.setFrozenRows(1); }
+  sh.appendRow([new Date().toISOString(), key, by, String(oldV == null ? '' : oldV).slice(0, 300), String(newV == null ? '(removed)' : newV).slice(0, 300)]);
+}
+function gfReadSettings(ss){
+  var sh = gfSettingsSheet(ss), data = sh.getDataRange().getValues(), out = {}, rowOf = {};
+  for (var i = 1; i < data.length; i++) {
+    var k = String(data[i][0] || '').trim(); if (!k) continue;
+    var parts = parseInt(data[i][4], 10); if (isNaN(parts)) parts = 1;
+    var v = '';
+    for (var p = 0; p < parts; p++) v += String(data[i][5 + p] == null ? '' : data[i][5 + p]);
+    out[k] = { v: parts === 0 ? null : v, at: String(data[i][1] || ''), by: String(data[i][2] || ''),
+               ver: parseInt(data[i][3], 10) || 0, parts: parts };
+    rowOf[k] = i + 1;
+  }
+  return { map: out, rowOf: rowOf, sheet: sh };
+}
+function gfWriteSettings(ss, items, by){
+  var lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    var R = gfReadSettings(ss), sh = R.sheet, saved = [];
+    (items || []).forEach(function(it){
+      var k = String(it.k || '').trim(); if (!k) return;
+      var old = R.map[k], now = new Date().toISOString();
+      var v = (it.v === null || it.v === undefined) ? null : String(it.v);
+      if (old && old.v === v) { saved.push({ k: k, at: old.at, ver: old.ver, same: true }); return; }
+      if (!old && v === null) { saved.push({ k: k, same: true }); return; }
+      var parts = [];
+      if (v !== null) { for (var i = 0; i < v.length; i += GF_PART) parts.push(v.slice(i, i + GF_PART)); if (!parts.length) parts.push(''); }
+      var ver = old ? old.ver + 1 : 1;
+      var row = [k, now, by, ver, parts.length].concat(parts);
+      var oldParts = old ? Math.max(old.parts, 0) : 0;
+      while (row.length < 5 + oldParts) row.push('');                     // clear leftover parts
+      if (old) sh.getRange(R.rowOf[k], 1, 1, row.length).setValues([row]);
+      else { sh.appendRow(row); R.rowOf[k] = sh.getLastRow(); }
+      gfSettingsLog(ss, k, by, old ? old.v : '', v);
+      R.map[k] = { v: v, at: now, by: by, ver: ver, parts: parts.length };
+      saved.push({ k: k, at: now, ver: ver, removed: v === null });
+    });
+    return saved;
+  } finally { lock.releaseLock(); }
+}
+// GET actions. Returns null when the action is not one of these.
+function gfHandleGet(ss, p){
+  var a = p.action;
+  if (a === 'gfAccessStatus') return gfJson({ ok: true, hasCode: gfHasCode() });
+  if (a === 'gfCheckAccess')  return gfJson({ ok: gfAccessOK(p.code), hasCode: gfHasCode() });
+  if (a === 'gfGetSettings') {
+    if (!gfAccessOK(p.code)) return gfJson({ ok: false, error: 'access' });
+    var R = gfReadSettings(ss), s = {};
+    Object.keys(R.map).forEach(function(k){ var x = R.map[k]; s[k] = { v: x.v, at: x.at, by: x.by, ver: x.ver }; });
+    return gfJson({ ok: true, settings: s, serverTime: new Date().toISOString() });
+  }
+  return null;
+}
+// POST bodies of type GF_… Returns null for any other type.
+function gfHandlePost(ss, body){
+  if (!body || String(body.type || '').indexOf('GF_') !== 0) return null;
+  if (body.type === 'GF_ACCESS_SET') {
+    var nc = String(body.code || '');
+    if (nc.length < 6) return gfJson({ ok: false, error: 'The access code must be at least 6 characters.' });
+    if (gfHasCode() && !gfAccessOK(body.old)) return gfJson({ ok: false, error: 'The current access code is wrong.' });
+    gfProps().setProperty('GF_ACCESS_HASH', gfHash(nc));
+    return gfJson({ ok: true });
+  }
+  if (body.type === 'GF_SETTINGS_SET') {
+    if (!gfAccessOK(body.code)) return gfJson({ ok: false, error: 'access' });
+    var saved = gfWriteSettings(ss, body.items, String(body.by || '').slice(0, 60));
+    return gfJson({ ok: true, saved: saved });
+  }
+  return gfJson({ ok: false, error: 'unknown type ' + body.type });
+}
+
 function getOrCreateSheet(ss, name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
@@ -9609,37 +9975,15 @@ function vrRenderSetup(){
     ? '<b>Ready to save:</b> '+pend.join(' · ')+' — press Save rates.' : '';
 }
 // ── optional: keep every device on the same rates through the Sheet ─────────
-function vrPushRates(){
-  try{
-    if(!STATE.gsUrl) return;
-    sendChunked(STATE.gsUrl, 'VENDOR_RATES', { rates: JSON.stringify(VENDOR_RATES) });
-  }catch(e){ console.warn('vendor rate push failed', e); }
-}
+/* v199: rates now travel with the shared settings (Settings tab) the moment
+   they are saved — see GF_SHARED_CFG. Kept as a no-op for older callers. */
+function vrPushRates(){}
 async function vrPullRates(loud){
-  if(!STATE.gsUrl){ if(loud) showToast('Set the Google Script URL first','error'); return; }
-  try{
-    if(loud) _vrStatus('⏳ Reading rates from the Sheet …','info');
-    var r=await fetch(STATE.gsUrl+'?action=getReportData&sheet=Vendor_Rates&from=1900-01-01&to=2999-12-31&_t='+Date.now());
-    var j=await r.json();
-    if(!j || !j.rows || !j.rows.length){
-      // v181: plain words. The old line named an internal tab and read like a
-      // fault; it is simply the normal state until the Apps Script addition is
-      // pasted in, and nothing about this device's rates is affected either way.
-      if(loud) _vrStatus('Your rates are saved on this device and are being used. '
-        + 'Sharing them with your phone needs the small Apps Script addition pasted in first — '
-        + 'until then, set the rates on each device.','info');
-      return;
-    }
-    var H={}; (j.headers||[]).forEach(function(h,i){ H[String(h).trim()]=i; });
-    var blob='';
-    j.rows.forEach(function(row){ blob += String(row[H['Rates JSON']]||''); });
-    blob=blob.trim();
-    if(!blob){ if(loud) _vrStatus('The Vendor_Rates tab has nothing readable.','err'); return; }
-    var got=JSON.parse(blob);
-    if(!(got && got.v1 && got.v2)) { if(loud) _vrStatus('The Vendor_Rates tab is not in the expected shape.','err'); return; }
-    VENDOR_RATES=got; vrSave(); vrRenderSetup(); vrRefreshAll(true);
-    if(loud) _vrStatus('✓ Rates pulled from the Sheet.','ok');
-  }catch(e){ if(loud) _vrStatus('✗ Could not read the Sheet: '+(e.message||e),'err'); }
+  // v199: one refresh of every shared setting (rates included)
+  if(!loud) return;
+  _vrStatus('⏳ Reading the shared settings from the Sheet …','info');
+  var ch = (window.GFS ? await GFS.pull(true) : []) || [];
+  _vrStatus(ch.length ? ('✓ '+ch.length+' setting(s) updated from the Sheet — reload to use them.') : '✓ This device already has the Sheet\'s rates.', 'ok');
 }
 // v181: clear the status line so a message from an earlier click cannot sit
 // there looking like a live warning.
