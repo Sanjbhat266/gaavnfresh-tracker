@@ -183,7 +183,7 @@ window.GF_SHARED_CFG = {
   url:'https://script.google.com/macros/s/AKfycbwfmnZRcvGf1VrtAeDyOjvnQtB7C-6l3Pdk7xQPUciLceHhPPpS5dbswpUjJ-jHFaCj7w/exec', urlOverrideKey:'gs_url',
   keys:['gf_vendor_rates_v180','rate_tables','v1_commission','std_rates','ingredient_rates','gf_ing_names',
         'gf_bm_thresh','gf_evap_pct','gf_skim_value','gf_sep_loss_pct','gf_fat_recovery','gf_mat_master',
-        'gf_last_sk','gf_reader_url','gf_reader_secret','sales_gs_url'],
+        'gf_last_sk','gf_reader_url','gf_reader_secret','sales_gs_url','gf_milk_payments','gf_pay_cycle'],
   prefixes:[]
 };
 </script>
@@ -421,7 +421,7 @@ window.GF_SHARED_CFG = {
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v199</span>
+    <span>PRODUCTION TRACKER v202</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:'Space Mono';font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -2227,6 +2227,36 @@ window.GF_SHARED_CFG = {
     </div>
   </div>
 
+  <!-- v200: milk payments made -->
+  <style>.gf-old::after{content:attr(data-old);margin-left:4px;color:var(--muted);font-size:9px;text-decoration:line-through;}</style>
+  <div class="card" id="gf-pay-card"><div class="card-body">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+      <div style="font-weight:700;">💵 Milk payments made</div>
+      <label style="font-family:'Space Mono';font-size:10px;color:var(--muted);">Payment cycle <input type="number" id="gfp-cycle" min="1" max="31" step="1" style="width:52px;padding:3px 5px;border:1.5px solid var(--border);border-radius:6px;font-size:11px;" onchange="gfPaySetCycle(this.value)"> days</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button id="gf-liab-btn" onclick="gfMilkLiabilities()" style="background:#8B1A1A;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;">📊 Milk liabilities till date</button>
+        <button onclick="gfPayToggleForm()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Space Mono';font-size:10px;cursor:pointer;">+ Record a payment</button>
+      </div>
+    </div>
+    <div id="gf-pay-status" style="margin-top:8px;"></div>
+    <div id="gf-pay-form" style="display:none;margin-top:10px;border-top:1px dashed var(--border);padding-top:10px;">
+      <div class="fg fg-3">
+        <div class="field"><label>Vendor</label><select id="gfp-vendor" onchange="gfPayFormDefaults()"><option value="v1">Vendor 1</option><option value="v2">Vendor 2</option><option value="v3">Vendor 3 (Skim)</option><option value="v4">Vendor 4</option></select></div>
+        <div class="field"><label>Milk from</label><input type="date" id="gfp-from" onclick="try{this.showPicker()}catch(e){}"></div>
+        <div class="field"><label>Milk to (paid up to)</label><input type="date" id="gfp-to" onclick="try{this.showPicker()}catch(e){}"></div>
+        <div class="field"><label>Amount paid (₹)</label><input type="number" id="gfp-amt" step="0.01" min="0"></div>
+        <div class="field"><label>Paid on</label><input type="date" id="gfp-on" onclick="try{this.showPicker()}catch(e){}"></div>
+        <div class="field"><label>Mode / reference (UPI, cash, cheque no.)</label><input type="text" id="gfp-note"></div>
+      </div>
+      <div id="gfp-msg" style="font-family:'Space Mono';font-size:11px;margin-top:6px;"></div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button onclick="gfPaySave()" style="background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;">Save payment</button>
+        <button onclick="gfPayToggleForm(false)" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:8px 16px;font-family:'Space Mono';font-size:11px;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+    <div id="gf-pay-hist" style="margin-top:8px;"></div>
+  </div></div>
+
   <!-- Date range warning -->
   <div id="rpt-date-warn" style="display:none;background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:8px 12px;font-family:'Space Mono';font-size:11px;color:#856404;margin-bottom:10px;"></div>
 
@@ -3178,6 +3208,7 @@ function showTab(id, el) {
   if(id==='products')  { setTimeout(function(){ try{ calcMilkBalance(); }catch(e){} }, 50); }   // v156
   if(id==='inventory') { setTimeout(renderInventory, 50); setTimeout(function(){ matSyncFromSheet(true); }, 120); }
   if(id==='setup') { setTimeout(initBMThresholds, 50); try{ _vrClearStatus(); }catch(e){} }
+  if(id==='reports') { try{ gfPayRender(); }catch(e){} }   // v200
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   var sec = document.getElementById('tab-'+id);
@@ -4856,6 +4887,25 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
   const bmThresh = loadBMThresholds();
   // Track adjustments for WhatsApp/Excel summary
   const adjustments = [];
+  /* v200: a day's milk was paid at the rate SAVED in its row, so a day saved
+     before a new chart (or commission) was entered kept the old rate in this
+     report even though the chart was updated. Now the report prices every
+     session from the rate setting valid on that day (the same rule as Rate
+     Check), shows the saved rate beside it when they differ, and you can
+     switch back to "rates as saved" with one button. */
+  const _src = gfRptRateSrc();
+  const _toIso = function(d){ const i = String(toReportDateInt(d)); return i.slice(0,4)+'-'+i.slice(4,6)+'-'+i.slice(6,8); };
+  let _repriced = 0, _repriceRs = 0, _noChart = [];
+  const _rate = function(vend, typ, fat, snf, saved, qty, iso, label){
+    if (_src !== 'chart' || !(qty > 0)) return { r: saved, saved: saved, diff: false };
+    const qt = vrQuote(vend, typ, fat, snf, iso);
+    if (!qt) { _noChart.push(fmtDate(iso) + (label?' '+label:'') + ' ' + typ.toUpperCase() + ' (' + fat + '/' + snf + ')'); return { r: saved, saved: saved, diff: false, none: true }; }
+    const d = Math.abs(qt.rate - saved) >= 0.005;
+    return { r: qt.rate, saved: saved, diff: d };
+  };
+  /* v202: the old rate is drawn by CSS (::after), so Copy, Export Excel and
+     select-and-paste carry only the rate actually charged. */
+  const _rateCell = function(x){ return x.diff ? (N(x.r,2) + '<span class="gf-old" data-old="' + N(x.saved,2) + '" title="rate saved on this day: ' + N(x.saved,2) + '"></span>') : N(x.r,2); };
 
   rows.forEach(m => {
     if (m._missing) {   // v197
@@ -4870,11 +4920,14 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
       const cmQ = parseFloat(m[p+'_cm_qty'])||0;
       const cmF = parseFloat(m[p+'_cm_fat'])||0;
       const cmS = parseFloat(m[p+'_cm_snf'])||0;
-      const cmR = parseFloat(m[p+'_cm_rate'])||0;
+      const _iso = _toIso(m._date);
+      const _cmX = _rate(vendor, 'cm', cmF, cmS, parseFloat(m[p+'_cm_rate'])||0, cmQ, _iso, s.label);
+      const cmR = _cmX.r;
       let   bmQ = parseFloat(m[p+'_bm_qty'])||0;
       const bmF = parseFloat(m[p+'_bm_fat'])||0;
       const bmS = parseFloat(m[p+'_bm_snf'])||0;
-      const bmR = parseFloat(m[p+'_bm_rate'])||0;
+      const _bmX = _rate(vendor, 'bm', bmF, bmS, parseFloat(m[p+'_bm_rate'])||0, bmQ, _iso, s.label);
+      const bmR = _bmX.r;
       const deductQ = parseFloat(m[p+'_deduct'])||0;
       const sessionNotes = m[p + '_notes'] || '';
 
@@ -4898,6 +4951,10 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
 
       const cmA = netCMQ * cmR;
       const bmA = netBMQ * effBMRate;
+      // v200: what this session would have cost at the rates saved on the day
+      const _savedBM = bmDowngraded ? _cmX.saved : _bmX.saved;
+      const _old = netCMQ * _cmX.saved + netBMQ * _savedBM;
+      if (_cmX.diff || (bmDowngraded ? _cmX.diff : _bmX.diff)) { _repriced++; _repriceRs += (cmA + bmA) - _old; }
       const sessionTotal = cmA + bmA;
       dayTotal += sessionTotal;
       grandTotalCMQty += netCMQ; grandTotalBMQty += netBMQ;
@@ -4917,11 +4974,11 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
       } else {
         // CM columns — show deducted qty in red if any
         const cmQdisp = deductQ>0 ? `<span style="color:var(--red);text-decoration:line-through;font-size:10px;">${N(cmQ,1)}</span> ${N(netCMQ,1)}` : N(netCMQ,1);
-        html += `<td>${cmQdisp}</td><td>${N(cmF,2)}</td><td>${N(cmS,2)}</td><td>${N(cmR,2)}</td><td>${Rs(cmA)}</td>`;
+        html += `<td>${cmQdisp}</td><td>${N(cmF,2)}</td><td>${N(cmS,2)}</td><td>${_rateCell(_cmX)}</td><td>${Rs(cmA)}</td>`;
         // BM columns — show downgrade flag if applied
         const bmRateDisp = bmDowngraded
-          ? `<span style="color:var(--red);font-size:10px;" title="CM rate applied — BM quality below threshold">⚠ ${N(effBMRate,2)}</span>`
-          : N(effBMRate,2);
+          ? `<span style="color:var(--red);font-size:10px;" title="CM rate applied — BM quality below threshold">⚠ ${_rateCell(_cmX)}</span>`
+          : _rateCell(_bmX);
         const bmAmtDisp = bmDowngraded ? `<span style="color:var(--red);">${Rs(bmA)}</span>` : Rs(bmA);
         html += `<td>${N(bmQ,1)}</td><td>${N(bmF,2)}</td><td>${N(bmS,2)}</td><td>${bmRateDisp}</td><td>${bmAmtDisp}</td>`;
         html += `<td style="font-weight:700;">${Rs(sessionTotal)}</td>`;
@@ -4943,7 +5000,8 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
   html += `<td style="color:var(--green);">${Rs(grandTotal)}</td><td></td>`;
   html += '</tr></tfoot></table>';
 
-  wrap.innerHTML = html;
+  wrap.innerHTML = gfRptRateBar(_src, vendor, _repriced, _repriceRs, _noChart) + html;
+  if (_src === 'chart' && _repriced) adjustments.push({date:'', session:'', type:'Rates', detail:_repriced+' session(s) priced from the rate chart valid on their day instead of the rate saved then ('+(_repriceRs>=0?'+':'')+Rs(_repriceRs)+')'});
 
   /* ── Adjustment summary ──────────────────────────────────────────────
      v193: adjHtml and summaryForWA were referenced here but never declared in
@@ -4960,6 +5018,7 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
       + '</div>';
   }
 
+  window.GF_LAST_VENDOR_TOTAL = grandTotal;   // v202: used by Milk liabilities
   const summaryForWA = {reportTitle, grandTotal, grandTotalCMQty, grandTotalCMAmt, grandTotalBMQty, grandTotalBMAmt, adjustments};
   // Pass through a data attribute, not an inline quoted literal — a note
   // containing a quote used to break the button's onclick.
@@ -4975,7 +5034,228 @@ function buildVendorReport(dates, vendor, reportTitle, title, wrap, tot, sheetDa
           style="flex:1;padding:11px;background:#25D366;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128242; WhatsApp Payment</button>
         <button onclick="generateVendorExcel()"
           style="flex:1;padding:11px;background:#1565C0;color:#fff;border:none;border-radius:10px;font-family:'Space Mono';font-size:11px;font-weight:700;cursor:pointer;min-width:140px;">&#128196; Export Excel</button>
-      </div>`;
+      </div>`
+    + gfPayReportBlock(vendor, grandTotal);
+}
+
+
+// ═══ v200: RATE SOURCE FOR PAYMENT REPORTS + MILK PAYMENTS LEDGER ══════════
+/* Payment reports price each day from the rate setting valid on that day
+   ("chart", the default) or use the rate saved in the day's row ("saved").
+   This choice belongs to this device only. */
+function gfRptRateSrc(){ try{ return localStorage.getItem('gf_rpt_rate_src') === 'saved' ? 'saved' : 'chart'; }catch(e){ return 'chart'; } }
+var GF_LAST_VENDOR_RPT = '';
+function gfRptSetRateSrc(src){
+  try{ localStorage.setItem('gf_rpt_rate_src', src === 'saved' ? 'saved' : 'chart'); }catch(e){}
+  if (GF_LAST_VENDOR_RPT) generateReport(GF_LAST_VENDOR_RPT);
+}
+function gfRptRateBar(src, vendor, n, rs, none){
+  GF_LAST_VENDOR_RPT = vendor === 'v3' ? 'vendor3' : ('vendor' + String(vendor).slice(1));
+  var b = function(on){ return 'border:1.5px solid ' + (on ? '#1565C0' : 'var(--border)') + ';background:' + (on ? '#1565C0' : 'transparent') + ';color:' + (on ? '#fff' : 'var(--ink)') + ';border-radius:8px;padding:5px 10px;font-family:\'Space Mono\';font-size:10px;cursor:pointer;'; };
+  var msg = src === 'chart'
+    ? (n ? '<b style="color:#C62828;">' + n + ' entr' + (n === 1 ? 'y was' : 'ies were') + ' saved at an older rate</b> — priced here from the rate chart valid on that day (' + (rs >= 0 ? '+' : '') + Rs(rs) + '). The saved rate is shown struck through (it is not copied or exported). To also fix COGS for those days use <b>Rate Check</b>.'
+         : '✓ Every rate here matches the rate chart valid on its day.')
+    : 'Using the rate saved on each day (as entered then).';
+  if (none && none.length) msg += '<br><span style="color:#8a6d00;">No chart rate for: ' + none.join(' · ') + ' — saved rate used.</span>';
+  return '<div id="gf-rate-bar" style="padding:10px 14px;border-bottom:1px solid var(--border);font-family:\'Space Mono\';font-size:10px;line-height:1.6;">'
+    + '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px;"><span>Rates:</span>'
+    + '<button id="gf-src-chart" style="' + b(src === 'chart') + '" onclick="gfRptSetRateSrc(\'chart\')">From rate chart (valid on each day)</button>'
+    + '<button id="gf-src-saved" style="' + b(src === 'saved') + '" onclick="gfRptSetRateSrc(\'saved\')">As saved on each day</button></div>'
+    + msg + '</div>';
+}
+
+/* Milk payments made. One shared list (Settings tab of the Sheet, like the rate
+   charts) so every device sees the same "paid up to" date. Each entry:
+   {id, v, from, to, amt, on, note, at}. */
+var GF_PAY_KEY = 'gf_milk_payments';
+function gfD(iso){ var p = String(iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : '—'; }
+var GF_PAY_NAMES = { v1:'Vendor 1', v2:'Vendor 2', v3:'Vendor 3 (Skim)', v4:'Vendor 4' };
+function gfPayList(){ try{ var a = JSON.parse(localStorage.getItem(GF_PAY_KEY) || '[]'); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+function gfPayStore(a){ a.sort(function(x,y){ return x.to < y.to ? -1 : x.to > y.to ? 1 : (x.at < y.at ? -1 : 1); }); localStorage.setItem(GF_PAY_KEY, JSON.stringify(a)); }
+function gfIsoAdd(iso, n){ var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function gfIsoToday(){ var d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+/* v201: payments run in fixed cycles (10 days at Panvadi). The next period is
+   the CYCLE after the last payment — not "everything up to today". */
+function gfPayCycle(){ var n = parseInt(localStorage.getItem('gf_pay_cycle'), 10); return (n >= 1 && n <= 31) ? n : 10; }
+function gfPaySetCycle(v){ var n = parseInt(v, 10); if (!(n >= 1 && n <= 31)) n = 10; localStorage.setItem('gf_pay_cycle', String(n)); gfPayRender(); }
+// The next period for a vendor: {from, end (full cycle end), to (end, but not after yesterday), state}
+function gfPayNext(v){
+  var p = gfPayLast(v); if (!p) return null;
+  var from = gfIsoAdd(p.to, 1), end = gfIsoAdd(from, gfPayCycle() - 1), yday = gfIsoAdd(gfIsoToday(), -1);
+  return { from: from, end: end, to: end <= yday ? end : yday, state: end <= yday ? 'due' : (from <= yday ? 'running' : 'ahead') };
+}
+function gfPayLast(v){ var L = gfPayList().filter(function(p){ return p.v === v; }), best = null; L.forEach(function(p){ if (!best || p.to > best.to) best = p; }); return best; }
+// Paid entries for this vendor that overlap [from, to]
+function gfPayOverlap(v, from, to){ return gfPayList().filter(function(p){ return p.v === v && p.from <= to && p.to >= from; }); }
+function gfPayRender(){
+  var st = document.getElementById('gf-pay-status'), hi = document.getElementById('gf-pay-hist');
+  if (!st) return;
+  var rows = ['v1','v2','v3','v4'].map(function(v){
+    var p = gfPayLast(v);
+    if (!p) return '<tr><td>' + GF_PAY_NAMES[v] + '</td><td colspan="3" style="color:var(--muted);">no payment recorded</td><td></td></tr>';
+    var nx = gfPayNext(v), bs = 'border:none;border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;color:#fff;';
+    var cell = nx.state === 'due'
+      ? '<button class="gfp-next" onclick="gfPayUseNext(\'' + v + '\')" style="' + bs + 'background:#C62828;">Due: ' + gfD(nx.from) + ' – ' + gfD(nx.end) + ' → show</button>'
+      : nx.state === 'running'
+      ? '<button class="gfp-next" onclick="gfPayUseNext(\'' + v + '\')" style="' + bs + 'background:#1565C0;">Running: ' + gfD(nx.from) + ' – ' + gfD(nx.end) + ' (so far) → show</button>'
+      : '<span style="color:var(--green);">✓ next cycle starts ' + gfD(nx.from) + '</span>';
+    return '<tr data-v="' + v + '"><td>' + GF_PAY_NAMES[v] + '</td><td><b class="gfp-upto">' + gfD(p.to) + '</b></td><td>' + Rs(p.amt) + '</td><td>' + gfD(p.on) + '</td><td>' + cell + '</td></tr>';
+  }).join('');
+  var cy = document.getElementById('gfp-cycle'); if (cy && document.activeElement !== cy) cy.value = gfPayCycle();
+  st.innerHTML = '<table class="rpt-table" style="font-size:11px;"><thead><tr><th>Vendor</th><th>Paid up to</th><th>Last amount</th><th>Paid on</th><th>Next</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  var all = gfPayList().slice().reverse().slice(0, 30);
+  hi.innerHTML = all.length ? '<details style="margin-top:6px;"><summary style="font-family:\'Space Mono\';font-size:10px;cursor:pointer;">All recorded payments (' + gfPayList().length + ')</summary>'
+    + '<table class="rpt-table" style="font-size:11px;margin-top:6px;"><thead><tr><th>Vendor</th><th>Milk from</th><th>To</th><th>Bill</th><th>Paid</th><th>Paid on</th><th>Reference</th><th></th></tr></thead><tbody>'
+    + all.map(function(p){ return '<tr><td>' + GF_PAY_NAMES[p.v] + '</td><td>' + gfD(p.from) + '</td><td>' + gfD(p.to) + '</td><td>' + (p.due !== undefined ? Rs(p.due) : '—') + '</td><td>' + Rs(p.amt) + '</td><td>' + gfD(p.on) + '</td><td>' + (p.note ? String(p.note).replace(/[<>&]/g, '') : '—') + '</td>'
+      + '<td><button onclick="gfPayDelete(\'' + p.id + '\',this)" style="background:none;border:1px solid #C62828;color:#C62828;border-radius:6px;padding:2px 6px;font-size:10px;cursor:pointer;">Delete</button></td></tr>'; }).join('')
+    + '</tbody></table></details>' : '';
+}
+// Fill the report dates with the unpaid period and open that vendor's report
+function gfPayUseNext(v){
+  var nx = gfPayNext(v); if (!nx || nx.state === 'ahead') return;
+  var f = document.getElementById('rpt-from'), t = document.getElementById('rpt-to'), q = document.getElementById('rpt-quick');
+  f.value = nx.from; t.value = nx.to; if (q) q.value = '';
+  generateReport(v === 'v3' ? 'vendor3' : 'vendor' + v.slice(1));
+}
+function gfPayToggleForm(show){
+  var f = document.getElementById('gf-pay-form'); if (!f) return;
+  var on = show === undefined ? f.style.display === 'none' : !!show;
+  f.style.display = on ? '' : 'none';
+  if (on) { var m = document.getElementById('gfp-msg'); if (m) m.innerHTML = ''; gfPayFormDefaults(); }
+}
+function gfPayFormDefaults(){
+  var v = document.getElementById('gfp-vendor').value, p = gfPayLast(v);
+  var fe = document.getElementById('gfp-from'), te = document.getElementById('gfp-to'), on = document.getElementById('gfp-on');
+  var nx = gfPayNext(v);
+  fe.value = nx ? nx.from : (document.getElementById('rpt-from').value || '');
+  te.value = nx ? nx.end : (document.getElementById('rpt-to').value || gfIsoAdd(gfIsoToday(), -1));
+  if (!on.value) on.value = gfIsoToday();
+}
+// Pre-fill the form from the report on screen
+function gfPayFromReport(v, amt){
+  var card = document.getElementById('gf-pay-card');
+  document.getElementById('gfp-vendor').value = v;
+  document.getElementById('gfp-from').value = document.getElementById('rpt-from').value;
+  document.getElementById('gfp-to').value = document.getElementById('rpt-to').value;
+  document.getElementById('gfp-amt').value = (Math.round(amt * 100) / 100).toFixed(2);
+  window.GF_PAY_DUE = { v: v, from: document.getElementById('rpt-from').value, to: document.getElementById('rpt-to').value, due: Math.round(amt * 100) / 100 };   // v202
+  document.getElementById('gfp-on').value = gfIsoToday();
+  document.getElementById('gf-pay-form').style.display = '';
+  document.getElementById('gfp-msg').innerHTML = 'Check the amount you actually paid, then press <b>Save payment</b>.';
+  if (card) card.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function gfPaySave(){
+  var g = function(id){ return document.getElementById(id); }, msg = g('gfp-msg');
+  var v = g('gfp-vendor').value, from = g('gfp-from').value, to = g('gfp-to').value, on = g('gfp-on').value;
+  var amt = parseFloat(g('gfp-amt').value), note = (g('gfp-note').value || '').trim().slice(0, 120);
+  var bad = function(t){ msg.innerHTML = '<span style="color:#C62828;">✗ ' + t + '</span>'; };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from) || !/^\d{4}-\d{2}-\d{2}$/.test(to)) return bad('Enter the milk dates this payment covers.');
+  if (to < from) return bad('"To" is before "From".');
+  if (!(amt > 0)) return bad('Enter the amount paid.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(on)) on = gfIsoToday();
+  var ov = gfPayOverlap(v, from, to);
+  if (ov.length && !g('gfp-msg').dataset.confirm) {
+    g('gfp-msg').dataset.confirm = '1';
+    return bad('These dates overlap a payment already recorded (' + ov.map(function(p){ return gfD(p.from) + '–' + gfD(p.to) + ' ' + Rs(p.amt); }).join(', ') + '). Press Save payment again to record it anyway.');
+  }
+  delete g('gfp-msg').dataset.confirm;
+  var a = gfPayList();
+  var _e = { id: 'p' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), v: v, from: from, to: to, amt: Math.round(amt * 100) / 100, on: on, note: note, at: new Date().toISOString() };
+  // v202: the bill for exactly these dates, when the payment came from a report — the difference is carried into Milk liabilities
+  var _d = window.GF_PAY_DUE; if (_d && _d.v === v && _d.from === from && _d.to === to) _e.due = _d.due;
+  window.GF_PAY_DUE = null;
+  a.push(_e);
+  gfPayStore(a);
+  ['gfp-amt','gfp-note'].forEach(function(id){ g(id).value = ''; });
+  g('gf-pay-form').style.display = 'none';
+  gfPayRender();
+  try{ showToast(GF_PAY_NAMES[v] + ' paid up to ' + gfD(to), 'success'); }catch(e){}
+}
+function gfPayDelete(id, btn){
+  if (btn && !btn.dataset.sure){ btn.dataset.sure = '1'; btn.textContent = 'Sure?'; setTimeout(function(){ if (btn) { delete btn.dataset.sure; btn.textContent = 'Delete'; } }, 4000); return; }
+  gfPayStore(gfPayList().filter(function(p){ return p.id !== id; }));
+  gfPayRender();
+}
+// Under a vendor report: what is already paid in this range, and a button to record this one
+function gfPayReportBlock(v, total){
+  var from = document.getElementById('rpt-from').value, to = document.getElementById('rpt-to').value;
+  var ov = gfPayOverlap(v, from, to), last = gfPayLast(v), h = '';
+  if (ov.length) {
+    var paid = ov.reduce(function(s, p){ return s + p.amt; }, 0);
+    h += '<div id="gf-pay-overlap" style="background:#FDECEA;border:1.5px solid #C62828;border-radius:10px;padding:10px 12px;margin-top:12px;font-family:\'Space Mono\';font-size:11px;color:#C62828;">'
+      + '⚠ Part of this range is already paid: ' + ov.map(function(p){ return gfD(p.from) + '–' + gfD(p.to) + ' (' + Rs(p.amt) + ', paid ' + gfD(p.on) + ')'; }).join('; ')
+      + '. Recorded payments overlapping this range: ' + Rs(paid) + '.</div>';
+  } else if (last) {
+    h += '<div style="font-family:\'Space Mono\';font-size:10px;color:var(--muted);margin-top:10px;">Last payment recorded: milk up to ' + gfD(last.to) + ' — ' + Rs(last.amt) + ' paid ' + gfD(last.on) + '.</div>';
+  }
+  h += '<button id="gf-pay-record" onclick="gfPayFromReport(\'' + v + '\',' + (Math.round(total * 100) / 100) + ')" style="margin-top:10px;width:100%;padding:11px;background:#2D7A45;color:#fff;border:none;border-radius:10px;font-family:\'Space Mono\';font-size:11px;font-weight:700;cursor:pointer;">💵 Record this payment (' + Rs(total) + ' for ' + gfD(from) + '–' + gfD(to) + ')</button>';
+  return h;
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', function(){ try{ gfPayRender(); }catch(e){} }); else setTimeout(function(){ try{ gfPayRender(); }catch(e){} }, 0);
+window.addEventListener('storage', function(e){ if (e.key === GF_PAY_KEY) try{ gfPayRender(); }catch(x){} });
+
+
+/* v202: MILK LIABILITIES TILL DATE — what is owed to each vendor today.
+   = milk received after the "paid up to" date, priced exactly as the vendor's
+     payment report prices it (same function, same rate choice)
+   + any shortfall on payments recorded from a report (bill − paid; an excess
+     paid comes off). */
+function gfDaysBetween(a, b){ var out = [], d = a; while (d <= b && out.length < 400) { out.push(d); d = gfIsoAdd(d, 1); } return out; }
+async function gfMilkLiabilities(){
+  var out = document.getElementById('rpt-output'), wrap = document.getElementById('rpt-table-wrap'), tot = document.getElementById('rpt-total-wrap'), title = document.getElementById('rpt-title');
+  out.style.display = 'block'; title.textContent = 'Milk liabilities till ' + gfD(gfIsoToday()); tot.innerHTML = '';
+  ['rpt-range-banner','rpt-missing-banner'].forEach(function(id){ var o = document.getElementById(id); if (o) o.remove(); });
+  wrap.innerHTML = '<div style="padding:20px;font-family:Space Mono;font-size:11px;">⏳ Reading the milk sheet …</div>';
+  out.scrollIntoView({ behavior:'smooth', block:'start' });
+  var today = gfIsoToday(), V = ['v1','v2','v3','v4'], plan = {}, minFrom = today;
+  V.forEach(function(v){ var p = gfPayLast(v); if (p) { plan[v] = { from: gfIsoAdd(p.to, 1), paidTo: p.to }; if (plan[v].from < minFrom) minFrom = plan[v].from; } });
+  if (!Object.keys(plan).length) { wrap.innerHTML = '<div style="padding:20px;font-family:Space Mono;font-size:11px;">Record the last payment made to each vendor first (+ Record a payment) — the liability is the milk received after it.</div>'; return; }
+  var json = null;
+  try {
+    if (!STATE.gsUrl) throw new Error('Google Sheet URL not set (Setup tab)');
+    var r = await fetch(STATE.gsUrl + '?action=getReportData&sheet=Milk_Purchase&from=' + encodeURIComponent(minFrom) + '&to=' + encodeURIComponent(today));
+    json = await r.json();
+    if (!json || !json.rows) throw new Error('no data returned');
+  } catch(e) { wrap.innerHTML = '<div style="padding:20px;color:var(--red);font-family:Space Mono;font-size:11px;">⚠ Could not read the milk sheet: ' + e.message + '</div>'; return; }
+  var have = {}; json.rows.forEach(function(row){ have[toReportDateInt(String(row[0]||'').trim().replace(/T.*$/, ''))] = 1; });
+  var end = have[toReportDateInt(today)] ? today : gfIsoAdd(today, -1);
+  var keepLast = GF_LAST_VENDOR_RPT, keepTot = window.GF_LAST_VENDOR_TOTAL, keepFrom = document.getElementById('rpt-from').value, keepTo = document.getElementById('rpt-to').value;
+  var res = [], grand = 0;
+  V.forEach(function(v){
+    var name = GF_PAY_NAMES[v];
+    if (!plan[v]) { res.push({ v:v, name:name, none:true }); return; }
+    var P = plan[v], days = P.from <= end ? gfDaysBetween(P.from, end) : [];
+    var carried = gfPayList().filter(function(x){ return x.v === v && x.due !== undefined; }).reduce(function(s, x){ return s + (x.due - x.amt); }, 0);
+    var value = 0, missing = [];
+    if (days.length) {
+      var fi = toReportDateInt(days[0]), ti = toReportDateInt(days[days.length - 1]);
+      var rows = json.rows.filter(function(row){ var di = toReportDateInt(String(row[0]||'').trim().replace(/T.*$/, '')); return di >= fi && di <= ti; });
+      missing = days.filter(function(d){ return !have[toReportDateInt(d)]; });
+      var w = document.createElement('div'), t = document.createElement('div'), h = document.createElement('div');
+      document.getElementById('rpt-from').value = days[0]; document.getElementById('rpt-to').value = days[days.length - 1];
+      window.GF_LAST_VENDOR_TOTAL = 0;
+      try {
+        if (v === 'v3') buildV3Report(days, h, w, t, { headers: json.headers, rows: rows });
+        else buildVendorReport(days, v, name + ' Milk Payment', h, w, t, { headers: json.headers, rows: rows });
+        value = rows.length ? (window.GF_LAST_VENDOR_TOTAL || 0) : 0;
+      } catch(e) { value = NaN; }
+    }
+    var owed = value + carried; if (!isNaN(owed)) grand += owed;
+    res.push({ v:v, name:name, paidTo:P.paidTo, from:P.from, to:end, days:days.length, value:value, carried:carried, owed:owed, missing:missing });
+  });
+  document.getElementById('rpt-from').value = keepFrom; document.getElementById('rpt-to').value = keepTo;
+  GF_LAST_VENDOR_RPT = keepLast; window.GF_LAST_VENDOR_TOTAL = keepTot;
+  var html = '<table class="rpt-table" id="gf-liab-table"><thead><tr><th>Vendor</th><th>Paid up to</th><th>Unpaid milk from</th><th>To</th><th>Days</th><th>Milk value (Rs)</th><th>Short(+)/excess(−) paid earlier (Rs)</th><th>Owed today (Rs)</th></tr></thead><tbody>';
+  res.forEach(function(x){
+    if (x.none) { html += '<tr><td>' + x.name + '</td><td colspan="7" style="color:var(--muted);">no payment recorded yet — record the last one to include this vendor</td></tr>'; return; }
+    html += '<tr data-v="' + x.v + '"><td>' + x.name + '</td><td>' + gfD(x.paidTo) + '</td><td>' + (x.days ? gfD(x.from) : '—') + '</td><td>' + (x.days ? gfD(x.to) : '—') + '</td><td>' + x.days + '</td>'
+      + '<td>' + (isNaN(x.value) ? 'error' : N(x.value, 2)) + '</td><td>' + N(x.carried, 2) + '</td><td style="font-weight:700;">' + (isNaN(x.owed) ? 'error' : N(x.owed, 2)) + '</td></tr>';
+  });
+  html += '</tbody><tfoot><tr><td>TOTAL</td><td></td><td></td><td></td><td></td><td></td><td></td><td id="gf-liab-total">' + N(grand, 2) + '</td></tr></tfoot></table>';
+  wrap.innerHTML = '<div style="padding:10px 14px;font-family:\'Space Mono\';font-size:10px;line-height:1.6;border-bottom:1px solid var(--border);">Milk received after each vendor\'s last recorded payment, priced like the payment report (rates: ' + (gfRptRateSrc() === 'chart' ? 'from the rate chart valid on each day' : 'as saved on each day') + '), plus any amount short-paid on earlier bills. Milk up to ' + gfD(end) + (end !== today ? ' (today not saved yet)' : '') + '.</div>' + html;
+  var miss = res.filter(function(x){ return x.missing && x.missing.length; });
+  tot.innerHTML = '<div style="font-family:\'Space Mono\';font-size:13px;font-weight:700;color:#8B1A1A;">Total milk liability today: ' + Rs(grand) + '</div>'
+    + (miss.length ? '<div style="font-family:\'Space Mono\';font-size:10px;color:#C62828;margin-top:6px;">⚠ Days with no milk entry in the sheet are not counted: ' + miss.map(function(x){ return x.name + ' ' + x.missing.map(gfD).join(', '); }).join(' · ') + '</div>' : '');
 }
 
 // ── VENDOR PAYMENT WHATSAPP + EXCEL ─────────────────────────────────
@@ -5132,25 +5412,32 @@ function buildV3Report(dates, title, wrap, tot, sheetData) {
   if (!rows.length) { wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);">No data found</div>'; tot.innerHTML=''; return; }
   let html = '<table class="rpt-table"><thead><tr><th>Date</th><th>Skim Qty(L)</th><th>SNF%</th><th>Rate(Rs/L)</th><th>Amount(Rs)</th><th>Quality Notes</th></tr></thead><tbody>';
   let totalQty=0, totalAmt=0;
+  const _src3 = gfRptRateSrc(); let _rp3 = 0, _rp3Rs = 0;
   rows.forEach(m => {
     const qty = parseFloat(m.v3_sk_qty)||0;
     const snf = parseFloat(m.v3_sk_snf)||0;
-    const rate= parseFloat(m.v3_sk_rate)||0;
+    const _sv = parseFloat(m.v3_sk_rate)||0;
+    // v200: priced from the Vendor 3 setting valid on the day (switchable)
+    let rate = _sv, _d = false;
+    if (_src3 === 'chart' && qty > 0) { const _i = String(toReportDateInt(m._date)); const qt = vrQuote('v3','sk',snf,snf,_i.slice(0,4)+'-'+_i.slice(4,6)+'-'+_i.slice(6,8));
+      if (qt) { rate = qt.rate; _d = Math.abs(rate - _sv) >= 0.005; } }
     const amt = qty*rate;
     if (qty > 0) {
       totalQty += qty; totalAmt += amt;
+      if (_d) { _rp3++; _rp3Rs += (rate - _sv) * qty; }
       const v3note = m.v3_notes || '';
-      html += `<tr><td>${fmtDate(m._date)}</td><td>${N(qty,1)}</td><td>${N(snf,2)}</td><td>${N(rate,2)}</td><td>${Rs(amt)}</td><td style="font-size:11px;color:${v3note?'var(--ink)':'var(--muted)'};">${v3note||'—'}</td></tr>`;
+      html += `<tr><td>${fmtDate(m._date)}</td><td>${N(qty,1)}</td><td>${N(snf,2)}</td><td>${N(rate,2)}${_d?'<span class="gf-old" data-old="'+N(_sv,2)+'" title="rate saved on this day: '+N(_sv,2)+'"></span>':''}</td><td>${Rs(amt)}</td><td style="font-size:11px;color:${v3note?'var(--ink)':'var(--muted)'};">${v3note||'—'}</td></tr>`;
     }
   });
   html += `</tbody><tfoot><tr><td>TOTAL</td><td>${N(totalQty,1)}</td><td></td><td></td><td>${Rs(totalAmt)}</td><td></td></tr></tfoot></table>`;
-  wrap.innerHTML = html;
+  wrap.innerHTML = gfRptRateBar(_src3, 'v3', _rp3, _rp3Rs, []) + html;
+  window.GF_LAST_VENDOR_TOTAL = totalAmt;   // v202
 
   /* v193: an adjustment-summary block used to sit here referring to an
      `adjustments` array that this report never builds, so Vendor 3 threw
      "adjustments is not defined" and the Total Payable line never rendered.
      Removed — Vendor 3 has no rate downgrades or split deductions to list. */
-  tot.innerHTML = `<div style="font-family:'Space Mono';font-size:13px;font-weight:700;color:var(--green);">Total Payable to Vendor 3: ${Rs(totalAmt)}</div>`;
+  tot.innerHTML = `<div style="font-family:'Space Mono';font-size:13px;font-weight:700;color:var(--green);">Total Payable to Vendor 3: ${Rs(totalAmt)}</div>` + gfPayReportBlock('v3', totalAmt);
 }
 
 function buildMilkSummaryReport(dates, title, wrap, tot, sheetData) {
