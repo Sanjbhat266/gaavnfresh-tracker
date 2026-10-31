@@ -20,6 +20,7 @@
 <!-- v212: Fresh Curd = Chaach curd + Lassi curd, culture costed from milk (1 pouch = 500 L); inventory worked out from the Sheet so every device agrees -->
 <!-- v213: inventory / purchase / supplier-credit handlers added to the Apps Script; CM SMP and BM SMP as separate rates and stock items -->
 <!-- v214: CM Khoya and Std Khoya use CM SMP (rate and stock) -->
+<!-- v220: milk reconciliation counts the milk used for chakka curd -->
 <!-- v219: Chakka yield % = chakka kg per litre of milk (was blank when only the chakka weight was entered) -->
 <!-- v218: COGS_Daily has one row per curd batch — Chaach Curd and Lassi Curd (Intermediate) — instead of one combined Fresh Curd row -->
 <!-- v217: the sheet reader fills Mango Lassi, Sweet Lassi and Chaas (needs Sheet Reader v5) -->
@@ -453,7 +454,7 @@ window.GF_SHARED_CFG = {
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v219</span>
+    <span>PRODUCTION TRACKER v220</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:DM Sans,system-ui,sans-serif;font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -4621,6 +4622,7 @@ async function generateMilkReconReport(){
   const pm=hmap(prodJ&&prodJ.headers);
   const USED=['LP BM(L)','LP SM(L)','MFP BM(L)','MFP SM(L)','LFP BM(L)','LFP SM(L)','MP BM(L)','MP SM(L)',
               'LC BM(L)','LC CM(L)','LC SM(L)','FC BM(L)','FC CM(L)','FC SM(L)','FC2 BM(L)','FC2 CM(L)','FC2 SM(L)',
+              'FC3 BM(L)','FC3 CM(L)','FC3 SM(L)',   /* v220: chakka curd */
               'CMK BM(L)','CMK CM(L)','CMK SM(L)','STK BM(L)','STK CM(L)','STK SM(L)'];
   // cream ADDED INTO paneer batches — informational only. It comes out of cream
   // stock, not out of the liquid-milk pool, so it must not enter this balance.
