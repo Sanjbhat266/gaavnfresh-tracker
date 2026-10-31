@@ -20,6 +20,7 @@
 <!-- v212: Fresh Curd = Chaach curd + Lassi curd, culture costed from milk (1 pouch = 500 L); inventory worked out from the Sheet so every device agrees -->
 <!-- v213: inventory / purchase / supplier-credit handlers added to the Apps Script; CM SMP and BM SMP as separate rates and stock items -->
 <!-- v214: CM Khoya and Std Khoya use CM SMP (rate and stock) -->
+<!-- v221: Cost of Fat updates when a milk quantity is changed (it only updated on fat/SNF/rate) -->
 <!-- v220: milk reconciliation counts the milk used for chakka curd -->
 <!-- v219: Chakka yield % = chakka kg per litre of milk (was blank when only the chakka weight was entered) -->
 <!-- v218: COGS_Daily has one row per curd batch — Chaach Curd and Lassi Curd (Intermediate) — instead of one combined Fresh Curd row -->
@@ -454,7 +455,7 @@ window.GF_SHARED_CFG = {
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v220</span>
+    <span>PRODUCTION TRACKER v221</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:DM Sans,system-ui,sans-serif;font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -8587,6 +8588,9 @@ function gfMbSoon(){ clearTimeout(_gfMbT); _gfMbT=setTimeout(function(){ try{ ca
 ['input','change'].forEach(function(ev){ document.addEventListener(ev, function(e){
   var id=(e.target&&e.target.id)||'';
   if(/_(bm|cm|sm)$/.test(id) || /^cream_/.test(id) || /^v[1-4][me]?_/.test(id)) gfMbSoon();
+  /* v221: the Cost of Fat table was redrawn only when a fat, SNF or rate box
+     changed — editing a quantity (27.4 -> 26.4 L) left the old litres showing. */
+  if(/^v[1-4][me]?_(cm|bm|sk)_qty$/.test(id)){ clearTimeout(window._gfFatT); window._gfFatT=setTimeout(function(){ try{ vrFatPanel(); }catch(x){} }, 60); }
 }); });
 
 // ── APPS SCRIPT CODE ──────────────────────────────────────────────
