@@ -458,7 +458,7 @@ window.GF_SHARED_CFG = {
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v224</span>
+    <span>PRODUCTION TRACKER v225</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:DM Sans,system-ui,sans-serif;font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -8290,7 +8290,8 @@ function gfKeepSavedIngRates(){
     if(!e || e.readOnly || !(v>0) || parseFloat(e.value)===v) return;
     e.value=s[t[0]]; changed=true;
     var q=parseFloat((document.getElementById(t[1])||{}).value)||0, a=document.getElementById(t[2]);
-    if(a) a.value = q*v>0 ? (q*v).toFixed(2) : ''; });
+    var _f=(t[1]==='sl_ing1_qty'||t[1]==='ml_ing1_qty')?GF_SYRUP_SUGAR_KG_PER_L:1;   /* v225: syrup L -> sugar kg, as calcIngAmt does */
+    if(a) a.value = q*v*_f>0 ? (q*v*_f).toFixed(2) : ''; });
   if(changed){ try{ Object.keys(INGREDIENT_DEFS).forEach(function(p){ sumIngredients(p); }); }catch(e){} try{ gfFc2Calc(); }catch(e){} try{ gfFc3Calc(); }catch(e){} try{ gfCurdShowAll(); }catch(e){} }
 }
 
