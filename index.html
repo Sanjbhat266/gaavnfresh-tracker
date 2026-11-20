@@ -20,6 +20,9 @@
 <!-- v212: Fresh Curd = Chaach curd + Lassi curd, culture costed from milk (1 pouch = 500 L); inventory worked out from the Sheet so every device agrees -->
 <!-- v213: inventory / purchase / supplier-credit handlers added to the Apps Script; CM SMP and BM SMP as separate rates and stock items -->
 <!-- v214: CM Khoya and Std Khoya use CM SMP (rate and stock) -->
+<!-- v224: the Sheet is the source of truth — an opened day is compared with its Sheet row (differences listed, one tap loads the Sheet version); a product Save is marked "not submitted" until Submit All; days missing from the Sheet are flagged; lassi/chaach curd priced from Sheet batches when this device lacks them -->
+<!-- v223: the tracker no longer estimates revenue or GM — it is costing only (cost per unit). Real revenue and GM come from the Sales app on the Dashboard. Selling-rate boxes hidden; COGS_Daily keeps its columns but Revenue/GM/GM% are written blank. -->
+<!-- v222: fixed cost removed from COGS; sugar syrup costed on its sugar content (L of syrup); lassi yield % = packed vs theoretical; lassi default rate Rs 25/cup; warning when lassi/chaach curd has no batch rate -->
 <!-- v221: Cost of Fat updates when a milk quantity is changed (it only updated on fat/SNF/rate) -->
 <!-- v220: milk reconciliation counts the milk used for chakka curd -->
 <!-- v219: Chakka yield % = chakka kg per litre of milk (was blank when only the chakka weight was entered) -->
@@ -455,7 +458,7 @@ window.GF_SHARED_CFG = {
   <div class="app-logo">GF</div>
   <div class="app-title">
     Gaavn Fresh
-    <span>PRODUCTION TRACKER v221</span>
+    <span>PRODUCTION TRACKER v224</span>
   </div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;">
     <div style="font-family:DM Sans,system-ui,sans-serif;font-size:8px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;">Entry Date</div>
@@ -797,7 +800,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="lp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('lp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_gas_rate" value="100" step="1" min="0" oninput="calcGas('lp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lp_notes" placeholder="Lite Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:DM Sans,system-ui,sans-serif;font-size:11px;resize:vertical;"></textarea></div>
     </div>
@@ -877,7 +880,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="mfp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('mfp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_gas_rate" value="100" step="1" min="0" oninput="calcGas('mfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="mfp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mfp_notes" placeholder="Med Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:DM Sans,system-ui,sans-serif;font-size:11px;resize:vertical;"></textarea></div>
     </div>
@@ -957,7 +960,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="lfp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('lfp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_gas_rate" value="100" step="1" min="0" oninput="calcGas('lfp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lfp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="lfp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="lfp_notes" placeholder="Low Fat Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:DM Sans,system-ui,sans-serif;font-size:11px;resize:vertical;"></textarea></div>
     </div>
@@ -1058,7 +1061,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="mp_gas_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('mp')"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_gas_rate" value="100" step="1" min="0" oninput="calcGas('mp')"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="mp_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="mp_rate" placeholder="0" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="field" style="margin-top:8px"><label>Notes</label><textarea id="mp_notes" placeholder="Malai Paneer batch notes..." style="width:100%;min-height:50px;background:var(--cream);border:1.5px solid var(--border);border-radius:8px;padding:8px;font-family:DM Sans,system-ui,sans-serif;font-size:11px;resize:vertical;"></textarea></div>
     </div>
@@ -1211,7 +1214,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas Cost (Rs)</label><div class="unit"><input type="number" id="lc_gas" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="fg fg-1" style="margin-top:8px">
-        <div class="field"><label>Selling Rate (Rs/jar)</label><div class="unit"><input type="number" id="lc_jar_rate" placeholder="300" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/jar)</label><div class="unit"><input type="number" id="lc_jar_rate" placeholder="300" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
     </div>
   </div>
@@ -1376,7 +1379,7 @@ window.GF_SHARED_CFG = {
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Chakka after hanging (kg)</label><div class="unit"><input type="number" id="fc3_chakka" placeholder="0" step="0.01" min="0" oninput="gfFc3Calc()"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Chakka from curd %</label><div class="unit"><input type="number" id="fc3_chakka_pct" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">%</span></div></div>
-        <div class="field"><label>Chakka selling rate (Rs/kg) <small>if sold</small></label><div class="unit"><input type="number" id="fc3_rate" placeholder="0" step="1" min="0" oninput="gfFc3Calc()"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Chakka selling rate (Rs/kg) <small>if sold</small></label><div class="unit"><input type="number" id="fc3_rate" placeholder="0" step="1" min="0" oninput="gfFc3Calc()"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="fg fg-4" style="margin-top:8px">
         <div class="field"><label>Gas Qty (kg)</label><div class="unit"><input type="number" id="fc3_gas_qty" placeholder="0" step="0.01" min="0" oninput="gfFc3Calc()"><span class="unit-label">kg</span></div></div>
@@ -1455,7 +1458,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Total Bottle PM Cost (Rs)</label><div class="unit"><input type="number" id="ch_pm_cost" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="fg fg-1" style="margin-top:8px">
-        <div class="field"><label>Selling Rate (Rs/L)</label><div class="unit"><input type="number" id="ch_rate" placeholder="40" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/L)</label><div class="unit"><input type="number" id="ch_rate" placeholder="40" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
             <div class="fg" style="margin-top:6px"><div class="field"><label>Notes</label><textarea id="ch_notes" placeholder="Chaach batch notes..."></textarea></div></div>
     </div>
@@ -1486,8 +1489,8 @@ window.GF_SHARED_CFG = {
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="sl_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
-          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="sl_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl'); calcLassiAll('sl')"><span class="unit-label">L</span></div></div>
-          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="sl_ing1_rate" value="24" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Syrup Qty (L)</label><div class="unit"><input type="number" id="sl_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl'); calcLassiAll('sl')"><span class="unit-label">L</span></div></div>
+          <div class="field"><label>Sugar Rate (Rs/kg)</label><div class="unit"><input type="number" id="sl_ing1_rate" value="55" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('sl_ing1_qty','sl_ing1_rate','sl_ing1_amt','sl')"><span class="unit-label">Rs</span></div></div>
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="sl_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
@@ -1518,7 +1521,7 @@ window.GF_SHARED_CFG = {
       </div>
 <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>      <div class="fg fg-2" style="margin-top:8px">
         <div class="field"><label>Yield Variance (kg)</label><div class="unit"><input type="number" id="sl_var_kg" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="sl_rate" placeholder="100" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="sl_rate" placeholder="25" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <!-- Packing material -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
@@ -1560,8 +1563,8 @@ window.GF_SHARED_CFG = {
       <div class="ing-row">
         <div class="ing-label"><input type="text" class="ing-name-input" id="ml_ing1_name" value="Sugar Syrup" placeholder="Ingredient 1 name" title="Click to edit ingredient name"></div>
         <div class="ing-fields">
-          <div class="field"><label>Qty (kg)</label><div class="unit"><input type="number" id="ml_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml'); calcLassiAll('ml')"><span class="unit-label">L</span></div></div>
-          <div class="field"><label>Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing1_rate" value="24" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml')"><span class="unit-label">Rs</span></div></div>
+          <div class="field"><label>Syrup Qty (L)</label><div class="unit"><input type="number" id="ml_ing1_qty" placeholder="0" step="0.001" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml'); calcLassiAll('ml')"><span class="unit-label">L</span></div></div>
+          <div class="field"><label>Sugar Rate (Rs/kg)</label><div class="unit"><input type="number" id="ml_ing1_rate" value="55" placeholder="0" step="0.01" min="0" oninput="calcIngAmt('ml_ing1_qty','ml_ing1_rate','ml_ing1_amt','ml')"><span class="unit-label">Rs</span></div></div>
           <div class="field"><label>Amount (Rs)</label><div class="unit"><input type="number" id="ml_ing1_amt" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
         </div>
       </div>
@@ -1616,7 +1619,7 @@ window.GF_SHARED_CFG = {
       </div>
 <div class="divider" style="margin-top:10px"><span>Ingredients</span></div>      <div class="fg fg-2" style="margin-top:8px">
         <div class="field"><label>Yield Variance (kg)</label><div class="unit"><input type="number" id="ml_var_kg" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">kg</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="ml_rate" placeholder="100" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/cup)</label><div class="unit"><input type="number" id="ml_rate" placeholder="25" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <!-- Packing material -->
       <div class="divider" style="margin-top:10px"><span>Packing Material</span></div>
@@ -1681,7 +1684,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas/Fuel Qty (kg)</label><div class="unit"><input type="number" id="cmk_fuel_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas/Fuel Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_fuel_rate" value="100" step="1" min="0" oninput="calcGas('cmk', true)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas/Fuel Cost (Rs)</label><div class="unit"><input type="number" id="cmk_fuel" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_rate" placeholder="240" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="cmk_rate" placeholder="240" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <!-- Packing -->
       <div class="fg fg-3" style="margin-top:8px">
@@ -1734,7 +1737,7 @@ window.GF_SHARED_CFG = {
         <div class="field"><label>Gas/Fuel Qty (kg)</label><div class="unit"><input type="number" id="stk_fuel_qty" placeholder="0" step="0.01" min="0" oninput="calcGas('stk', true)"><span class="unit-label">kg</span></div></div>
         <div class="field"><label>Gas/Fuel Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_fuel_rate" value="100" step="1" min="0" oninput="calcGas('stk', true)"><span class="unit-label">Rs</span></div></div>
         <div class="field"><label>Gas/Fuel Cost (Rs)</label><div class="unit"><input type="number" id="stk_fuel" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">Rs</span></div></div>
-        <div class="field"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_rate" placeholder="237" step="1" min="0"><span class="unit-label">Rs</span></div></div>
+        <div class="field" style="display:none"><label>Selling Rate (Rs/kg)</label><div class="unit"><input type="number" id="stk_rate" placeholder="237" step="1" min="0"><span class="unit-label">Rs</span></div></div>
       </div>
       <div class="fg fg-3" style="margin-top:8px">
         <div class="field"><label>Packs (5kg each)</label><div class="unit"><input type="number" id="stk_pm_qty" placeholder="—" readonly style="background:#f5f5f5;color:var(--muted)"><span class="unit-label">nos</span></div></div>
@@ -1755,6 +1758,7 @@ window.GF_SHARED_CFG = {
   <!-- COMMON COSTS -->
   <div class="card">
     <div class="card-head"><h3>Common Daily Costs</h3></div>
+    <div style="font-family:DM Sans,system-ui,sans-serif;font-size:11px;color:#7D5A00;background:#FFF3CD;padding:6px 12px;">v222: these are no longer added to product COGS. Actual fixed costs belong in the monthly P&amp;L.</div>
     <div class="card-body">
       <div class="fg fg-3">
         <div class="field"><label>Labour (Rs)</label><div class="unit"><input type="number" id="cost_labour" placeholder="110.25" step="0.01" min="0"><span class="unit-label">Rs</span></div></div>
@@ -2477,7 +2481,7 @@ window.GF_SHARED_CFG = {
       🧀 Production Summary<br><small>Daily yield by product</small>
     </button>
     <button class="rpt-btn" onclick="generateReport('cogs')" ontouchstart="">
-      💰 COGS Summary<br><small>Revenue, cost, GM% by product</small>
+      💰 COGS Summary<br><small>Cost per unit by product</small>
     </button>
     <button class="rpt-btn" onclick="generateReport('avgcogs')" ontouchstart="" style="grid-column:1/-1;background:rgba(230,126,34,0.08);border-color:rgba(230,126,34,0.45);">
       📊 Avg COGS / kg — for Quotes<br><small>Weighted average cost per kg per product · pick a single date or a range</small>
@@ -2953,7 +2957,7 @@ window.GF_SHARED_CFG = {
         <div style="background:#f7fbf8;border:1.5px solid #c8e6c9;border-radius:10px;padding:12px;">
           <div style="font-family:DM Sans,system-ui,sans-serif;font-size:10px;color:#2d5a3d;font-weight:700;margin-bottom:6px;">Sugar</div>
           <div style="display:flex;align-items:center;gap:6px;">
-            <input type="number" id="ir_sl_sugar" value="24" step="0.01" min="0" style="flex:1;font-family:DM Sans,system-ui,sans-serif;font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
+            <input type="number" id="ir_sl_sugar" value="55" step="0.01" min="0" style="flex:1;font-family:DM Sans,system-ui,sans-serif;font-size:13px;font-weight:700;border:1.5px solid #a5d6a7;border-radius:8px;padding:6px 10px;background:#fff;color:#1a3a2a;">
             <span style="font-family:DM Sans,system-ui,sans-serif;font-size:10px;color:#888;">₹/kg</span>
           </div>
           <div style="font-family:DM Sans,system-ui,sans-serif;font-size:9px;color:#888;margin-top:4px;">→ Also Mango Lassi Sugar</div>
@@ -3532,6 +3536,8 @@ function saveProductCard(pid) {
   localStorage.setItem('prod_' + dateKey, JSON.stringify(data));
   localStorage.setItem('today_prod', JSON.stringify(data));
   gfClearDraft('prod', document.getElementById('entry-date').value);   // v192: saved — no longer a draft
+  gfUnsubSet(document.getElementById('entry-date').value, true);         // v224: but NOT in the Sheet until Submit All
+  try { gfSheetBanner(); } catch(e) {}
   STATE.todayProd = data;
 
   // Mark button as done immediately
@@ -4266,18 +4272,16 @@ function buildAvgCOGSReport(title, wrap, tot, sheetData){
 }
 
 function buildCOGSFromSheet(headers, rows, wrap, tot) {
-  // COGS_Daily sheet already has: Date,Product,Yield,Milk Cost,Ing Cost,Gas/Fuel,Fixed Cost,Total COGS,COGS/Unit,Revenue,GM,GM%,Actual Yield%,Std Yield%,Yield Variance%,Notes
+  // v223: cost only. Old rows may still carry the removed fixed cost and an
+  // estimated revenue — both are ignored here, so old and new days compare alike.
   const hmap = {};
   headers.forEach((h,i) => { hmap[String(h).trim()] = i; });
   const g = (row, key) => { const i=hmap[key]; return i!==undefined ? row[i] : ''; };
-
   let html = '<table class="rpt-table"><thead><tr>' +
-    '<th>Date</th><th>Product</th><th>Yield</th><th>Revenue(Rs)</th>' +
-    '<th>Milk Cost</th><th>Ing+PM</th><th>Fixed</th><th>Total COGS</th>' +
-    '<th>GM(Rs)</th><th>GM%</th><th>Yield Var%</th>' +
+    '<th>Date</th><th>Product</th><th>Yield</th>' +
+    '<th>Milk Cost</th><th>Ing Cost</th><th>Gas+PM</th><th>Total COGS</th><th>COGS/Unit</th><th>Yield Var%</th>' +
     '</tr></thead><tbody>';
-
-  let tRev=0, tCOGS=0, tGM=0;
+  let tCOGS=0, tOldFixed=0;
   rows.forEach(row => {
     const date   = String(g(row,'Date')||'').trim();
     const prod   = String(g(row,'Product')||'').trim();
@@ -4285,46 +4289,33 @@ function buildCOGSFromSheet(headers, rows, wrap, tot) {
     const milk   = parseFloat(g(row,'Milk Cost (Rs)'))||0;
     const ing    = parseFloat(g(row,'Ing Cost (Rs)'))||0;
     const gas    = parseFloat(g(row,'Gas/Fuel (Rs)'))||0;
-    const fixed  = parseFloat(g(row,'Fixed Cost (Rs)'))||0;
-    const total  = parseFloat(g(row,'Total COGS (Rs)'))||0;
-    const rev    = parseFloat(g(row,'Revenue (Rs)'))||0;
-    const gm     = parseFloat(g(row,'GM (Rs)'))||0;
-    const gmP    = String(g(row,'GM%')||'');
+    const oldFx  = parseFloat(g(row,'Fixed Cost (Rs)'))||0;
     const varP   = String(g(row,'Yield Variance%')||'');
     if (!prod || prod === 'Product') return; // skip header rows
     if (prod.includes('Intermediate')) return; // skip FC intermediate
-    tRev+=rev; tCOGS+=total; tGM+=gm;
-    const gmColor = gm >= 0 ? 'var(--green)' : 'var(--red)';
-    const ingPM   = ing + gas; // ing cost includes PM in COGS_Daily
+    const total = milk + ing + gas;
+    tCOGS += total; tOldFixed += oldFx;
     html += `<tr>
       <td>${date}</td>
       <td style="font-weight:600">${prod}</td>
       <td>${yld}</td>
-      <td>${Rs(rev)}</td>
       <td>${Rs(milk)}</td>
-      <td>${Rs(ingPM)}</td>
-      <td>${Rs(fixed)}</td>
+      <td>${Rs(ing)}</td>
+      <td>${Rs(gas)}</td>
       <td>${Rs(total)}</td>
-      <td style="color:${gmColor};font-weight:700">${Rs(gm)}</td>
-      <td style="color:${gmColor}">${gmP}%</td>
+      <td style="font-weight:700">${yld>0?'₹'+(total/yld).toFixed(2):'—'}</td>
       <td>${varP}</td>
     </tr>`;
   });
-
-  const overallGMP = tRev > 0 ? (tGM/tRev*100).toFixed(1) : 0;
   html += `</tbody><tfoot><tr>
-    <td colspan="3">TOTAL</td>
-    <td>${Rs(tRev)}</td>
-    <td colspan="3"></td>
+    <td colspan="6">TOTAL</td>
     <td>${Rs(tCOGS)}</td>
-    <td style="color:${tGM>=0?'var(--green)':'var(--red)'};font-weight:700">${Rs(tGM)}</td>
-    <td style="color:${tGM>=0?'var(--green)':'var(--red)'}">${overallGMP}%</td>
-    <td></td>
+    <td colspan="2"></td>
   </tr></tfoot></table>`;
-
   wrap.innerHTML = html;
-  tot.innerHTML = `<div style="font-family:DM Sans,system-ui,sans-serif,monospace;font-size:12px;font-weight:700;color:${tGM>=0?'var(--green)':'var(--red)'}">
-    Period GM: ${Rs(tGM)} (${overallGMP}%) &nbsp;|&nbsp; Revenue: ${Rs(tRev)} &nbsp;|&nbsp; Total COGS: ${Rs(tCOGS)}</div>`;
+  tot.innerHTML = `<div style="font-family:DM Sans,system-ui,sans-serif,monospace;font-size:12px;font-weight:700;">
+    Total COGS: ${Rs(tCOGS)}${tOldFixed>0?` <span style="font-weight:400;color:var(--muted);">(excludes ${Rs(tOldFixed)} of the old fixed-cost estimate still on some saved rows)</span>`:''}
+    &nbsp;|&nbsp; <span style="font-weight:400;color:var(--muted);">Revenue and GM come from the Sales app (Dashboard).</span></div>`;
 }
 
 function getMilkData(dates) {
@@ -5760,7 +5751,7 @@ function buildProductionReport(dates, title, wrap, tot, sheetData) {
 }
 
 function buildCOGSReport(dates, title, wrap, tot, sheetData) {
-  title.textContent = 'Revenue & COGS Summary';
+  title.textContent = 'COGS Summary (cost per unit)';
   // If sheet data available, use COGS_Daily pre-calculated rows directly
   if (sheetData && sheetData.rows && sheetData.rows.length > 0) {
     buildCOGSFromSheet(sheetData.headers, sheetData.rows, wrap, tot);
@@ -5769,12 +5760,10 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
   const mRows=getMilkData(dates);
   const pRows=getProdData(dates);
   if (!pRows.length) { wrap.innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);">No production data found</div>'; tot.innerHTML=''; return; }
-  let html='<table class="rpt-table"><thead><tr><th>Date</th><th>Product</th><th>Yield</th><th>Revenue(Rs)</th><th>Milk Cost</th><th>Ing Cost</th><th>PM Cost</th><th>Total COGS</th><th>GM(Rs)</th><th>GM%</th></tr></thead><tbody>';
+  let html='<table class="rpt-table"><thead><tr><th>Date</th><th>Product</th><th>Yield</th><th>Milk Cost</th><th>Ing Cost</th><th>PM Cost</th><th>Total COGS</th><th>COGS/Unit</th></tr></thead><tbody>';
   let tRev=0,tMilk=0,tIng=0,tPM=0,tCOGS=0,tGM=0;
   // Use actual fixed cost from form fields (not hardcoded 141.5)
-  const fixed = (parseFloat(document.getElementById('cost_labour')?.value)||110.25)
-              + (parseFloat(document.getElementById('cost_elec')?.value)||20.25)
-              + (parseFloat(document.getElementById('cost_transport')?.value)||11);
+  const fixed = 0;   // v222: fixed cost is no longer charged to products (old 141.5 estimate removed)
   pRows.forEach(p=>{
     // Get corresponding milk data
     const mDate=mRows.find(m=>m._date===p._date)||{};
@@ -5784,15 +5773,11 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
     const addProdRow=(name,yld,milk,ing,pm,rev,unit)=>{
       if(!yld) return;
       const total=milk+ing+pm+fixed;
-      const gm=rev-total;
-      const gmp=rev>0?(gm/rev*100):0;
-      tRev+=rev;tMilk+=milk;tIng+=ing;tPM+=pm;tCOGS+=total;tGM+=gm;
-      const gmColor=gm>=0?'var(--green)':'var(--red)';
+      tMilk+=milk;tIng+=ing;tPM+=pm;tCOGS+=total;   /* v223: no estimated revenue / GM */
       html+=`<tr><td>${fmtDate(p._date)}</td><td style="font-weight:600">${name}</td>
-        <td>${N(yld,1)} ${unit}</td><td>${Rs(rev)}</td><td>${Rs(milk)}</td>
+        <td>${N(yld,1)} ${unit}</td><td>${Rs(milk)}</td>
         <td>${Rs(ing)}</td><td>${Rs(pm)}</td><td>${Rs(total)}</td>
-        <td style="color:${gmColor};font-weight:700">${Rs(gm)}</td>
-        <td style="color:${gmColor}">${N(gmp,1)}%</td></tr>`;
+        <td style="font-weight:700">₹${N(total/yld,2)}/${unit}</td></tr>`;
     };
     const lp=parseFloat(p.lp_yield)||0;if(lp>0)addProdRow('Lite Paneer',lp,(parseFloat(p.lp_bm)||0)*bmR+(parseFloat(p.lp_sm)||0)*skR+(parseFloat(p.lp_cream)||0)*(parseFloat(p.lp_cream_rate)||300),parseFloat(p.lp_ing_cost)||0,parseFloat(p.lp_pm_cost)||0,lp*(parseFloat(p.lp_rate)||230),'kg');
     const mfp=parseFloat(p.mfp_yield)||0;if(mfp>0)addProdRow('Med Fat',mfp,(parseFloat(p.mfp_bm)||0)*bmR+(parseFloat(p.mfp_sm)||0)*skR+(parseFloat(p.mfp_cream)||0)*(parseFloat(p.mfp_cream_rate)||300),parseFloat(p.mfp_ing_cost)||0,parseFloat(p.mfp_pm_cost)||0,mfp*(parseFloat(p.mfp_rate)||240),'kg');
@@ -5803,15 +5788,14 @@ function buildCOGSReport(dates, title, wrap, tot, sheetData) {
     addProdRow('Ghee',gh,(parseFloat(p.gh_cream_in)||0)*(parseFloat(p.gh_cream_rate)||300),0,parseFloat(p.gh_pm_cost)||0,rev,'kg');}
     const lc=parseFloat(p.lc_yield)||0;if(lc>0)addProdRow('Lite Curd',lc,(parseFloat(p.lc_bm)||0)*bmR+(parseFloat(p.lc_cm)||0)*cmR+(parseFloat(p.lc_sm)||0)*skR,parseFloat(p.lc_ing_cost)||0,parseFloat(p.lc_pm_cost)||0,(parseFloat(p.lc_jars)||0)*(parseFloat(p.lc_jar_rate)||300)+(parseFloat(p.lc_bulk_kg)||0)*60,'kg');
     const ch=parseFloat(p.ch_packed_l)||0;if(ch>0)addProdRow('Chaach',ch,(parseFloat(p.ch_curd)||0)*(parseFloat(p.curd_rate_ch)||parseFloat(p.curd_rate)||50),parseFloat(p.ch_ing_cost)||0,(parseFloat(p.ch_pm_cost)||0)+(parseFloat(p.ch_case_pm_cost)||0),(parseFloat(p.ch_500ml)||0)*(parseFloat(p.ch_rate)||40)*0.5+(parseFloat(p.ch_1l)||0)*(parseFloat(p.ch_rate)||40),'L');
-    const sl=parseFloat(p.sl_cups)||0;if(sl>0)addProdRow('Sweet Lassi',sl,(parseFloat(p.sl_curd)||0)*(parseFloat(p.curd_rate_lassi)||parseFloat(p.curd_rate)||50),parseFloat(p.sl_ing_cost)||0,parseFloat(p.sl_pm_cost)||0,sl*(parseFloat(p.sl_rate)||100),'cups');
-    const ml=parseFloat(p.ml_cups)||0;if(ml>0)addProdRow('Mango Lassi',ml,(parseFloat(p.ml_curd)||0)*(parseFloat(p.curd_rate_lassi)||parseFloat(p.curd_rate)||50),parseFloat(p.ml_ing_cost)||0,parseFloat(p.ml_pm_cost)||0,ml*(parseFloat(p.ml_rate)||100),'cups');
+    const sl=parseFloat(p.sl_cups)||0;if(sl>0)addProdRow('Sweet Lassi',sl,(parseFloat(p.sl_curd)||0)*(parseFloat(p.curd_rate_lassi)||parseFloat(p.curd_rate)||50),parseFloat(p.sl_ing_cost)||0,parseFloat(p.sl_pm_cost)||0,sl*(parseFloat(p.sl_rate)||25),'cups');
+    const ml=parseFloat(p.ml_cups)||0;if(ml>0)addProdRow('Mango Lassi',ml,(parseFloat(p.ml_curd)||0)*(parseFloat(p.curd_rate_lassi)||parseFloat(p.curd_rate)||50),parseFloat(p.ml_ing_cost)||0,parseFloat(p.ml_pm_cost)||0,ml*(parseFloat(p.ml_rate)||25),'cups');
     const cmk=parseFloat(p.cmk_yield)||0;if(cmk>0)addProdRow('CM Khoya',cmk,(parseFloat(p.cmk_bm)||0)*bmR+(parseFloat(p.cmk_cm)||0)*cmR+(parseFloat(p.cmk_sm)||0)*skR,parseFloat(p.cmk_ing_cost)||0,parseFloat(p.cmk_pm_cost)||0,cmk*(parseFloat(p.cmk_rate)||240),'kg');
     const stk=parseFloat(p.stk_yield)||0;if(stk>0)addProdRow('Std Khoya',stk,(parseFloat(p.stk_bm)||0)*bmR+(parseFloat(p.stk_cm)||0)*cmR+(parseFloat(p.stk_sm)||0)*skR,parseFloat(p.stk_ing_cost)||0,parseFloat(p.stk_pm_cost)||0,stk*(parseFloat(p.stk_rate)||237),'kg');
   });
-  const gmPct=tRev>0?(tGM/tRev*100):0;
-  html+=`</tbody><tfoot><tr><td colspan="3">TOTAL (${pRows.length} days)</td><td>${Rs(tRev)}</td><td>${Rs(tMilk)}</td><td>${Rs(tIng)}</td><td>${Rs(tPM)}</td><td>${Rs(tCOGS)}</td><td style="color:${tGM>=0?'var(--green)':'var(--red)'}">${Rs(tGM)}</td><td style="color:${tGM>=0?'var(--green)':'var(--red)'}">${N(gmPct,1)}%</td></tr></tfoot></table>`;
+  html+=`</tbody><tfoot><tr><td colspan="3">TOTAL (${pRows.length} days)</td><td>${Rs(tMilk)}</td><td>${Rs(tIng)}</td><td>${Rs(tPM)}</td><td>${Rs(tCOGS)}</td><td></td></tr></tfoot></table>`;
   wrap.innerHTML=html;
-  tot.innerHTML=`<div style="font-family:DM Sans,system-ui,sans-serif;font-size:12px;font-weight:700;color:${tGM>=0?'var(--green)':'var(--red)'}">Period GM: ${Rs(tGM)} (${N(gmPct,1)}%) &nbsp;|&nbsp; Revenue: ${Rs(tRev)} &nbsp;|&nbsp; Total COGS: ${Rs(tCOGS)}</div>`;
+  tot.innerHTML=`<div style="font-family:DM Sans,system-ui,sans-serif;font-size:12px;font-weight:700;">Total COGS: ${Rs(tCOGS)} &nbsp;|&nbsp; <span style="font-weight:400;color:var(--muted);">Revenue and GM come from the Sales app (Dashboard).</span></div>`;
 }
 
 function copyReportToClipboard() {
@@ -6162,6 +6146,7 @@ function gfCurdShow(p){
   var R=gfFormRates(), iso=(document.getElementById('entry-date')||{}).value||'';
   var tg = p==='ch' ? 'chaas' : 'lassi';                   /* v208: chaach takes the chaach batch, lassi the lassi batch */
   var cr=gfCurdRate(iso, gfFcFormData(), R.wCM, R.wBM, R.wSK, tg);
+  if(!cr.from && !_gfCurdPulled[iso]){ var _dd=gfFcFormData(); _dd[p+'_curd']=q; gfEnsureCurdBatches(iso,_dd).then(function(did){ if(did) gfCurdShowAll(); }); }   // v224
   r.value=cr.rate.toFixed(2); if(a) a.value=(q*cr.rate).toFixed(2);
   if(s) s.innerHTML = cr.from
     ? ('Fresh curd batch of '+cr.from.split('-').reverse().join('/')+(cr.from===iso?' (today)':'')+' — Rs '+cr.rate.toFixed(2)+'/kg'
@@ -6438,7 +6423,7 @@ function calcLassiAll(prod) {
     : ['ml_ing2_qty','ml_ing3_qty','ml_ing4_qty','ml_ing5_qty','ml_ing6_qty'];
   let otherKg = 0;
   otherIds.forEach(id => { otherKg += parseFloat(document.getElementById(id)?.value) || 0; });
-  const theorKg = curd + syrup + otherKg;
+  const theorKg = curd + syrup * GF_SYRUP_KG_PER_L + otherKg;   // v222: syrup litres -> kg
   set(prod+'_theor_yield', theorKg > 0 ? theorKg : null, 3);
   // Variance
   const varEl = document.getElementById(prod+'_var_kg');
@@ -6756,9 +6741,7 @@ function calculateAndShowSummary() {
   const ic = id => parseFloat(document.getElementById(id)?.value) || 0;   // v171: declared at top so the cream-cost block below can use it (fixes COGS blank)
   const m = STATE.todayMilk || {};
   const p = STATE.todayProd || {};
-  const fixed = (parseFloat(document.getElementById('cost_labour')?.value)||110.25)
-              + (parseFloat(document.getElementById('cost_elec')?.value)||20.25)
-              + (parseFloat(document.getElementById('cost_transport')?.value)||11);
+  const fixed = 0;   // v222: fixed cost is no longer charged to products (old 141.5 estimate removed)
 
   // Weighted milk rates
   // ── v179 FIX: two mirror-image bugs in the weighted milk rates ──────
@@ -6834,9 +6817,9 @@ function calculateAndShowSummary() {
   const chTheor=ic('ch_yield_l'); // theoretical = curd + water
   if(chY>0 && ic('ch_curd')>0){addRow('Chaach',chY,ic('ch_curd')*curdCh,ic('ch_ing_cost'),ic('ch_pm_cost')+ic('ch_case_pm_cost'),0,ic('ch_500ml')*(ic('ch_rate')||40)*0.5+ic('ch_1l')*(ic('ch_rate')||40),chTheor>0?(chY/chTheor*100):0,100);}
   // ── Sweet Lassi
-  if(ic('sl_cups')>0){addRow('Sweet Lassi',ic('sl_cups'),ic('sl_curd')*curdLs,ic('sl_ing_cost'),ic('sl_pm_cost'),0,ic('sl_cups')*(ic('sl_rate')||100),0,0);}
+  if(ic('sl_cups')>0){addRow('Sweet Lassi',ic('sl_cups'),ic('sl_curd')*curdLs,ic('sl_ing_cost'),ic('sl_pm_cost'),0,ic('sl_cups')*(ic('sl_rate')||25),0,0);}
   // ── Mango Lassi
-  if(ic('ml_cups')>0){addRow('Mango Lassi',ic('ml_cups'),ic('ml_curd')*curdLs,ic('ml_ing_cost'),ic('ml_pm_cost'),0,ic('ml_cups')*(ic('ml_rate')||100),0,0);}
+  if(ic('ml_cups')>0){addRow('Mango Lassi',ic('ml_cups'),ic('ml_curd')*curdLs,ic('ml_ing_cost'),ic('ml_pm_cost'),0,ic('ml_cups')*(ic('ml_rate')||25),0,0);}
   // ── CM Khoya
   if(ic('cmk_yield')>0){const mlk=(ic('cmk_bm')+ic('cmk_cm')+ic('cmk_sm'));addRow('CM Khoya',ic('cmk_yield'),ic('cmk_bm')*wBM+ic('cmk_cm')*wCM+ic('cmk_sm')*wSK,ic('cmk_ing_cost'),ic('cmk_pm_cost'),ic('cmk_fuel'),ic('cmk_yield')*(ic('cmk_rate')||240),mlk>0?(ic('cmk_yield')/mlk*100):0,25);}
   // ── Std Khoya
@@ -6856,7 +6839,7 @@ function calculateAndShowSummary() {
 
   let html = `<div class="card"><div class="card-head" style="display:flex;justify-content:space-between;align-items:center;">
     <h3>Today's COGS Summary</h3>
-    <span style="font-family:DM Sans,system-ui,sans-serif;font-size:11px;color:var(--muted);">Fixed costs/product: ${Rs(fixed)}</span>
+    <span style="font-family:DM Sans,system-ui,sans-serif;font-size:11px;color:var(--muted);">Cost only — fixed costs, revenue and GM are not part of COGS</span>
   </div><div class="card-body" style="overflow-x:auto;">
   ${_mcb.procRs > 0 ? `<div style="background:#FFF8E1;border:1.5px solid #E8870A;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-family:DM Sans,system-ui,sans-serif;font-size:11px;line-height:1.7;color:#8a6d00;">
     <b>Vendor deduction credited:</b> ${Rs(_mcb.procRs)} for ${_mcb.procL.toFixed(1)} L spoilt after use.
@@ -6870,11 +6853,8 @@ function calculateAndShowSummary() {
       <th style="padding:8px 6px;text-align:right;">Ing</th>
       <th style="padding:8px 6px;text-align:right;">PM</th>
       <th style="padding:8px 6px;text-align:right;">Gas/Fuel</th>
-      <th style="padding:8px 6px;text-align:right;">Fixed</th>
       <th style="padding:8px 6px;text-align:right;font-weight:700;">COGS</th>
-      <th style="padding:8px 6px;text-align:right;">₹/unit</th>
-      <th style="padding:8px 6px;text-align:right;">Revenue</th>
-      <th style="padding:8px 6px;text-align:right;font-weight:700;">GM%</th>
+      <th style="padding:8px 6px;text-align:right;font-weight:700;">₹/unit</th>
       <th style="padding:8px 6px;text-align:right;">Yield Var</th>
     </tr></thead><tbody>`;
 
@@ -6888,21 +6868,17 @@ function calculateAndShowSummary() {
       <td style="padding:7px 6px;text-align:right;">${Rs(r.ingCost)}</td>
       <td style="padding:7px 6px;text-align:right;">${Rs(r.pmCost)}</td>
       <td style="padding:7px 6px;text-align:right;">${Rs(r.gasFuel)}</td>
-      <td style="padding:7px 6px;text-align:right;">${Rs(fixed)}</td>
       <td style="padding:7px 6px;text-align:right;font-weight:700;">${Rs(r.totalCOGS)}</td>
-      <td style="padding:7px 6px;text-align:right;">${Rs(r.cpk)}</td>
-      <td style="padding:7px 6px;text-align:right;">${Rs(r.rev)}</td>
-      <td style="padding:7px 6px;text-align:right;font-weight:700;color:${r.gmP>=0?'#27ae60':'#c0392b'}">${r.gmP.toFixed(1)}%</td>
+      <td style="padding:7px 6px;text-align:right;font-weight:700;">₹${r.cpk.toFixed(2)}</td>
       <td style="padding:7px 6px;text-align:right;color:${r.varColor}">${varDisp}</td>
     </tr>`;
   });
 
   html += `<tr style="background:#f8f5f0;font-weight:700;border-top:2px solid var(--brand);">
     <td style="padding:8px 6px;">TOTAL</td>
-    <td colspan="8" style="padding:8px 6px;"></td>
-    <td style="padding:8px 6px;text-align:right;">${Rs(totalRev)}</td>
-    <td style="padding:8px 6px;text-align:right;color:${totalGM>=0?'#27ae60':'#c0392b'}">${totalGMP}%</td>
-    <td></td>
+    <td colspan="5" style="padding:8px 6px;"></td>
+    <td style="padding:8px 6px;text-align:right;">${Rs(rows.reduce((s,r)=>s+r.totalCOGS,0))}</td>
+    <td colspan="2" style="padding:8px 6px;text-align:right;font-weight:400;color:var(--muted);">Revenue &amp; GM: see Dashboard (Sales app)</td>
   </tr></tbody></table></div></div>`;
 
   document.getElementById('summary-content').innerHTML = html;
@@ -6912,7 +6888,7 @@ function calculateAndShowSummary() {
   var _edDisp = _ed ? (_ed.slice(8,10)+'/'+_ed.slice(5,7)+'/'+_ed.slice(0,4)) : new Date().toLocaleDateString('en-IN');
   var _todayISO = new Date().toISOString().slice(0,10);
   var _note = (_ed && _ed !== _todayISO) ? '  ⚠ entry date — NOT today' : '';
-  document.getElementById('summary-title').textContent  = 'COGS & Margins — ' + _edDisp + _note;
+  document.getElementById('summary-title').textContent  = 'COGS — ' + _edDisp + _note;
   document.getElementById('summary-sub').textContent    = rows.length + ' product(s) for ' + _edDisp + ' · Cream costed at ₹' + creamRate + '/kg (derived from CM)';
 }
 
@@ -7283,10 +7259,12 @@ const INGREDIENT_DEFS = {
         {qty:'stk_ing2_qty', rate:'stk_ing2_rate', amt:'stk_ing2_amt', name:'stk_ing2_name', label:'Sugar', defaultRate:45}],
 };
 
+var GF_SYRUP_SUGAR_KG_PER_L = 0.615, GF_SYRUP_KG_PER_L = 1.23;   // v222: 10 kg sugar + 10 L water
 function calcIngAmt(qtyId, rateId, amtId, prod) {
   const qty  = parseFloat(document.getElementById(qtyId)?.value)  || 0;
   const rate = parseFloat(document.getElementById(rateId)?.value) || 0;
-  const amt  = qty * rate;
+  // v222: lassi ING 1 is litres of sugar syrup, rate is Rs per kg of SUGAR
+  const amt  = (qtyId==='sl_ing1_qty' || qtyId==='ml_ing1_qty') ? qty * GF_SYRUP_SUGAR_KG_PER_L * rate : qty * rate;
   const amtEl = document.getElementById(amtId);
   if (amtEl) amtEl.value = amt > 0 ? amt.toFixed(2) : '';
   sumIngredients(prod);
@@ -7561,14 +7539,14 @@ function gatherProductData() {
     sl_cups:gn('sl_cups'), sl_yield:gn('sl_yield'), sl_theor_yield:gn('sl_theor_yield'), sl_var_kg:gn('sl_var_kg'),
     sl_boxes:gn('sl_boxes'), sl_cup_rate:gn('sl_cup_rate')||2.7, sl_cup_cost:gn('sl_cup_cost'),
     sl_box_rate:gn('sl_box_rate')||16, sl_box_cost:gn('sl_box_cost'), sl_pm_cost:gn('sl_pm_cost'),
-    sl_rate:gn('sl_rate')||100, sl_notes:gv('sl_notes'),
+    sl_rate:gn('sl_rate')||25, sl_notes:gv('sl_notes'),
     sl_ing_cost:getIngTotalCost('sl'), sl_ings:gatherIngredients('sl'),
     // Mango Lassi
     ml_curd:gn('ml_curd'), ml_syrup_l:gn('ml_ing1_qty'),
     ml_cups:gn('ml_cups'), ml_yield:gn('ml_yield'), ml_theor_yield:gn('ml_theor_yield'), ml_var_kg:gn('ml_var_kg'),
     ml_boxes:gn('ml_boxes'), ml_cup_rate:gn('ml_cup_rate')||2.7, ml_cup_cost:gn('ml_cup_cost'),
     ml_box_rate:gn('ml_box_rate')||16, ml_box_cost:gn('ml_box_cost'), ml_pm_cost:gn('ml_pm_cost'),
-    ml_rate:gn('ml_rate')||100, ml_notes:gv('ml_notes'),
+    ml_rate:gn('ml_rate')||25, ml_notes:gv('ml_notes'),
     ml_ing_cost:getIngTotalCost('ml'), ml_ings:gatherIngredients('ml'),
     // CM Khoya
     cmk_bm:gn('cmk_bm'), cmk_cm:gn('cmk_cm'), cmk_sm:gn('cmk_sm'), cmk_yield:gn('cmk_yield'),   /* v204: cmk_bm */
@@ -7617,6 +7595,7 @@ async function gfSaveProductsNow() {
   data.milk_credit_factor = gfCreditFactor(_mcb.procRs,
       gfDayMilkBase(function(k){ return parseFloat(data[k])||0; },
                     parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK))).toFixed(6);
+  await gfEnsureCurdBatches(document.getElementById('entry-date').value, data);   // v224: batches from the Sheet if this device lacks them
   // v203: fresh curd cost per kg -> what chaach / lassi are charged for curd
   { const _ci = (document.getElementById('entry-date').value||'');
     const _fc = gfFcCpu(data, parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK));
@@ -7629,7 +7608,11 @@ async function gfSaveProductsNow() {
     const _crC = gfCurdRate(_ci, data, parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK), 'chaas');
     const _crL = gfCurdRate(_ci, data, parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK), 'lassi');
     data.curd_rate_ch = _crC.rate; data.curd_rate_ch_from = _crC.from;
-    data.curd_rate_lassi = _crL.rate; data.curd_rate_lassi_from = _crL.from; }
+    data.curd_rate_lassi = _crL.rate; data.curd_rate_lassi_from = _crL.from;
+    /* v222: never let the Rs 50 fallback slip through unnoticed */
+    try{ var _noB=[]; if(!_crL.from && ((parseFloat(data.sl_curd)||0)+(parseFloat(data.ml_curd)||0))>0) _noB.push('lassi');
+      if(!_crC.from && (parseFloat(data.ch_curd)||0)>0) _noB.push('chaach');
+      if(_noB.length && typeof showToast==='function') showToast('No fresh curd batch found for '+_noB.join(' & ')+' — curd priced at Rs 50/kg. Open the day the curd was made, then save again.','error'); }catch(e){} }
 
   STATE.todayProd = data;
   const dateKey6 = (document.getElementById('entry-date').value||'').replace(/-/g,'');
@@ -7727,6 +7710,7 @@ async function sendToGoogleSheet(type, data) {
   if (!isOnline()) {
     queueSync(type, data);
     showToast('📴 Offline — saved on this device, will sync when back online', 'success');
+    if (type === 'PRODUCTS') { gfUnsubSet(document.getElementById('entry-date').value, false); try{ gfSheetBanner(); }catch(e){} }   // v224: queued = will reach the Sheet
     return;
   }
   try {
@@ -7742,6 +7726,8 @@ async function sendToGoogleSheet(type, data) {
       await xhrGet(getUrl);
     }
     showToast(type === 'MILK' ? '✅ Milk data saved to sheet!' : '✅ Production data saved to sheet!', 'success');
+    if (type === 'PRODUCTS') gfUnsubSet(document.getElementById('entry-date').value, false);   // v224
+    _gfCmp = {iso:null}; try{ gfSheetBanner(); gfCheckSheetSoon(document.getElementById('entry-date').value); }catch(e){}
     // Also show a longer notification for milk saves
     if(type === 'MILK') {
       setTimeout(function() {
@@ -7752,6 +7738,7 @@ async function sendToGoogleSheet(type, data) {
     console.warn('Sheet sync failed:', err);
     queueSync(type, data);
     showToast('Saved on device — will retry sync automatically', 'error');
+    if (type === 'PRODUCTS') { gfUnsubSet(document.getElementById('entry-date').value, false); try{ gfSheetBanner(); }catch(e){} }   // v224: queued
     console.error('sendToGoogleSheet failed:', err);
   }
 }
@@ -8035,7 +8022,7 @@ function renderHistoryTable(){
   }
   html+='<table class="hist-table"><thead><tr>'
     +'<th>Date</th><th>Product</th><th>Yield kg</th>'
-    +'<th>COGS/kg</th><th>GM %</th><th>Variance %</th>'
+    +'<th>COGS/kg</th><th>Variance %</th>'
     +'<th style="min-width:120px"></th>'
     +'</tr></thead><tbody>';
   rows.forEach(r=>{
@@ -8061,7 +8048,6 @@ function renderHistoryTable(){
       <td>${r[1]||''}</td>
       <td>${r[2]||''}</td>
       <td>${cogsKg!==''&&cogsKg!==undefined?'₹'+cogsKg:'—'}</td>
-      <td>${gmPct!==''&&gmPct!==undefined?gmPct+'%':'—'}</td>
       <td>${varPct!==''&&varPct!==undefined?varPct+'%':'—'}</td>
       ${btnCell}
     </tr>`;
@@ -8213,7 +8199,7 @@ const IR_DEFAULTS = {
   smp:345, cm_smp:300, citric:150, gdl:550, calcium:3098, gas:100, cream:300,
   lc_ing1:3100, culture_5dcu:59, culture_2dcu:24.80, culture_lassi:744.20,
   ch_ing1:22, ch_ing2:40,
-  sl_sugar:24, sl_flavour:355, sl_stab:550,
+  sl_sugar:55, sl_flavour:355, sl_stab:550,
   ml_pulp:214, ml_flavour:1600, ml_stab1:550, ml_stab2:2.5, ml_citric:12,
 
   paneer_pm:1.6, ghee_pouch:5, ghee_pouch_500:3.5,
@@ -8335,7 +8321,7 @@ function _applyRatesToForms(r, silent) {
     // Re-run amount calc if qty is already filled
     const qty = parseFloat(document.getElementById(qId)?.value) || 0;
     const rate = parseFloat(document.getElementById(rId)?.value) || 0;
-    const amt = qty * rate;
+    const amt = (qId==='sl_ing1_qty' || qId==='ml_ing1_qty') ? qty * GF_SYRUP_SUGAR_KG_PER_L * rate : qty * rate;   // v222: syrup L -> sugar kg
     const amtEl = document.getElementById(aId);
     if (amtEl) amtEl.value = amt > 0 ? amt.toFixed(2) : '';
     if (prod) sumIngredients(prod);
@@ -9577,7 +9563,7 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
   var wCM = parseFloat(d.milk_wCM)||41;
   var wBM = parseFloat(d.milk_wBM)||57;
   var wSK = parseFloat(d.milk_wSK)||gfSkimValue();          // v183
-  var fixed = (d.cost_labour||110.25) + (d.cost_elec||20.25) + (d.cost_transport||11);
+  var fixed = 0;   // v222: fixed cost no longer charged to products
   var dateStr = d.date; // DD/MM/YYYY
 
   // Parse target date to integer for comparison
@@ -9630,12 +9616,11 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
     }
     var total = milkCost + ingCost + gasFuel + fixed;
     var cpu   = yld > 0 ? (total/yld).toFixed(2) : 0;
-    var gm    = rev - total;
-    var gmP   = rev > 0 ? (gm/rev*100).toFixed(1) : 0;
     var varP  = stdYP > 0 ? (parseFloat(actYP)-stdYP).toFixed(2) : '';
+    // v223: no estimated revenue / GM
     return [parseDateStr(dateStr), prodName, yld,
       milkCost.toFixed(2), ingCost.toFixed(2), gasFuel.toFixed(2), fixed.toFixed(2), total.toFixed(2),
-      cpu, rev.toFixed(0), gm.toFixed(0), gmP, actYP, stdYP||'', varP, notes||'',
+      cpu, '', '', '', actYP, stdYP||'', varP, notes||'',
       updatedAt];  // col 17
   }
 
@@ -9712,10 +9697,10 @@ function updateProductRows(ss, d, productsToUpdate, updatedAt) {
       if(mc>0&&chY>0) rowData=makeRowData(pName,chY,mc,d.ch_ing_cost||ic(d.ch_ings),(d.ch_pm_cost||0)+(d.ch_case_pm_cost||0),rev,(d.ch_yield_l||0)>0?(chY/(d.ch_yield_l||0)*100).toFixed(1):0,100,d.ch_notes);
     } else if (pName === 'Sweet Lassi') {
       var mc=(d.sl_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50);   // v208: the lassi batch
-      if(mc>0||(d.sl_cups||0)>0) rowData=makeRowData(pName,d.sl_cups,mc,d.sl_ing_cost||ic(d.sl_ings),d.sl_pm_cost||0,(d.sl_cups||0)*(d.sl_rate||100),0,0,d.sl_notes);
+      if(mc>0||(d.sl_cups||0)>0) rowData=makeRowData(pName,d.sl_cups,mc,d.sl_ing_cost||ic(d.sl_ings),d.sl_pm_cost||0,(d.sl_cups||0)*(d.sl_rate||25),(d.sl_theor_yield||0)>0?((d.sl_yield||(d.sl_cups||0)*0.2)/d.sl_theor_yield*100).toFixed(1):0,100,d.sl_notes);   /* v222 */
     } else if (pName === 'Mango Lassi') {
       var mc=(d.ml_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50);
-      if(mc>0||(d.ml_cups||0)>0) rowData=makeRowData(pName,d.ml_cups,mc,d.ml_ing_cost||ic(d.ml_ings),d.ml_pm_cost||0,(d.ml_cups||0)*(d.ml_rate||100),0,0,d.ml_notes);
+      if(mc>0||(d.ml_cups||0)>0) rowData=makeRowData(pName,d.ml_cups,mc,d.ml_ing_cost||ic(d.ml_ings),d.ml_pm_cost||0,(d.ml_cups||0)*(d.ml_rate||25),(d.ml_theor_yield||0)>0?((d.ml_yield||(d.ml_cups||0)*0.2)/d.ml_theor_yield*100).toFixed(1):0,100,d.ml_notes);   /* v222 */
     } else if (pName === 'CM Khoya') {
       var m=(d.cmk_bm||0)+(d.cmk_cm||0)+(d.cmk_sm||0);                 // v204: + BM
       var mc=(d.cmk_bm||0)*wBM+(d.cmk_cm||0)*wCM+(d.cmk_sm||0)*wSK;
@@ -10218,7 +10203,7 @@ function logCOGSDaily(ss, d) {
   }
   const shC = ss.getSheetByName(cogsSheetName) || sh;
   const wCM=parseFloat(d.milk_wCM)||41, wBM=parseFloat(d.milk_wBM)||57, wSK=parseFloat(d.milk_wSK)||gfSkimValue();
-  const fixed=(d.cost_labour||110.25)+(d.cost_elec||20.25)+(d.cost_transport||11);
+  const fixed=0;   // v222: fixed cost no longer charged to products
   // v188: vendor deduction for milk spoilt after use, spread over the day's products
   var _cf=parseFloat(d.milk_credit_factor); if(!(_cf>=0 && _cf<=1)) _cf=1;
   var _CRP=/Paneer|^Ghee$|^Lite Curd$|Khoya/;
@@ -10236,12 +10221,12 @@ function logCOGSDaily(ss, d) {
     // so every submit always writes fresh data including updated gas costs
     const total=milkCost+ingCost+gasFuel+fixed;
     const costPerUnit=yld>0?(total/yld).toFixed(2):0;
-    const gm=rev-total, gmPct=rev>0?(gm/rev*100).toFixed(1):0;
     const varP=stdYP>0?(parseFloat(actYP)-stdYP).toFixed(2):'';
+    // v223: no estimated revenue / GM — real revenue comes from the Sales app
     insertRowInDateOrder(shC, [parseDateStr(d.date),prod,yld,
       milkCost.toFixed(2),ingCost.toFixed(2),gasFuel.toFixed(2),fixed.toFixed(2),total.toFixed(2),
       costPerUnit,
-      rev.toFixed(0),gm.toFixed(0),gmPct,actYP,stdYP||'',varP,notes||'',
+      '','','',actYP,stdYP||'',varP,notes||'',
       ''],  // col 17 — Last Updated (empty on first write)
       d.date);
     colorVarianceRow(shC,shC.getLastRow(),parseFloat(varP));
@@ -10287,7 +10272,7 @@ function logCOGSDaily(ss, d) {
     var ckRev=(d.fc3_rate||0)*ckY, ckGM=ckRev-ckTotal;
     insertRowInDateOrder(shC,[parseDateStr(d.date),'Chakka',ckY,
       ckMilk.toFixed(2),ckIng.toFixed(2),ckGas.toFixed(2),fixed.toFixed(2),ckTotal.toFixed(2),
-      ckCPU,ckRev>0?ckRev.toFixed(2):'N/A',ckRev>0?ckGM.toFixed(2):'N/A',ckRev>0?(ckGM/ckRev*100).toFixed(1)+'%':'N/A',(ckM>0?(ckY/ckM*100).toFixed(2):0),'','',d.fc_notes||'']   /* v219: chakka kg per 100 L milk */,d.date);
+      ckCPU,'','','',   /* v223: no estimated revenue */(ckM>0?(ckY/ckM*100).toFixed(2):0),'','',d.fc_notes||'']   /* v219: chakka kg per 100 L milk */,d.date);
   }
   // FIX: Chaach — require curd input > 0 (curd is the milk proxy for chaach)
   const chY=(d.ch_500ml||0)*0.5+(d.ch_1l||0);const chTheor=(d.ch_yield_l||0);
@@ -10304,10 +10289,10 @@ function logCOGSDaily(ss, d) {
     var chVarP=chTheor>0?(chY/chTheor*100-100).toFixed(1):'';
     insertRowInDateOrder(shC,[parseDateStr(d.date),'Chaach (L)',chY,
       chMilk.toFixed(2),chIng.toFixed(2),chGas.toFixed(2),fixed.toFixed(2),chTotal.toFixed(2),
-      chCPU,chRev.toFixed(0),chGM.toFixed(0),chGMP,chActYP,100,chVarP,d.ch_notes||''],d.date);
+      chCPU,'','','',chActYP,100,chVarP,d.ch_notes||''],d.date);   /* v223: no estimated revenue */
   }
-  if((d.sl_cups||0)>0){addRow('Sweet Lassi',d.sl_cups,(d.sl_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50),d.sl_ing_cost||ic(d.sl_ings),d.sl_pm_cost||0,(d.sl_cups||0)*(d.sl_rate||100),d.sl_curd>0?((d.sl_cups||0)*0.2/d.sl_curd*100).toFixed(1):0,0,d.sl_notes);}
-  if((d.ml_cups||0)>0){addRow('Mango Lassi',d.ml_cups,(d.ml_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50),d.ml_ing_cost||ic(d.ml_ings),d.ml_pm_cost||0,(d.ml_cups||0)*(d.ml_rate||100),d.ml_curd>0?((d.ml_cups||0)*0.2/d.ml_curd*100).toFixed(1):0,0,d.ml_notes);}
+  if((d.sl_cups||0)>0){addRow('Sweet Lassi',d.sl_cups,(d.sl_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50),d.sl_ing_cost||ic(d.sl_ings),d.sl_pm_cost||0,(d.sl_cups||0)*(d.sl_rate||25),(d.sl_theor_yield||0)>0?((d.sl_yield||(d.sl_cups||0)*0.2)/d.sl_theor_yield*100).toFixed(1):0,100,d.sl_notes);   /* v222 */}
+  if((d.ml_cups||0)>0){addRow('Mango Lassi',d.ml_cups,(d.ml_curd||0)*(+d.curd_rate_lassi||+d.curd_rate||50),d.ml_ing_cost||ic(d.ml_ings),d.ml_pm_cost||0,(d.ml_cups||0)*(d.ml_rate||25),(d.ml_theor_yield||0)>0?((d.ml_yield||(d.ml_cups||0)*0.2)/d.ml_theor_yield*100).toFixed(1):0,100,d.ml_notes);   /* v222 */}
   if((d.cmk_yield||0)>0){const m=(d.cmk_bm||0)+(d.cmk_cm||0)+(d.cmk_sm||0);addRow('CM Khoya',d.cmk_yield,(d.cmk_bm||0)*wBM+(d.cmk_cm||0)*wCM+(d.cmk_sm||0)*wSK,d.cmk_ing_cost||ic(d.cmk_ings),(d.cmk_fuel||0)+(d.cmk_pm_cost||0),(d.cmk_yield||0)*(d.cmk_rate||240),yp(d.cmk_yield,m),25,d.cmk_notes);}
   if((d.stk_yield||0)>0){const m=(d.stk_bm||0)+(d.stk_cm||0)+(d.stk_sm||0);addRow('Std Khoya',d.stk_yield,(d.stk_bm||0)*wBM+(d.stk_cm||0)*wCM+(d.stk_sm||0)*wSK,d.stk_ing_cost||ic(d.stk_ings),(d.stk_fuel||0)+(d.stk_pm_cost||0),(d.stk_yield||0)*(d.stk_rate||237),yp(d.stk_yield,m),23,d.stk_notes);}
 }
@@ -10646,6 +10631,168 @@ function getEntryDateDisplay() {
   return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric',weekday:'short'});
 }
 
+/* ══════════════════════════════════════════════════════════════════════
+   v224 — THE SHEET IS THE SOURCE OF TRUTH
+   Until v223 a day opened from this device's own copy and never looked at the
+   Sheet. A product's 💾 Save changed only that copy (not the Sheet) and cleared
+   the "not submitted" banner, so the form could show figures the Sheet never
+   received (4 Nov: Sweet Lassi curd 28 kg on the form, 10 kg in the Sheet).
+   Now:
+     · a product Save marks the day "saved on this device, NOT submitted"
+       until Submit All sends it;
+     · every time a date is opened, its Sheet row is fetched and compared
+       with this device's copy; differences are listed, with a button to load
+       the Sheet's figures;
+     · a day saved here that the Sheet does not have is flagged;
+     · lassi / chaach curd is priced from fresh-curd batches pulled from the
+       Sheet when this device does not have them (never a silent Rs 50).
+   ══════════════════════════════════════════════════════════════════════ */
+function _gfK(iso){ return String(iso||'').replace(/-/g,''); }
+function gfUnsubSet(iso,on){ try{ if(on) localStorage.setItem('unsub_prod_'+_gfK(iso),'1'); else localStorage.removeItem('unsub_prod_'+_gfK(iso)); }catch(e){} }
+function gfUnsubHas(iso){ try{ return localStorage.getItem('unsub_prod_'+_gfK(iso))==='1'; }catch(e){ return false; } }
+var GF_CMP_PROD=/^(lp|mfp|lfp|mp|gh|lc|fc|fc2|fc3|ch|sl|ml|cmk|stk|cream)_(bm|cm|sm|cream|curd|cups|yield|yield_kg|jars|packs|500ml|1l|cream_in|chakka|pouches|pouches_500|tins|milk_l|syrup_l|ing\d+_qty)$/;
+var GF_CMP_MILK=/^v[1-4][me]?_(cm|bm|sk)_(qty|fat|snf)$/;
+var GF_CMP_NAME={lp:'Lite Paneer',mfp:'Med Fat Paneer',lfp:'Low Fat Paneer',mp:'Malai Paneer',gh:'Ghee',lc:'Lite Curd',fc:'Chaach curd batch',
+  fc2:'Lassi curd batch',fc3:'Chakka curd batch',ch:'Chaach',sl:'Sweet Lassi',ml:'Mango Lassi',cmk:'CM Khoya',stk:'Std Khoya',cream:'Cream separation'};
+var GF_CMP_FIELD={bm:'BM (L)',cm:'CM (L)',sm:'Skim (L)',cream:'cream (kg)',curd:'curd (kg)',cups:'cups',yield:'yield',yield_kg:'yield (kg)',jars:'jars',
+  packs:'packs',_500ml:'500 ml bottles','500ml':'500 ml bottles','1l':'1 L bottles',cream_in:'cream in (kg)',chakka:'chakka (kg)',pouches:'1 L pouches',
+  pouches_500:'500 ml pouches',tins:'tins',milk_l:'milk (L)',syrup_l:'syrup (L)',qty:'qty',fat:'fat',snf:'SNF'};
+function gfCmpLabel(k){
+  var m=k.match(/^([a-z0-9]+?)_(.+)$/); if(!m) return k;
+  var who=GF_CMP_NAME[m[1]]||m[1].toUpperCase(), what=m[2], ing=what.match(/^ing(\d+)_qty$/);
+  if(ing) return who+' — ingredient '+ing[1]+' qty';
+  if(/^v[1-4]/.test(k)){ var mm=k.match(/^v([1-4])([me]?)_(cm|bm|sk)_(qty|fat|snf)$/);
+    if(mm) return 'Vendor '+mm[1]+(mm[2]==='m'?' morning':mm[2]==='e'?' evening':'')+' '+mm[3].toUpperCase()+' '+(GF_CMP_FIELD[mm[4]]||mm[4]); }
+  return who+' — '+(GF_CMP_FIELD[what]||what.replace(/_/g,' '));
+}
+function gfDiffDay(local, sheet, re){
+  var out=[], seen={};
+  Object.keys(sheet||{}).concat(Object.keys(local||{})).forEach(function(k){
+    if(seen[k] || !re.test(k)) return; seen[k]=1;
+    var sv=sheet?sheet[k]:undefined, lv=local?local[k]:undefined;
+    if(sheet && sv===undefined) return;                       // the Sheet has no such column — nothing to compare
+    if(/_ing\d+_qty$/.test(k) && (lv===undefined || sv===undefined)) return;
+    var a=parseFloat(lv)||0, b=parseFloat(sv)||0;
+    if(Math.abs(a-b)>0.0005) out.push({k:k, device:a, sheet:b});
+  });
+  return out;
+}
+function _gfKeyMatches(ds, iso){
+  var k=_gfK(iso); return _restoreDateKey(ds,'DMY')===k || _restoreDateKey(ds,'MDY')===k;
+}
+/* fetch one day's Production + Milk rows from the Sheet (parsed like Restore) */
+async function gfFetchSheetDay(iso){
+  var url=STATE.gsUrl; if(!url) return null;
+  var out={prod:null, milk:null};
+  var r=await fetch(url+'?action=getReportData&sheet=ProductionRaw&from='+iso+'&to='+iso);
+  var j=JSON.parse(await r.text());
+  if(j && j.headers && j.rows){
+    var extraMap=gfSheetExtraMap(j.headers.map(function(h){ return String(h).trim(); }));
+    j.rows.forEach(function(row){
+      var parsed=parseProdSheetRows(j.headers,[row]); var d=parsed&&parsed[0]; if(!d||!d._date) return;
+      if(!_gfKeyMatches(d._date, iso)) return;
+      Object.entries(extraMap).forEach(function(e){ var v=row[e[0]]; if(v!==undefined&&v!==null&&v!=='') d[e[1]]=v; });
+      try{ gfRemapIngs(d); }catch(x){}
+      d.date=iso; out.prod=d;                                  // last matching row wins (the Sheet keeps one per day)
+    });
+  }
+  try{
+    var r2=await fetch(url+'?action=getReportData&sheet=Milk_Purchase&from='+iso+'&to='+iso);
+    var j2=await r2.json();
+    if(j2 && j2.headers && j2.rows) parseMilkSheetRows(j2.headers,j2.rows).forEach(function(d){ if(_gfKeyMatches(d._date, iso)) out.milk=d; });
+  }catch(e){}
+  return out;
+}
+var _gfCmp={iso:null};
+function gfCheckSheetSoon(iso){ clearTimeout(window._gfCmpT); window._gfCmpT=setTimeout(function(){ gfCheckSheet(iso); }, 500); }
+async function gfCheckSheet(iso){
+  if(!iso) return;
+  _gfCmp={iso:iso, state:'checking'};
+  if(!STATE.gsUrl || !isOnline()){ _gfCmp.state='offline'; gfSheetBanner(); return; }
+  var sh=null; try{ sh=await gfFetchSheetDay(iso); }catch(e){ sh=null; }
+  if((document.getElementById('entry-date')||{}).value!==iso) return;    // user moved on
+  if(!sh){ _gfCmp={iso:iso, state:'error'}; gfSheetBanner(); return; }
+  var lp=null, lm=null;
+  try{ lp=JSON.parse(localStorage.getItem('prod_'+_gfK(iso))||'null'); lm=JSON.parse(localStorage.getItem('milk_'+_gfK(iso))||'null'); }catch(e){}
+  _gfCmp={iso:iso, state:'done', sheet:sh, local:{prod:lp, milk:lm},
+    prodDiffs: (lp||sh.prod) ? gfDiffDay(lp, sh.prod, GF_CMP_PROD) : [],
+    milkDiffs: (lm||sh.milk) ? gfDiffDay(lm, sh.milk, GF_CMP_MILK) : []};
+  gfSheetBanner();
+}
+function _gfDiffList(diffs){
+  var n=diffs.length, show=diffs.slice(0,8).map(function(d){ return '<li>'+gfCmpLabel(d.k)+': Sheet <b>'+(+d.sheet.toFixed(3))+'</b>, this device <b>'+(+d.device.toFixed(3))+'</b></li>'; }).join('');
+  return '<ul style="margin:4px 0 4px 16px;padding:0;">'+show+(n>8?'<li>…and '+(n-8)+' more</li>':'')+'</ul>';
+}
+function gfSheetBanner(){
+  var iso=(document.getElementById('entry-date')||{}).value||'';
+  [['prod','tab-products'],['milk','tab-milk']].forEach(function(p){
+    var tab=document.getElementById(p[1]); if(!tab) return;
+    var b=document.getElementById('gf-sheet-'+p[0]);
+    if(!b){ b=document.createElement('div'); b.id='gf-sheet-'+p[0]; var after=document.getElementById('gf-draft-'+p[0]);
+      if(after && after.parentNode===tab) tab.insertBefore(b, after.nextSibling); else tab.insertBefore(b, tab.firstChild); }
+    var html='', warn=false, C=_gfCmp && _gfCmp.iso===iso ? _gfCmp : null;
+    var unsub = p[0]==='prod' && gfUnsubHas(iso);
+    var diffs = C && C.state==='done' ? (p[0]==='prod'?C.prodDiffs:C.milkDiffs) : [];
+    var hasLocal = C && C.local && C.local[p[0]], hasSheet = C && C.sheet && C.sheet[p[0]];
+    var what = p[0]==='prod' ? 'production' : 'milk';
+    if(unsub){
+      warn=true;
+      html='✎ <b>Saved on this device but NOT submitted to the Sheet.</b> COGS and reports still use the Sheet\'s figures. Press <b>Submit All Production Data</b> to send them.'
+        +(diffs.length?'<br>Differences from the Sheet:'+_gfDiffList(diffs):'');
+    } else if(C && C.state==='done' && hasLocal && !hasSheet){
+      warn=true;
+      html='⚠ <b>The Sheet has no '+what+' for this day</b>, but this device has. The last submit may not have reached the Sheet. '
+        +'Submit again, or COGS will not include it.';
+    } else if(C && C.state==='done' && diffs.length){
+      warn=true;
+      html='⚠ <b>This day\'s '+what+' figures on this device differ from the Sheet.</b> COGS and reports use the Sheet.'+_gfDiffList(diffs)
+        +'<button onclick="gfUseSheetVersion(\''+p[0]+'\')" style="background:#2E7D32;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-weight:700;font-size:11px;cursor:pointer;margin:4px 6px 0 0;">Use the Sheet\'s figures</button>'
+        +(p[0]==='prod'?'<button onclick="gfKeepDeviceVersion()" style="background:#fff;color:#8a6d00;border:1.5px solid #E8870A;border-radius:6px;padding:4px 10px;font-weight:700;font-size:11px;cursor:pointer;margin-top:4px;">Keep this device\'s figures (then Submit)</button>':'');
+    }
+    if(!html){ b.style.display='none'; b.innerHTML=''; return; }
+    b.style.cssText='display:block;background:'+(warn?'#FFF3E0':'#E8F5E9')+';border:1.5px solid '+(warn?'#E65100':'#43A047')+';border-radius:8px;padding:9px 12px;margin:0 0 12px;'
+      +'font-family:DM Sans,system-ui,sans-serif;font-size:11px;line-height:1.6;color:#5D4037;';
+    b.innerHTML=html;
+  });
+}
+function gfUseSheetVersion(kind){
+  var C=_gfCmp, iso=(document.getElementById('entry-date')||{}).value||'';
+  if(!C || C.iso!==iso || !C.sheet) return;
+  var d=C.sheet[kind];
+  if(!confirm('Replace this device\'s '+(kind==='prod'?'production':'milk')+' figures for '+iso+' with the Sheet\'s?\n\nAnything on this device that was not submitted for this day is lost.')) return;
+  try{
+    if(d) localStorage.setItem((kind==='prod'?'prod_':'milk_')+_gfK(iso), JSON.stringify(d));
+    else localStorage.removeItem((kind==='prod'?'prod_':'milk_')+_gfK(iso));
+    localStorage.removeItem('draft_'+kind+'_'+_gfK(iso));
+  }catch(e){}
+  if(kind==='prod') gfUnsubSet(iso,false);
+  _gfCmp={iso:null};
+  onDateChange(iso);
+  showToast('Loaded the Sheet\'s '+(kind==='prod'?'production':'milk')+' figures for '+iso,'success');
+}
+function gfKeepDeviceVersion(){
+  var iso=(document.getElementById('entry-date')||{}).value||'';
+  gfUnsubSet(iso,true); gfSheetBanner();
+}
+/* lassi / chaach curd: if this device has no fresh-curd batch to price it, pull the last 45 days from the Sheet once */
+var _gfCurdPulled={};
+async function gfEnsureCurdBatches(iso, d){
+  try{
+    if(!iso || !STATE.gsUrl || !isOnline()) return false;
+    var need=(parseFloat(d.sl_curd)||0)+(parseFloat(d.ml_curd)||0)+(parseFloat(d.ch_curd)||0);
+    if(!(need>0) || _gfCurdPulled[iso]) return false;
+    var R=gfFormRates();
+    var a=gfCurdRate(iso,d,R.wCM,R.wBM,R.wSK,'lassi'), b=gfCurdRate(iso,d,R.wCM,R.wBM,R.wSK,'chaas');
+    var lassiOK=!((parseFloat(d.sl_curd)||0)+(parseFloat(d.ml_curd)||0)>0) || a.from, chOK=!((parseFloat(d.ch_curd)||0)>0) || b.from;
+    if(lassiOK && chOK) return false;
+    _gfCurdPulled[iso]=true;
+    var t=new Date(iso+'T00:00:00'), f=new Date(t); f.setDate(f.getDate()-45); t.setDate(t.getDate()-1);
+    var iso2=function(x){ return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); };
+    await _restoreRange(iso2(f), iso2(t), false);
+    return true;
+  }catch(e){ return false; }
+}
+
 function onDateChange(iso) {
   // After date change rerenders forms, reapply saved ingredient rates
   // Small delay ensures new form elements are in DOM before we fill them
@@ -10672,6 +10819,7 @@ function onDateChange(iso) {
   try { gfApplyCreamRate(); } catch(e) {}   // v172: recompute derived cream rate for the loaded date
   // Re-init stock if stock tab is active
   if (document.getElementById('tab-stock')?.classList.contains('active')) initStockTab();
+  try { gfSheetBanner(); gfCheckSheetSoon(iso); } catch(e) {}   // v224
 }
 
 function resetToToday() {
@@ -10819,9 +10967,9 @@ function _gfLoadDateData(iso) {
     ch_ing2_name:'ING 2 (Stabilizer)', ch_ing2_rate:'40',
     lc_ing1_name:'ING 1', lc_ing1_rate:'3100',
     lc_ing3_name:'CM SMP', lc_ing3_rate:'300', lc_std:'95',
-    ml_ing1_rate:'24', ml_ing3_rate:'1600',
+    ml_ing1_rate:'55', ml_ing3_rate:'1600',
     ml_ing4_name:'Stabilizer', ml_ing4_rate:'550',
-    sl_ing1_rate:'24', sl_ing3_rate:'550',
+    sl_ing1_rate:'55', sl_ing3_rate:'550',
     lc_gas_rate:'100', fc_gas_rate:'100',
     lp_ing1_rate:'345',  mfp_ing1_rate:'345',
     lfp_ing1_rate:'345', mp_ing1_rate:'345',
@@ -10909,6 +11057,13 @@ function _gfLoadDateData(iso) {
       if(t && !data.fc_culture_type && parseFloat(data.fc_ing2_qty)>0){
         const rr=parseFloat(data.fc_ing2_rate)||0;
         t.value = rr>100 ? 'lassi' : (Math.abs(rr-24.8)<0.5 ? '2dcu' : '5dcu'); } }
+    /* v224: Lite Curd culture — the Sheet keeps only ING 2 (no pouches column),
+       so a day loaded from the Sheet lost its culture cost on the next save */
+    { const q=document.getElementById('lc_culture_qty'), t=document.getElementById('lc_culture_type');
+      if(q && !(parseFloat(q.value)>0) && parseFloat(data.lc_ing2_qty)>0){
+        q.value=data.lc_ing2_qty;
+        if(t){ const rr=parseFloat(data.lc_ing2_rate)||0; t.value = Math.abs(rr-24.8)<0.5 ? '2dcu' : '5dcu'; }
+        try{ calcLCCulture(); }catch(e){} } }
     /* v212: a day saved before v212 keeps its culture exactly as entered (no
        milk ÷ 500 recalculation), and a day with only one curd batch used it
        for both chaach and lassi */
@@ -11381,7 +11536,11 @@ async function doProductUpdate() {
     const _crC = gfCurdRate(_ci, data, parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK), 'chaas');
     const _crL = gfCurdRate(_ci, data, parseFloat(data.milk_wCM), parseFloat(data.milk_wBM), parseFloat(data.milk_wSK), 'lassi');
     data.curd_rate_ch = _crC.rate; data.curd_rate_ch_from = _crC.from;
-    data.curd_rate_lassi = _crL.rate; data.curd_rate_lassi_from = _crL.from; }
+    data.curd_rate_lassi = _crL.rate; data.curd_rate_lassi_from = _crL.from;
+    /* v222: never let the Rs 50 fallback slip through unnoticed */
+    try{ var _noB=[]; if(!_crL.from && ((parseFloat(data.sl_curd)||0)+(parseFloat(data.ml_curd)||0))>0) _noB.push('lassi');
+      if(!_crC.from && (parseFloat(data.ch_curd)||0)>0) _noB.push('chaach');
+      if(_noB.length && typeof showToast==='function') showToast('No fresh curd batch found for '+_noB.join(' & ')+' — curd priced at Rs 50/kg. Open the day the curd was made, then save again.','error'); }catch(e){} }
   data.date = STATE.resubmitDate;   // use the original date, not today
 
   // Attach the list of products to update
@@ -11571,6 +11730,8 @@ async function resubmitSendToSheet(type, data) {
     else { await xhrGet(getUrl); }
     const label = type === 'MILK' ? 'Milk' : 'Production';
     showToast('✅ ' + label + ' re-submitted — old data replaced in sheet', 'success');
+    if (type === 'PRODUCTS') gfUnsubSet(document.getElementById('entry-date').value, false);   // v224
+    _gfCmp = {iso:null}; try{ gfSheetBanner(); }catch(e){}
     if (type === 'PRODUCTS') setTimeout(() => cancelResubmitMode(), 2000);
   } catch(err) {
     console.warn('Re-submit failed:', err);
@@ -11604,7 +11765,9 @@ const INV_ALERT_PCT   = 0.70; // Alert when 70% consumed
 
 // ── MASTER INGREDIENT + PACKING CATALOG ───────────────────────────
 // Sugar syrup is 1:1 sugar+water — only 50% of syrup qty is actual sugar
-const SYRUP_SUGAR_FACTOR = 0.5;
+// v222: syrup is made as 10 kg sugar + 10 L water (about 16.3 L of syrup weighing ~20 kg).
+// The plant measures syrup in LITRES: 1 L syrup ~ 1.23 kg and holds ~0.615 kg sugar.
+const SYRUP_SUGAR_FACTOR = 0.615;   // kg of sugar per litre of syrup
 
 const INV_INGREDIENTS = [
   {id:'cream',       name:'Cream (Separated)',        unit:'kg',    alertQty:20, isCream:true},
